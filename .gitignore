@@ -1,0 +1,16 @@
+# Never commit datasets, seeds, or raw benchmark output
+*.ndjson
+seed*.json
+evidence/raw/
+*.log
+
+# Credentials — must never exist here at all
+*.key
+*.pem
+service-account*.json
+credentials*.json
+.env
+
+__pycache__/
+*.pyc
+.DS_Store

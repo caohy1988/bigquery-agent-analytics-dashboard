@@ -1,0 +1,56 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/checkout@v4
+        with:
+          repository: looker-open-source/agent-analytics-block
+          ref: fe6423cc9775b6dc61f7f7047dd4424603ddb3a1
+          path: .block-pinned
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - run: pip install pyyaml
+
+      # The manifest and SQL artifacts are generated; CI proves the committed
+      # files match a fresh regeneration (no hand edits, no drift).
+      - name: Regenerate manifest from pinned block
+        run: |
+          python3 tools/lookml_to_spec.py \
+            --block-repo .block-pinned \
+            --pinned-commit fe6423cc9775b6dc61f7f7047dd4424603ddb3a1 \
+            --out spec/dashboard_spec.yaml
+
+      - name: Regenerate union template and render sentinels
+        run: |
+          python3 tools/gen_events_tmpl.py
+          python3 tools/render_template.py
+
+      - name: Assert no generated-file drift
+        run: git diff --exit-code
+
+      - name: Validate manifest assertions
+        run: python3 tools/validate_spec.py
+
+  secret-scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
