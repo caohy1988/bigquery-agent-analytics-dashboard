@@ -29,7 +29,18 @@
 # tools/test_spec_contract.py.
 
 decisions:
-  call_row_policy: null
+  # FROZEN (M0): raw_row — parity-faithful to the pinned block.
+  # Evidence: ADK 1.27.0 bigquery_agent_analytics_plugin.py L3074-3125 logs
+  # streaming partial responses as LLM_RESPONSE rows carrying usage_metadata
+  # and a computed latency, on the SAME (un-popped) span as the final row.
+  # The pinned LookML therefore aggregates partials raw: SUM/AVG/percentile
+  # measures run over every derived-table row, while count-style measures
+  # dedup via count_distinct(trace_id|span_id). Reproducing block behavior
+  # exactly requires the same: raw-row aggregation + distinct-key counts.
+  # terminal_row_per_key would diverge from the block and is tracked as a
+  # possible v1.1 improvement alongside the Tool Name filter fix.
+  # Full rationale: docs/decisions/call-row-policy.md
+  call_row_policy: raw_row
   page_dimensions: null
   screenshot_viewport: null
   listener_design: null

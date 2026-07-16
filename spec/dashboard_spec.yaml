@@ -3729,7 +3729,7 @@ tabs:
   name: Errors
   title: Errors
 decisions:
-  call_row_policy: null
+  call_row_policy: raw_row
   listener_design: null
   listener_design_detail: null
   page_dimensions: null
