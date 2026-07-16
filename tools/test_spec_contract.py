@@ -57,10 +57,33 @@ def main() -> int:
     for bad in ({"decisions": []}, {"charts": []}, {"controls": []},
                 {"charts": {"usage-token-usage-split-by-agent": []}},
                 {"decisions": {"listener_design_detail": {"aliases": []},
-                               "listener_design": None}}):
+                               "listener_design": None}},
+                # design-specific emptiness (review P1): a selected design
+                # must not be structurally empty
+                {"decisions": {"listener_design": "data_source_aliases",
+                               "listener_design_detail": {}}},
+                {"decisions": {
+                    "listener_design": "global_controls_with_exceptions",
+                    "listener_design_detail":
+                        {"intentional_exceptions": []}}}):
         r = gen(block, bad, out)
         if r.returncode == 0:
             errors.append(f"malformed overrides accepted: {bad}")
+
+    # Falsy top-level documents must not bypass strict validation.
+    for doc, label in (([], "top-level []"), (False, "top-level false")):
+        import tempfile as _tf
+        with _tf.NamedTemporaryFile("w", suffix=".yaml",
+                                    delete=False) as fh:
+            yaml.safe_dump(doc, fh)
+            pth = fh.name
+        r = subprocess.run(
+            [sys.executable, "tools/lookml_to_spec.py", "--block-repo",
+             block, "--pinned-commit", PINNED, "--overrides", pth,
+             "--out", out], capture_output=True, text=True)
+        os.unlink(pth)
+        if r.returncode == 0:
+            errors.append(f"falsy override document accepted: {label}")
 
     good_id = "usage-token-usage-split-by-agent"
     r = gen(block, {

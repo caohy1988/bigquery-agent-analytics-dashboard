@@ -44,6 +44,9 @@ FROM (
   SELECT * FROM all_events
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
     AND timestamp < TIMESTAMP(DATE_ADD(@end_date, INTERVAL 1 DAY), 'UTC')
+    AND (@filter_agent = '' OR agent = @filter_agent)
+    AND (@filter_span_id = '' OR span_id = @filter_span_id)
+    AND (@filter_trace_id = '' OR trace_id = @filter_trace_id)
 )
 GROUP BY agent
 ),
@@ -59,5 +62,5 @@ SELECT base.*
 FROM base
 JOIN aux ON base.agent = aux.agent
 WHERE aux.filter_value IS NOT NULL
-ORDER BY total_traces DESC
+ORDER BY total_traces DESC, agent
 LIMIT 5

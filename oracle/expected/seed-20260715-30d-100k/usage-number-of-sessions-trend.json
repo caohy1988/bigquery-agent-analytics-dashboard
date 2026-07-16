@@ -1,0 +1,64 @@
+{
+ "chart_id": "usage-number-of-sessions-trend",
+ "comparison": "exact",
+ "rows": [
+  {
+   "timestamp_date": "2026-07-14",
+   "total_sessions": "497"
+  },
+  {
+   "timestamp_date": "2026-07-13",
+   "total_sessions": "491"
+  },
+  {
+   "timestamp_date": "2026-07-12",
+   "total_sessions": "479"
+  },
+  {
+   "timestamp_date": "2026-07-11",
+   "total_sessions": "510"
+  },
+  {
+   "timestamp_date": "2026-07-10",
+   "total_sessions": "473"
+  },
+  {
+   "timestamp_date": "2026-07-09",
+   "total_sessions": "482"
+  },
+  {
+   "timestamp_date": "2026-07-08",
+   "total_sessions": "476"
+  },
+  {
+   "timestamp_date": "2026-07-07",
+   "total_sessions": "486"
+  },
+  {
+   "timestamp_date": "2026-07-06",
+   "total_sessions": "507"
+  },
+  {
+   "timestamp_date": "2026-07-05",
+   "total_sessions": "461"
+  },
+  {
+   "timestamp_date": "2026-07-04",
+   "total_sessions": "487"
+  },
+  {
+   "timestamp_date": "2026-07-03",
+   "total_sessions": "478"
+  },
+  {
+   "timestamp_date": "2026-07-02",
+   "total_sessions": "493"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-02"
+ }
+}

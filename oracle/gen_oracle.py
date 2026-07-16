@@ -92,6 +92,31 @@ DIMENSIONS = {
     "v_tool_error.tool_name": "tool_name",
 }
 
+# Runtime filter parameters encode the pinned listener matrix directly in
+# each oracle query: a chart gains a control's predicate ONLY when its
+# manifest `listen` includes that control. The runner passes '' (no filter)
+# or a value, so filtered scenarios can prove per-chart listener scope —
+# including the four User ID exceptions and Tool Name's one-chart scope.
+CONTROL_PARAMS = {
+    "Agent": ("filter_agent", "agent"),
+    "User ID": ("filter_user_id", "user_id"),
+    "Trace ID": ("filter_trace_id", "trace_id"),
+    "Span ID": ("filter_span_id", "span_id"),
+    "Tool Name": ("filter_tool_name", "tool_name"),
+}
+
+
+def listener_predicates(chart: dict) -> list:
+    preds = []
+    for control in sorted(chart.get("listen") or {}):
+        if control == "Date":
+            continue  # the parameterized date window
+        if control not in CONTROL_PARAMS:
+            raise SystemExit(f"{chart['id']}: unmapped control {control!r}")
+        param, col = CONTROL_PARAMS[control]
+        preds.append(f"(@{param} = '' OR {col} = @{param})")
+    return preds
+
 
 def source_sql(kind: str, extra_where: list) -> str:
     where = [DATE_PRED] + extra_where
@@ -141,6 +166,7 @@ def build_query(c: dict) -> str:
     dims = c["dimensions"]
     meas = c["measures"]
     where, having_nn = parse_filters(c["tile_filters"], cid)
+    where = where + listener_predicates(c)
 
     pop = [m for m in meas if ".pop_" in m]
     plain = [m for m in meas if m not in pop]
@@ -261,13 +287,25 @@ def build_query(c: dict) -> str:
                + "GROUP BY " + ", ".join(group) + "\n)\n"
                + "SELECT base.*\nFROM base\nJOIN aux ON " + on
                + "\nWHERE aux.filter_value IS NOT NULL\n")
-    if c["sorts"]:
-        parts = []
-        for s in c["sorts"]:
-            bits = s.split()
-            fld = alias(bits[0])
-            desc = " DESC" if "desc" in bits[1:] else ""
-            parts.append(fld + desc)
+    parts = []
+    for s in c["sorts"]:
+        bits = s.split()
+        fld = alias(bits[0])
+        desc = " DESC" if "desc" in bits[1:] else ""
+        parts.append(fld + desc)
+    # Determinism additions (documented divergence from the pinned block,
+    # which leaves ties and unsorted LIMITs engine-ordered):
+    #  * a tile with a LIMIT but no declared sort gets measures DESC —
+    #    matching the tile's visual "top N" intent — so LIMIT never
+    #    selects arbitrary rows;
+    #  * every dimension not already sorted is appended as a tie-breaker.
+    if c["limit"] and not parts:
+        parts = [alias(m) + " DESC" for m in plain]
+    sorted_fields = {p.split()[0] for p in parts}
+    for d in dims:
+        if alias(d) not in sorted_fields:
+            parts.append(alias(d))
+    if parts:
         sql += "ORDER BY " + ", ".join(parts) + "\n"
     if c["limit"]:
         sql += f"LIMIT {c['limit']}\n"

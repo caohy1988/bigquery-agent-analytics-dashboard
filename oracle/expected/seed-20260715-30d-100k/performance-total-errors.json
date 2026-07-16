@@ -1,0 +1,16 @@
+{
+ "chart_id": "performance-total-errors",
+ "comparison": "exact",
+ "rows": [
+  {
+   "pop_tool_errors_change": "-0.02926829268292683",
+   "pop_tool_errors_current": "199"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-09"
+ }
+}

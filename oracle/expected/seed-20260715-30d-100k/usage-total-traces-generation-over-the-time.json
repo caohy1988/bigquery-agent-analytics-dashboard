@@ -1,0 +1,64 @@
+{
+ "chart_id": "usage-total-traces-generation-over-the-time",
+ "comparison": "exact",
+ "rows": [
+  {
+   "timestamp_date": "2026-07-14",
+   "total_traces": "497"
+  },
+  {
+   "timestamp_date": "2026-07-13",
+   "total_traces": "491"
+  },
+  {
+   "timestamp_date": "2026-07-12",
+   "total_traces": "479"
+  },
+  {
+   "timestamp_date": "2026-07-11",
+   "total_traces": "510"
+  },
+  {
+   "timestamp_date": "2026-07-10",
+   "total_traces": "473"
+  },
+  {
+   "timestamp_date": "2026-07-09",
+   "total_traces": "482"
+  },
+  {
+   "timestamp_date": "2026-07-08",
+   "total_traces": "476"
+  },
+  {
+   "timestamp_date": "2026-07-07",
+   "total_traces": "486"
+  },
+  {
+   "timestamp_date": "2026-07-06",
+   "total_traces": "507"
+  },
+  {
+   "timestamp_date": "2026-07-05",
+   "total_traces": "461"
+  },
+  {
+   "timestamp_date": "2026-07-04",
+   "total_traces": "487"
+  },
+  {
+   "timestamp_date": "2026-07-03",
+   "total_traces": "478"
+  },
+  {
+   "timestamp_date": "2026-07-02",
+   "total_traces": "493"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-02"
+ }
+}

@@ -156,7 +156,8 @@
                      "measures", "pivots", "fill_fields", "tile_filters",
                      "sorts", "limit", "column_limit", "listen", "geometry",
                      "comparison_previous_period", "percentile", "style",
-                     "oracle_query", "expected_results", "screenshot_id"],
+                     "oracle_query", "expected_results", "screenshot_id",
+                     "screenshot_criteria"],
         "properties": {
           "id": {"type": "string", "minLength": 1},
           "source_dashboard": {"enum": ["usage", "performance"]},
@@ -194,15 +195,39 @@
                 "profiles": {
                   "type": "array",
                   "minItems": 1,
+                  "uniqueItems": true,
                   "items": {"enum": ["1.27.0", "1.36.1", "2.4.0"]}
                 },
                 "path": {"type": "string", "minLength": 1},
                 "comparison": {"enum": ["exact", "percentile_tolerance"]},
-                "tolerance": {"type": ["number", "null"]}
-              }
+                "tolerance": {"type": ["number", "null"],
+                               "minimum": 0, "maximum": 1},
+                "tolerance_kind": {"enum": ["relative", "absolute"]}
+              },
+              "allOf": [
+                {
+                  "if": {"properties": {"comparison":
+                          {"const": "percentile_tolerance"}}},
+                  "then": {"required": ["tolerance", "tolerance_kind"],
+                            "properties": {"tolerance":
+                                            {"type": "number"}}},
+                  "else": {"properties": {"tolerance": {"const": null}},
+                            "not": {"required": ["tolerance_kind"]}}
+                }
+              ]
             }
           },
-          "screenshot_id": {"type": ["string", "null"]}
+          "screenshot_id": {"type": ["string", "null"]},
+          "screenshot_criteria": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "required": ["method", "viewport"],
+            "properties": {
+              "method": {"enum": ["structural_geometry", "pixel_golden"]},
+              "viewport": {"$ref": "#/definitions/dimensions_px"},
+              "notes": {"type": "string"}
+            }
+          }
         }
       }
     },

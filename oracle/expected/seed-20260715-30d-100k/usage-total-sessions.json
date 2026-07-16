@@ -1,0 +1,16 @@
+{
+ "chart_id": "usage-total-sessions",
+ "comparison": "exact",
+ "rows": [
+  {
+   "pop_total_sessions_change": "0.005734310289901242",
+   "pop_total_sessions_current": "6314"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-02"
+ }
+}

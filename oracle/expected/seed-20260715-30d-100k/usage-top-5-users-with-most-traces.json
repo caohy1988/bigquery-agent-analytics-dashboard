@@ -1,0 +1,32 @@
+{
+ "chart_id": "usage-top-5-users-with-most-traces",
+ "comparison": "exact",
+ "rows": [
+  {
+   "total_traces": "22",
+   "user_id": "user-0156"
+  },
+  {
+   "total_traces": "22",
+   "user_id": "user-0259"
+  },
+  {
+   "total_traces": "22",
+   "user_id": "user-0294"
+  },
+  {
+   "total_traces": "22",
+   "user_id": "user-0470"
+  },
+  {
+   "total_traces": "21",
+   "user_id": "user-0440"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-02"
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "chart_id": "usage-token-usage-split-by-agent",
+ "comparison": "exact",
+ "rows": [
+  {
+   "agent": "escalation-agent",
+   "total_tokens_consumed": "3687901"
+  },
+  {
+   "agent": "support-agent",
+   "total_tokens_consumed": "3591739"
+  },
+  {
+   "agent": "search-agent",
+   "total_tokens_consumed": "3485482"
+  },
+  {
+   "agent": "order-agent",
+   "total_tokens_consumed": "3339805"
+  },
+  {
+   "agent": "billing-agent",
+   "total_tokens_consumed": "3320088"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-02"
+ }
+}

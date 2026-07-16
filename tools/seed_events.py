@@ -108,10 +108,16 @@ def llm_response(rng, ts, agent, session, invocation, user, trace, span,
             "total_token_count": total + 2 * bump,
         }
     attributes["model_version"] = rng.choice(MODELS)
-    latency = None if partial else {
-        "total_ms": rng.randint(300, 12000),
-        "time_to_first_token_ms": rng.randint(80, 1500),
-    }
+    # ADK 1.27.0 logs elapsed duration on PARTIAL responses too
+    # (plugin L3074-3083 computes duration/tfft without popping the span),
+    # so partial rows carry deterministic, smaller-than-final latencies.
+    total = rng.randint(300, 12000)
+    ttft = rng.randint(80, min(1500, total))
+    if partial:
+        latency = {"total_ms": rng.randint(ttft, total),
+                   "time_to_first_token_ms": ttft}
+    else:
+        latency = {"total_ms": total, "time_to_first_token_ms": ttft}
     return row(ts, "LLM_RESPONSE", agent, session, invocation, user, trace,
                span, content=content, attributes=attributes, latency=latency)
 

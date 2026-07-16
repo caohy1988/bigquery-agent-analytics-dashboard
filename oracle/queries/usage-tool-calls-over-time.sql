@@ -14,6 +14,10 @@ FROM (
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
     AND timestamp < TIMESTAMP(DATE_ADD(@end_date, INTERVAL 1 DAY), 'UTC')
     AND event_type = 'TOOL_COMPLETED'
+    AND (@filter_agent = '' OR agent = @filter_agent)
+    AND (@filter_span_id = '' OR span_id = @filter_span_id)
+    AND (@filter_trace_id = '' OR trace_id = @filter_trace_id)
+    AND (@filter_user_id = '' OR user_id = @filter_user_id)
 )
 GROUP BY tool_name, timestamp_date
 ORDER BY tool_name, timestamp_date DESC

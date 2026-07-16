@@ -1,0 +1,18 @@
+{
+ "chart_id": "performance-p90-llm-latency",
+ "comparison": "percentile_tolerance",
+ "rows": [
+  {
+   "p50_llm_latency": "5818.0",
+   "p75_llm_latency": "8719.5",
+   "p90_llm_latency": "10651.0",
+   "p99_llm_latency": "11883.66"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": 0.0,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-09"
+ }
+}

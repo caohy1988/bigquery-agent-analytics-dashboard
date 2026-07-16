@@ -41,6 +41,10 @@ WITH cur AS (
   SELECT * FROM all_events
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
     AND timestamp < TIMESTAMP(DATE_ADD(@end_date, INTERVAL 1 DAY), 'UTC')
+    AND (@filter_agent = '' OR agent = @filter_agent)
+    AND (@filter_span_id = '' OR span_id = @filter_span_id)
+    AND (@filter_trace_id = '' OR trace_id = @filter_trace_id)
+    AND (@filter_user_id = '' OR user_id = @filter_user_id)
   )
 ),
 prev AS (
@@ -80,6 +84,10 @@ prev AS (
   WHERE timestamp >= TIMESTAMP_SUB(TIMESTAMP(@start_date, 'UTC'), INTERVAL
       DATE_DIFF(DATE_ADD(@end_date, INTERVAL 1 DAY), @start_date, DAY) DAY)
     AND timestamp < TIMESTAMP(@start_date, 'UTC')
+    AND (@filter_agent = '' OR agent = @filter_agent)
+    AND (@filter_span_id = '' OR span_id = @filter_span_id)
+    AND (@filter_trace_id = '' OR trace_id = @filter_trace_id)
+    AND (@filter_user_id = '' OR user_id = @filter_user_id)
   )
 )
 SELECT

@@ -1,0 +1,32 @@
+{
+ "chart_id": "usage-traces-split-by-agent",
+ "comparison": "exact",
+ "rows": [
+  {
+   "agent": "escalation-agent",
+   "total_traces": "1332"
+  },
+  {
+   "agent": "search-agent",
+   "total_traces": "1273"
+  },
+  {
+   "agent": "support-agent",
+   "total_traces": "1265"
+  },
+  {
+   "agent": "billing-agent",
+   "total_traces": "1230"
+  },
+  {
+   "agent": "order-agent",
+   "total_traces": "1214"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-02"
+ }
+}

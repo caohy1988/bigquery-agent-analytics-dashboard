@@ -39,6 +39,9 @@ jobs:
           python3 tools/gen_events_tmpl.py
           python3 tools/render_template.py
 
+      - name: Regenerate oracle queries
+        run: python3 oracle/gen_oracle.py
+
       - name: Assert no generated-file drift
         run: git diff --exit-code
 
@@ -54,8 +57,11 @@ jobs:
       - name: Provenance fail-closed tests
         run: python3 tools/test_provenance.py
 
+      - name: Validate inventory evidence (fingerprints + profile sets)
+        run: python3 tools/validate_inventories.py
+
       - name: Lint
-        run: pipx run ruff check tools/
+        run: pipx run ruff check tools/ oracle/
 
   secret-scan:
     runs-on: ubuntu-latest

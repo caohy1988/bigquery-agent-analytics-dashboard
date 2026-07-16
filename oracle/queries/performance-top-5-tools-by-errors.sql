@@ -12,7 +12,11 @@ FROM (
   SELECT * FROM `{{PROJECT}}.{{DATASET}}.{{VIEW_PREFIX}}_tool_error`
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
     AND timestamp < TIMESTAMP(DATE_ADD(@end_date, INTERVAL 1 DAY), 'UTC')
+    AND (@filter_agent = '' OR agent = @filter_agent)
+    AND (@filter_span_id = '' OR span_id = @filter_span_id)
+    AND (@filter_trace_id = '' OR trace_id = @filter_trace_id)
+    AND (@filter_user_id = '' OR user_id = @filter_user_id)
 )
 GROUP BY tool_name
-ORDER BY total_tool_errors DESC
+ORDER BY total_tool_errors DESC, tool_name
 LIMIT 5

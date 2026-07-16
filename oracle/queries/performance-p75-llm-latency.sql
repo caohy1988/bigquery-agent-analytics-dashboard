@@ -14,6 +14,11 @@ FROM (
   SELECT * FROM `{{PROJECT}}.{{DATASET}}.{{VIEW_PREFIX}}_llm_response`
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
     AND timestamp < TIMESTAMP(DATE_ADD(@end_date, INTERVAL 1 DAY), 'UTC')
+    AND (@filter_agent = '' OR agent = @filter_agent)
+    AND (@filter_span_id = '' OR span_id = @filter_span_id)
+    AND (@filter_trace_id = '' OR trace_id = @filter_trace_id)
+    AND (@filter_user_id = '' OR user_id = @filter_user_id)
 )
 QUALIFY ROW_NUMBER() OVER () = 1
+ORDER BY p50_llm_latency DESC, p75_llm_latency DESC, p90_llm_latency DESC, p99_llm_latency DESC
 LIMIT 500

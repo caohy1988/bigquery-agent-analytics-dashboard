@@ -1,0 +1,16 @@
+{
+ "chart_id": "usage-total-users",
+ "comparison": "exact",
+ "rows": [
+  {
+   "pop_total_users_change": "0.0",
+   "pop_total_users_current": "500"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-02"
+ }
+}

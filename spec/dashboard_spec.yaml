@@ -197,9 +197,18 @@ charts:
     note_display: hover
     note_text: A breakdown of total token consumption distributed across your different agents, highlighting
       which bots are the most resource-intensive.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-token-usage-split-by-agent.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-token-usage-split-by-agent.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-top-5-users-with-most-tokens-consumption
   source_dashboard: usage
   source_tile: Top 5 users with most Tokens consumption
@@ -267,9 +276,18 @@ charts:
     note_state: collapsed
     note_display: hover
     note_text: A leaderboard of the top 5 individual end-users who have driven the highest token costs.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-top-5-users-with-most-tokens-consumption.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-top-5-users-with-most-tokens-consumption.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-total-tokens-consumption-over-the-time
   source_dashboard: usage
   source_tile: Total Tokens Consumption Over the Time
@@ -355,9 +373,18 @@ charts:
     note_state: collapsed
     note_display: hover
     note_text: A daily time-series area chart tracking the aggregate volume of tokens burned
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-total-tokens-consumption-over-the-time.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-total-tokens-consumption-over-the-time.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-total-tokens
   source_dashboard: usage
   source_tile: Total Tokens
@@ -452,9 +479,18 @@ charts:
     note_display: hover
     note_text: The total aggregate number of prompt and completion tokens consumed by all LLM requests
       within the selected timeframe
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-total-tokens.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-total-tokens.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-top-5-users-with-most-traces
   source_dashboard: usage
   source_tile: Top 5 users with most Traces
@@ -524,9 +560,18 @@ charts:
     note_display: hover
     note_text: A leaderboard of your most active power-users, ranked by the total number of distinct interactions
       they have initiated.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-top-5-users-with-most-traces.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-top-5-users-with-most-traces.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-total-traces
   source_dashboard: usage
   source_tile: Total Traces
@@ -620,9 +665,18 @@ charts:
     note_state: collapsed
     note_display: hover
     note_text: The total number of unique, end-to-end user interactions (journeys) processed by the agents
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-total-traces.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-total-traces.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-traces-split-by-agent
   source_dashboard: usage
   source_tile: Traces split by Agent
@@ -701,9 +755,18 @@ charts:
     note_display: hover
     note_text: A distribution of total traffic across your agents, showing which bots are handling the
       highest volume of user requests.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-traces-split-by-agent.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-traces-split-by-agent.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-total-traces-generation-over-the-time
   source_dashboard: usage
   source_tile: Total Traces Generation Over the Time
@@ -790,9 +853,18 @@ charts:
     note_state: collapsed
     note_display: hover
     note_text: A daily time-series area chart showing the volume of unique agent interactions
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-total-traces-generation-over-the-time.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-total-traces-generation-over-the-time.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-total-sessions
   source_dashboard: usage
   source_tile: Total Sessions
@@ -870,9 +942,18 @@ charts:
     show_silhouette: false
     totals_color: '#808080'
     defaults_version: 1
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-total-sessions.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-total-sessions.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-number-of-sessions-trend
   source_dashboard: usage
   source_tile: Number of Sessions Trend
@@ -959,9 +1040,18 @@ charts:
     show_null_labels: false
     defaults_version: 1
     hidden_pivots: {}
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-number-of-sessions-trend.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-number-of-sessions-trend.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-top-5-agents-split-by-session-count
   source_dashboard: usage
   source_tile: Top 5 Agents Split by Session Count
@@ -1047,9 +1137,18 @@ charts:
     conditional_formatting_include_nulls: false
     defaults_version: 1
     hidden_pivots: {}
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-top-5-agents-split-by-session-count.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-top-5-agents-split-by-session-count.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-tool-invocations
   source_dashboard: usage
   source_tile: Tool Invocations
@@ -1121,9 +1220,18 @@ charts:
     note_display: hover
     note_text: A ranked list showing which specific backend tools and functions are being executed the
       most frequently by the LLMs.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-tool-invocations.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-tool-invocations.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-events-by-agent
   source_dashboard: usage
   source_tile: Events By Agent
@@ -1197,9 +1305,18 @@ charts:
     note_display: hover
     note_text: A breakdown of total raw lifecycle events (including tool calls, errors, and LLM requests)
       distributed across your agents.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-events-by-agent.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-events-by-agent.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-tool-calls-over-time
   source_dashboard: usage
   source_tile: Tool Calls Over Time
@@ -1282,9 +1399,18 @@ charts:
     note_display: hover
     note_text: A stacked area chart tracking the daily execution volume of specific backend tools and
       functions
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-tool-calls-over-time.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-tool-calls-over-time.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-total-calls
   source_dashboard: usage
   source_tile: Total Calls
@@ -1370,9 +1496,18 @@ charts:
     note_state: collapsed
     note_display: hover
     note_text: The absolute number of individual requests sent to the underlying LLM models.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-total-calls.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-total-calls.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-llm-call-trends
   source_dashboard: usage
   source_tile: LLM Call Trends
@@ -1462,9 +1597,18 @@ charts:
     note_display: hover
     note_text: A highly granular scatter plot showing the frequency and clustering of LLM requests over
       time.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-llm-call-trends.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-llm-call-trends.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-top-5-agents-by-llm-calls
   source_dashboard: usage
   source_tile: Top 5 Agents by LLM Calls
@@ -1552,9 +1696,18 @@ charts:
     note_state: collapsed
     note_display: hover
     note_text: A ranking of which agents are triggering the most calls to the LLM backend.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-top-5-agents-by-llm-calls.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-top-5-agents-by-llm-calls.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-total-users
   source_dashboard: usage
   source_tile: Total Users
@@ -1642,9 +1795,18 @@ charts:
     note_display: hover
     note_text: The count of unique, distinct end-users who have interacted with any agent during the selected
       timeframe.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-total-users.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-total-users.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-user-growth-over-time
   source_dashboard: usage
   source_tile: User Growth Over Time
@@ -1735,9 +1897,18 @@ charts:
     note_display: hover
     note_text: A smoothed area chart tracking the daily count of active unique users to measure platform
       adoption and retention.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-user-growth-over-time.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-user-growth-over-time.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-top-5-users-by-session
   source_dashboard: usage
   source_tile: Top 5 Users by Session
@@ -1826,9 +1997,18 @@ charts:
     note_display: hover
     note_text: A leaderboard ranking your top power-users by the total number of distinct conversation
       sessions they have maintained.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-top-5-users-by-session.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-top-5-users-by-session.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: usage-top-5-users-by-events
   source_dashboard: usage
   source_tile: Top 5 Users by Events
@@ -1917,9 +2097,18 @@ charts:
     note_display: hover
     note_text: A ranking of users based on the raw volume of lifecycle events they generate, indicating
       deep, complex usage of the system.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/usage-top-5-users-by-events.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/usage-top-5-users-by-events.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-average-tool-latency-ms
   source_dashboard: performance
   source_tile: Average Tool Latency (ms)
@@ -1993,9 +2182,18 @@ charts:
     note_display: hover
     note_text: The average time (in milliseconds) it takes for backend tools and functions to execute
       and return a result.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-average-tool-latency-ms.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-average-tool-latency-ms.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-tool-latency-trend
   source_dashboard: performance
   source_tile: Tool Latency Trend
@@ -2080,9 +2278,18 @@ charts:
     note_display: hover
     note_text: An area chart tracking the historical trend of average tool execution times, helping identify
       backend performance degradation.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-tool-latency-trend.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-tool-latency-trend.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-average-llm-latency-in-ms
   source_dashboard: performance
   source_tile: Average LLM Latency (in ms)
@@ -2173,9 +2380,18 @@ charts:
     note_text: The average round-trip time (in milliseconds) it takes for the LLM to process a prompt
       and return a response.
     title_hidden: true
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-average-llm-latency-in-ms.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-average-llm-latency-in-ms.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-llm-latency-trend
   source_dashboard: performance
   source_tile: LLM Latency Trend
@@ -2273,9 +2489,18 @@ charts:
     note_display: hover
     note_text: An area chart tracking historical LLM response times to identify API throttling or model
       performance issues.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-llm-latency-trend.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-llm-latency-trend.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-p50-tool-latency
   source_dashboard: performance
   source_tile: P50 Tool Latency
@@ -2405,9 +2630,19 @@ charts:
     title_placement_v_tool_completed.p99_tool_latency: above
     value_format_v_tool_completed.p99_tool_latency: ''
     show_comparison_v_tool_completed.p99_tool_latency: false
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-p50-tool-latency.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-p50-tool-latency.json
+    comparison: percentile_tolerance
+    tolerance: 0.0
+    tolerance_kind: relative
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-p75-tool-latency
   source_dashboard: performance
   source_tile: P75 Tool Latency
@@ -2537,9 +2772,19 @@ charts:
     title_placement_v_tool_completed.p99_tool_latency: above
     value_format_v_tool_completed.p99_tool_latency: ''
     show_comparison_v_tool_completed.p99_tool_latency: false
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-p75-tool-latency.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-p75-tool-latency.json
+    comparison: percentile_tolerance
+    tolerance: 0.0
+    tolerance_kind: relative
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-p90-tool-latency
   source_dashboard: performance
   source_tile: P90 Tool Latency
@@ -2669,9 +2914,19 @@ charts:
     title_placement_v_tool_completed.p99_tool_latency: above
     value_format_v_tool_completed.p99_tool_latency: ''
     show_comparison_v_tool_completed.p99_tool_latency: false
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-p90-tool-latency.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-p90-tool-latency.json
+    comparison: percentile_tolerance
+    tolerance: 0.0
+    tolerance_kind: relative
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-p99-tool-latency
   source_dashboard: performance
   source_tile: P99 Tool Latency
@@ -2801,9 +3056,19 @@ charts:
     title_placement_v_tool_completed.p99_tool_latency: above
     value_format_v_tool_completed.p99_tool_latency: ''
     show_comparison_v_tool_completed.p99_tool_latency: false
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-p99-tool-latency.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-p99-tool-latency.json
+    comparison: percentile_tolerance
+    tolerance: 0.0
+    tolerance_kind: relative
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-p50-llm-latency
   source_dashboard: performance
   source_tile: P50 Llm Latency
@@ -2904,9 +3169,19 @@ charts:
     show_title_v_tool_completed.p50_tool_latency: true
     title_placement_v_tool_completed.p50_tool_latency: above
     value_format_v_tool_completed.p50_tool_latency: ''
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-p50-llm-latency.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-p50-llm-latency.json
+    comparison: percentile_tolerance
+    tolerance: 0.0
+    tolerance_kind: relative
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-p75-llm-latency
   source_dashboard: performance
   source_tile: P75 Llm Latency
@@ -3007,9 +3282,19 @@ charts:
     show_title_v_tool_completed.p50_tool_latency: true
     title_placement_v_tool_completed.p50_tool_latency: above
     value_format_v_tool_completed.p50_tool_latency: ''
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-p75-llm-latency.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-p75-llm-latency.json
+    comparison: percentile_tolerance
+    tolerance: 0.0
+    tolerance_kind: relative
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-p90-llm-latency
   source_dashboard: performance
   source_tile: P90 Llm Latency
@@ -3110,9 +3395,19 @@ charts:
     show_title_v_tool_completed.p50_tool_latency: true
     title_placement_v_tool_completed.p50_tool_latency: above
     value_format_v_tool_completed.p50_tool_latency: ''
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-p90-llm-latency.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-p90-llm-latency.json
+    comparison: percentile_tolerance
+    tolerance: 0.0
+    tolerance_kind: relative
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-p99-llm-latency
   source_dashboard: performance
   source_tile: P99 Llm Latency
@@ -3213,9 +3508,19 @@ charts:
     show_title_v_tool_completed.p50_tool_latency: true
     title_placement_v_tool_completed.p50_tool_latency: above
     value_format_v_tool_completed.p50_tool_latency: ''
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-p99-llm-latency.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-p99-llm-latency.json
+    comparison: percentile_tolerance
+    tolerance: 0.0
+    tolerance_kind: relative
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-total-errors
   source_dashboard: performance
   source_tile: Total Errors
@@ -3293,9 +3598,18 @@ charts:
     note_display: hover
     note_text: The total number of backend tool executions that resulted in an error status, including
       the Period-over-Period trend.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-total-errors.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-total-errors.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-tool-errors-trend
   source_dashboard: performance
   source_tile: Tool Errors Trend
@@ -3379,9 +3693,18 @@ charts:
     note_display: hover
     note_text: A daily time-series tracking the volume of tool failures. Click a spike to drill down into
       the raw error logs.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-tool-errors-trend.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-tool-errors-trend.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-top-5-agents-by-errors
   source_dashboard: performance
   source_tile: Top 5 Agents By Errors
@@ -3465,9 +3788,18 @@ charts:
     note_state: collapsed
     note_display: hover
     note_text: A ranking showing which specific agents are experiencing the highest volume of failures.
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-top-5-agents-by-errors.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-top-5-agents-by-errors.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 - id: performance-top-5-tools-by-errors
   source_dashboard: performance
   source_tile: Top 5 Tools by Errors
@@ -3552,9 +3884,18 @@ charts:
     note_display: hover
     note_text: A critical leaderboard of the most unstable backend tools. Focus debugging efforts on the
       tools at the top of this list
-  oracle_query: null
-  expected_results: null
+  oracle_query: oracle/queries/performance-top-5-tools-by-errors.sql
+  expected_results:
+  - scenario: seed-20260715-30d-100k
+    profiles:
+    - 1.27.0
+    - 1.36.1
+    - 2.4.0
+    path: oracle/expected/seed-20260715-30d-100k/performance-top-5-tools-by-errors.json
+    comparison: exact
+    tolerance: null
   screenshot_id: null
+  screenshot_criteria: null
 non_data_elements:
 - id: usage-nondata-1
   source_dashboard: usage

@@ -13,12 +13,22 @@ Prints the installed ADK version and the created view list as JSON.
 """
 
 import argparse
+import datetime
 import importlib.metadata
 import inspect
 import json
 import sys
 
 from google.cloud import bigquery
+from google.cloud import exceptions as cloud_exceptions
+
+INTERSECTION_VIEWS = {
+    f"v_{s}" for s in (
+        "user_message_received", "llm_request", "llm_response", "llm_error",
+        "tool_starting", "tool_completed", "tool_error", "agent_starting",
+        "agent_completed", "invocation_starting", "invocation_completed",
+        "state_delta", "hitl_credential_request",
+        "hitl_confirmation_request", "hitl_input_request")}
 
 
 def main() -> int:
@@ -26,9 +36,25 @@ def main() -> int:
     ap.add_argument("--project", required=True)
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--location", default="US")
+    ap.add_argument("--expected-adk-version", required=True,
+                    help="Fails BEFORE any mutation if the installed "
+                         "google-adk differs — prevents mislabeled evidence.")
+    ap.add_argument("--replace", action="store_true",
+                    help="Delete and recreate an existing dataset. Without "
+                         "this flag an existing dataset is an error (stale "
+                         "reuse must be explicit).")
+    ap.add_argument("--receipt", default=None,
+                    help="Path for the provisioning receipt consumed by "
+                         "capture_inventory.py (default: "
+                         "<dataset>.receipt.json)")
     args = ap.parse_args()
 
     adk_version = importlib.metadata.version("google-adk")
+    if adk_version != args.expected_adk_version:
+        print(f"ERROR: installed google-adk {adk_version} != expected "
+              f"{args.expected_adk_version}; refusing to provision.",
+              file=sys.stderr)
+        return 1
 
     import importlib as _il
     mod = _il.import_module(
@@ -36,9 +62,20 @@ def main() -> int:
     BigQueryAgentAnalyticsPlugin = mod.BigQueryAgentAnalyticsPlugin
 
     client = bigquery.Client(project=args.project)
-    ds_ref = bigquery.Dataset(f"{args.project}.{args.dataset}")
+    ds_id = f"{args.project}.{args.dataset}"
+    try:
+        client.get_dataset(ds_id)
+        if not args.replace:
+            print(f"ERROR: dataset {ds_id} already exists; pass --replace "
+                  "to recreate it (silent reuse would risk stale evidence).",
+                  file=sys.stderr)
+            return 1
+        client.delete_dataset(ds_id, delete_contents=True)
+    except cloud_exceptions.NotFound:
+        pass
+    ds_ref = bigquery.Dataset(ds_id)
     ds_ref.location = args.location
-    client.create_dataset(ds_ref, exists_ok=True)
+    client.create_dataset(ds_ref)
 
     sig = inspect.signature(BigQueryAgentAnalyticsPlugin.__init__)
     kwargs = {"project_id": args.project, "dataset_id": args.dataset}
@@ -65,15 +102,38 @@ def main() -> int:
     tables = sorted(
         t.table_id for t in client.list_tables(f"{args.project}.{args.dataset}")
         if t.table_type == "TABLE")
-    print(json.dumps({
-        "adk_version": adk_version,
+
+    # The plugin's setup methods log-and-swallow creation errors, so a
+    # successful exit MUST be earned by asserting the expected objects.
+    problems = []
+    if "agent_events" not in tables:
+        problems.append("agent_events table missing")
+    missing = INTERSECTION_VIEWS - set(views)
+    if missing:
+        problems.append(f"intersection views missing: {sorted(missing)}")
+    if problems:
+        for p in problems:
+            print(f"ERROR: {p}", file=sys.stderr)
+        return 1
+
+    receipt = {
+        "installed_adk_version": adk_version,
+        "expected_adk_version": args.expected_adk_version,
         "project": args.project,
         "dataset": args.dataset,
         "location": args.location,
+        "provisioned_at_utc":
+            datetime.datetime.now(datetime.timezone.utc).isoformat(),
         "tables": tables,
         "views": views,
         "view_count": len(views),
-    }, indent=2))
+    }
+    receipt_path = args.receipt or f"{args.dataset}.receipt.json"
+    with open(receipt_path, "w") as fh:
+        json.dump(receipt, fh, indent=2, sort_keys=True)
+        fh.write("\n")
+    print(json.dumps(receipt, indent=2, sort_keys=True))
+    print(f"receipt: {receipt_path}", file=sys.stderr)
     return 0
 
 

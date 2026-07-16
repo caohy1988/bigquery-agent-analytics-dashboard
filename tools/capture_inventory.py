@@ -100,8 +100,34 @@ def main() -> int:
     ap.add_argument("--adk-source-ref", required=True,
                     help="ADK source tag/commit the release was installed "
                          "from (e.g. v1.27.0). Required for evidence.")
+    ap.add_argument("--receipt", default=None,
+                    help="Provisioning receipt from provision_fixture.py; "
+                         "when given, the declared release must match the "
+                         "receipt's installed version and the dataset must "
+                         "match — binding observed provenance to the "
+                         "provisioning run.")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
+
+    receipt_sha = None
+    if args.receipt:
+        raw = open(args.receipt, "rb").read()
+        receipt = json.loads(raw)
+        problems = []
+        if receipt.get("installed_adk_version") != args.adk_release:
+            problems.append(
+                f"receipt installed version "
+                f"{receipt.get('installed_adk_version')!r} != declared "
+                f"{args.adk_release!r}")
+        for key in ("project", "dataset", "location"):
+            if receipt.get(key) != getattr(args, key):
+                problems.append(f"receipt {key} {receipt.get(key)!r} != "
+                                f"{getattr(args, key)!r}")
+        if problems:
+            for p in problems:
+                print(f"ERROR: {p}", file=sys.stderr)
+            return 1
+        receipt_sha = hashlib.sha256(raw).hexdigest()
 
     # Tool provenance must be THIS repository's commit — anchored to the
     # script's own repo, verified against the working tree, fail-closed.
@@ -156,6 +182,7 @@ def main() -> int:
         "view_prefix": args.prefix,
         "capture_tool_commit": tool_commit,
         "capture_tool_sha256": tool_sha256,
+        "provisioning_receipt_sha256": receipt_sha,
         "view_count": len(inventory),
         "fingerprint_sha256": fingerprint,
         "views": inventory,

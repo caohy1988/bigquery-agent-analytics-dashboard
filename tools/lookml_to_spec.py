@@ -88,6 +88,7 @@ def element_record(dashboard_key: str, el: dict, seen: dict) -> dict:
         "oracle_query": None,
         "expected_results": None,
         "screenshot_id": None,
+        "screenshot_criteria": None,
     }
     if el.get("dynamic_fields") is not None:
         rec["style"]["dynamic_fields"] = el["dynamic_fields"]
@@ -151,7 +152,7 @@ def verify_structural_parity(el: dict, rec: dict) -> None:
 # hypothesis M0/M2 may refine per record — refinements are reviewed
 # override decisions, not generator edits.
 OVERRIDABLE_CHART_KEYS = {"oracle_query", "expected_results",
-                          "screenshot_id", "ls_chart"}
+                          "screenshot_id", "screenshot_criteria", "ls_chart"}
 OVERRIDABLE_CONTROL_KEYS = {"placement"}
 DECISION_KEYS = {"call_row_policy", "page_dimensions", "screenshot_viewport",
                  "listener_design", "listener_design_detail"}
@@ -169,28 +170,75 @@ def _require_mapping(value, what: str) -> dict:
     return value
 
 
-def validate_listener_detail(detail: dict, chart_ids: set,
+def validate_listener_detail(design: str, detail: dict, chart_ids: set,
                              control_ids: set) -> None:
-    """Referential integrity for the frozen listener-design detail."""
-    alias_names = {a.get("name") for a in detail.get("aliases", [])}
-    for cid, alias in (detail.get("chart_alias_assignments") or {}).items():
+    """Design-specific and referential validation for the frozen listener
+    decision — a selected design must not be structurally empty."""
+    aliases = detail.get("aliases", [])
+    alias_names = [a.get("name") for a in aliases]
+    if len(alias_names) != len(set(alias_names)):
+        raise SystemExit("listener_design_detail: duplicate alias names")
+    assignments = detail.get("chart_alias_assignments") or {}
+    exceptions = detail.get("intentional_exceptions", [])
+    groups = detail.get("control_groups", [])
+
+    if design == "data_source_aliases":
+        if not aliases or not assignments:
+            raise SystemExit(
+                "listener_design_detail: data_source_aliases requires "
+                "non-empty aliases AND chart_alias_assignments")
+    elif design == "global_controls_with_exceptions":
+        if not exceptions:
+            raise SystemExit(
+                "listener_design_detail: global_controls_with_exceptions "
+                "requires a non-empty intentional_exceptions list")
+    elif design == "page_level_parity":
+        if "inspector_persistence" not in detail:
+            raise SystemExit(
+                "listener_design_detail: page_level_parity must state "
+                "inspector_persistence explicitly (it is the trade-off)")
+
+    for cid, alias in assignments.items():
         if cid not in chart_ids:
             raise SystemExit(f"listener_design_detail: unknown chart {cid!r}")
         if alias not in alias_names:
             raise SystemExit(f"listener_design_detail: chart {cid!r} "
                              f"assigned to undeclared alias {alias!r}")
-    for group in detail.get("control_groups", []):
-        if group.get("control_id") not in control_ids:
+    seen_groups = set()
+    for group in groups:
+        gcid = group.get("control_id")
+        if gcid not in control_ids:
             raise SystemExit("listener_design_detail: unknown control "
-                             f"{group.get('control_id')!r} in control_groups")
-        for cid in group.get("chart_ids", []):
+                             f"{gcid!r} in control_groups")
+        if gcid in seen_groups:
+            raise SystemExit(f"listener_design_detail: duplicate "
+                             f"control_group for {gcid!r}")
+        seen_groups.add(gcid)
+        if not group.get("chart_ids"):
+            raise SystemExit(f"listener_design_detail: control_group "
+                             f"{gcid!r} has no charts")
+        for cid in group["chart_ids"]:
             if cid not in chart_ids:
                 raise SystemExit("listener_design_detail: unknown chart "
                                  f"{cid!r} in control_groups")
-    for exc in detail.get("intentional_exceptions", []):
-        if exc.get("control_id") not in control_ids:
+    seen_exc = set()
+    for exc in exceptions:
+        ecid = exc.get("control_id")
+        if ecid not in control_ids:
             raise SystemExit("listener_design_detail: unknown control "
-                             f"{exc.get('control_id')!r} in exceptions")
+                             f"{ecid!r} in exceptions")
+        scope = exc.get("scope")
+        if scope != "all_charts" and scope not in chart_ids:
+            raise SystemExit(f"listener_design_detail: exception scope "
+                             f"{scope!r} is neither 'all_charts' nor a "
+                             "chart id")
+        if not (exc.get("rationale") or "").strip():
+            raise SystemExit(f"listener_design_detail: exception for "
+                             f"{ecid!r} has an empty rationale")
+        if (ecid, scope) in seen_exc:
+            raise SystemExit(f"listener_design_detail: duplicate exception "
+                             f"({ecid!r}, {scope!r})")
+        seen_exc.add((ecid, scope))
 
 
 def apply_overrides(spec: dict, overrides) -> None:
@@ -209,13 +257,17 @@ def apply_overrides(spec: dict, overrides) -> None:
 
     chart_ids = {c["id"] for c in spec["charts"]}
     control_ids = {c["id"] for c in spec["controls"]}
+    design = spec["decisions"].get("listener_design")
     detail = spec["decisions"].get("listener_design_detail")
+    if design is not None and detail is None:
+        raise SystemExit("overrides: a selected listener_design requires a "
+                         "non-null listener_design_detail")
     if detail is not None:
         detail = _require_mapping(detail, "decisions.listener_design_detail")
-        if spec["decisions"].get("listener_design") is None:
+        if design is None:
             raise SystemExit("overrides: listener_design_detail set without "
                              "listener_design")
-        validate_listener_detail(detail, chart_ids, control_ids)
+        validate_listener_detail(design, detail, chart_ids, control_ids)
 
     charts_by_id = {c["id"]: c for c in spec["charts"]}
     for cid, patch in _require_mapping(overrides.get("charts"),
@@ -315,7 +367,10 @@ def main() -> int:
                     non_data_record(key, el, nd_idx))
 
     with open(args.overrides) as fh:
-        apply_overrides(spec, yaml.safe_load(fh) or {})
+        doc = yaml.safe_load(fh)
+    # Only genuinely empty YAML (None) becomes {}; [] / false / scalars must
+    # reach _require_mapping and fail (falsy-bypass bug, PR #1 review P2).
+    apply_overrides(spec, {} if doc is None else doc)
 
     with open(args.out, "w") as fh:
         fh.write("# GENERATED by tools/lookml_to_spec.py — do not hand-edit.\n"

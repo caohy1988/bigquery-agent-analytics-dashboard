@@ -1,0 +1,36 @@
+{
+ "chart_id": "performance-tool-latency-trend",
+ "comparison": "exact",
+ "rows": [
+  {
+   "average_tool_latency": "4498.749999999996",
+   "timestamp_date": "2026-07-14"
+  },
+  {
+   "average_tool_latency": "4538.817987152033",
+   "timestamp_date": "2026-07-13"
+  },
+  {
+   "average_tool_latency": "4765.549893842889",
+   "timestamp_date": "2026-07-12"
+  },
+  {
+   "average_tool_latency": "4340.7991967871485",
+   "timestamp_date": "2026-07-11"
+  },
+  {
+   "average_tool_latency": "4770.395833333339",
+   "timestamp_date": "2026-07-10"
+  },
+  {
+   "average_tool_latency": "4616.834763948501",
+   "timestamp_date": "2026-07-09"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-09"
+ }
+}

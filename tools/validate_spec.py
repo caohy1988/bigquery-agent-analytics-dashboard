@@ -99,18 +99,57 @@ def main() -> int:
           "every pinned source tile defines column_limit; a null means the "
           "generator dropped it", errors)
 
-    # Oracle expected-results structure: percentile tolerance must be a
-    # declared number, and exact comparisons must not carry one.
+    # Oracle wiring: explicit one-to-one chart -> query mapping, existing
+    # files, comparison mode matched to the chart type, and unique
+    # scenario/profile coverage (no silent weakening, no double entries).
+    import pathlib
+    seen_queries = {}
     for c in charts:
-        for er in c.get("expected_results") or []:
-            if er["comparison"] == "percentile_tolerance":
-                check(isinstance(er.get("tolerance"), (int, float)),
-                      f"{c['id']}: percentile_tolerance requires a numeric "
-                      "tolerance", errors)
+        oq = c.get("oracle_query")
+        check(oq is not None, f"{c['id']}: oracle_query not mapped", errors)
+        if oq:
+            check(pathlib.Path(oq).is_file(),
+                  f"{c['id']}: oracle_query file missing: {oq}", errors)
+            check(oq not in seen_queries,
+                  f"{c['id']}: oracle_query {oq} also mapped to "
+                  f"{seen_queries.get(oq)}", errors)
+            seen_queries[oq] = c["id"]
+        ers = c.get("expected_results")
+        check(ers is not None,
+              f"{c['id']}: expected_results not populated", errors)
+        coverage = set()
+        for er in ers or []:
+            if c["percentile"]:
+                check(er["comparison"] == "percentile_tolerance",
+                      f"{c['id']}: percentile chart must declare "
+                      "percentile_tolerance comparison", errors)
+                check(isinstance(er.get("tolerance"), (int, float))
+                      and 0 <= er["tolerance"] <= 1,
+                      f"{c['id']}: percentile tolerance must be a finite "
+                      "number in [0, 1]", errors)
             else:
-                check(er.get("tolerance") in (None,),
+                check(er["comparison"] == "exact",
+                      f"{c['id']}: non-percentile chart must use exact "
+                      "comparison", errors)
+                check(er.get("tolerance") is None,
                       f"{c['id']}: exact comparison must not declare a "
                       "tolerance", errors)
+            for prof in er["profiles"]:
+                key = (er["scenario"], prof)
+                check(key not in coverage,
+                      f"{c['id']}: duplicate expected-result coverage for "
+                      f"{key}", errors)
+                coverage.add(key)
+            if er.get("path"):
+                check(pathlib.Path(er["path"]).is_file(),
+                      f"{c['id']}: expected-result file missing: "
+                      f"{er['path']}", errors)
+    orphan_queries = {str(p) for p in
+                      pathlib.Path("oracle/queries").glob("*.sql")} \
+        - set(seen_queries)
+    check(not orphan_queries,
+          f"oracle queries not mapped to any chart: "
+          f"{sorted(orphan_queries)[:3]}", errors)
 
     date_defaults = {c["source_dashboard"]: c["default_value"]
                      for c in controls if c["name"] == "Date"}

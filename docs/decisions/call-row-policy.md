@@ -1,4 +1,4 @@
-# Decision: call_row_policy = raw_row (frozen, M0)
+# Decision: call_row_policy = raw_row (frozen, M0; divergence corrected)
 
 ## Question
 
@@ -9,44 +9,40 @@ token sums, latency aggregates, and call counts treat repeated keys?
 
 ## Evidence
 
-ADK 1.27.0 `bigquery_agent_analytics_plugin.py` L3074–3125 (`after_model_callback`):
+ADK 1.27.0 `bigquery_agent_analytics_plugin.py` L3074–3125: partial chunks
+are logged as `LLM_RESPONSE` rows carrying `usage_metadata` and a computed
+elapsed `latency_ms`, on the same un-popped span as the final row. The seed
+generator emits deterministic partial latencies accordingly.
 
-- partial chunks (`llm_response.partial`) are logged as `LLM_RESPONSE`
-  **without** popping the span — same `span_id` as the final row;
-- each partial row carries `usage_metadata=llm_response.usage_metadata` and
-  a computed `latency_ms` duration;
-- only the final row pops the span.
-
-The pinned Looker block (`fe6423c`) builds `v_llm_response` as a raw
-derived table over all `LLM_RESPONSE` rows. Its measures:
-
-- `total_llm_calls` / `total_tool_usage` / `total_tool_errors`:
-  `count_distinct` on `CONCAT(trace_id,'|',span_id)` — repeated keys
-  collapse;
-- `total_tokens_consumed`, `total_prompt_tokens`, `total_completion_tokens`:
-  `SUM` over **all rows**, partials included;
-- `average_llm_latency` and the percentile measures: over **all rows**.
+The pinned block's **explore** joins `agent_events` to `v_llm_response` on
+`trace_id, span_id, event_type` and declares the join `one_to_one`.
+Repeated keys violate that declaration and **fan out n×n** in a live Looker
+render. Measured on the committed scenario (see
+`evidence/repeated-key-divergence.md`): direct view 6,994 rows /
+17,425,015 tokens vs join shape 9,280 rows / 23,073,041 tokens; distinct
+calls identical (6,314).
 
 ## Decision
 
-**`raw_row`**: aggregate exactly as the block does — raw-row SUM/AVG/
-percentiles plus distinct-key call counts. This is the only policy that can
-satisfy the M4 exact-equality parity gate, because it reproduces block
-behavior by construction, including the block's own double-counting when
-partial chunks carry token counts.
+**`raw_row` over the direct view**: SUM/AVG/percentile aggregate every
+view row (partials included); call counts use `COUNT(DISTINCT
+trace_id|span_id)`. The dashboard's union and the oracle share these
+semantics by independent construction.
 
-`terminal_row_per_key` (dedup to the span's final row) is arguably more
-correct but diverges from the pinned block; it is tracked as a v1.1
-improvement candidate alongside the Tool Name filter-scope fix, to be
-offered upstream to the block simultaneously so the surfaces stay in
-lockstep.
+This is **not** exact block reproduction on the repeated-key population.
+The earlier claim ("reproduces block behavior by construction") was wrong
+and is retracted: the pinned join's n×n fan-out inflates SUM/AVG measures
+in ways `raw_row` deliberately does not copy — reproducing a join-integrity
+artifact would corrupt the metrics it exists to report.
 
-## Consequences
+## M4 consequences (per the contract's divergence rule)
 
-- The union template and the oracle both aggregate raw rows; oracle call
-  counts use distinct keys.
-- Seed fixtures include streaming partial+final rows sharing one span
-  (`streaming_partial_rows` counter) so M4 proves the policy's behavior,
-  not just the happy path.
-- The documented limitation stands: parity is defined as matching the
-  block, not as deduplicated "true" call metrics.
+Parity evidence records three result classes:
+
+1. exact parity over rows satisfying the one-to-one key assumption;
+2. `raw_row` behavior on repeated-key fixtures (committed expected results);
+3. the pinned-join fan-out expectation, recorded separately as the
+   **documented intentional divergence** with the measured numbers above.
+
+`terminal_row_per_key` (dedup to the final row) remains a v1.1 candidate,
+alongside offering the block an upstream fix for the fan-out itself.
