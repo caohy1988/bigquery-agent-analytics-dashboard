@@ -53,13 +53,18 @@ def repo_state(allow_dirty: bool) -> str:
     commit = subprocess.run(["git", "-C", root, "rev-parse", "HEAD"],
                             capture_output=True, text=True,
                             check=True).stdout.strip()
-    dirty = subprocess.run(["git", "-C", root, "status", "--porcelain"],
+    dirty = subprocess.run(["git", "-C", root, "status", "--porcelain",
+                        "--untracked-files=no"],
                            capture_output=True, text=True,
                            check=True).stdout.strip()
+    # Untracked files are ignored: evidence outputs written earlier in
+    # the same pipeline run are new files, not code changes. Any MODIFIED
+    # tracked file invalidates provenance.
     if dirty and not allow_dirty:
-        raise SystemExit("refusing to produce evidence from a dirty tree "
-                         "(commit first, or pass --allow-dirty for dev "
-                         "runs that must not be committed)")
+        raise SystemExit("refusing to produce evidence with modified "
+                         "tracked files (commit first, or pass "
+                         "--allow-dirty for dev runs that must not be "
+                         "committed)")
     return commit + ("+dirty" if dirty else "")
 
 
