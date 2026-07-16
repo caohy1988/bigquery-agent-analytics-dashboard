@@ -46,18 +46,27 @@ def recompute_fingerprint(manifest: dict) -> str:
 
 
 def main() -> int:
-    if pathlib.Path("evidence/.refresh-in-progress").exists():
+    import argparse
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--dir", default="evidence/inventories")
+    ap.add_argument("--profile-json",
+                    default="spec/compatibility_profile.json")
+    ap.add_argument("--ignore-refresh-marker", action="store_true",
+                    help="For synthetic adversarial tests only")
+    args = ap.parse_args()
+    if not args.ignore_refresh_marker and \
+            pathlib.Path("evidence/.refresh-in-progress").exists():
         print("inventories: REFRESH IN PROGRESS marker present — "
-              "skipping (M0 cannot exit in this state)")
+              "skipping (the m0-evidence-gate CI job fails on it)")
         return 0
-    profile = json.load(open("spec/compatibility_profile.json"))
+    profile = json.load(open(args.profile_json))
     intersection = set(profile["intersection_views"])
     errors = []
     view_sets = {}
 
     receipts = {p.name: p for p in
-                pathlib.Path("evidence/inventories").glob("*.receipt.json")}
-    for path in sorted(pathlib.Path("evidence/inventories").glob("*.json")):
+                pathlib.Path(args.dir).glob("*.receipt.json")}
+    for path in sorted(pathlib.Path(args.dir).glob("*.json")):
         if path.name.endswith(".receipt.json"):
             continue
         m = json.load(open(path))
@@ -107,6 +116,19 @@ def main() -> int:
                     if set(receipt.get("views", [])) != views:
                         errors.append(f"{path.name}: receipt view set != "
                                       "observed inventory")
+                    for rk, mk in (("project", "source_project"),
+                                    ("dataset", "source_dataset"),
+                                    ("location", "dataset_location")):
+                        if receipt.get(rk) != m.get(mk):
+                            errors.append(f"{path.name}: receipt {rk} "
+                                          f"{receipt.get(rk)!r} != manifest "
+                                          f"{m.get(mk)!r}")
+                    if "agent_events" not in receipt.get("tables", []):
+                        errors.append(f"{path.name}: receipt lacks "
+                                      "agent_events table")
+                    if receipt.get("view_count") != m.get("view_count"):
+                        errors.append(f"{path.name}: receipt view_count != "
+                                      "manifest view_count")
 
         # Required source columns and types, per view.
         cols_by_view = {v["view"]: {c["name"]: c["type"]
@@ -126,7 +148,10 @@ def main() -> int:
         # tool's blob at the recorded commit (requires git history in CI).
         commit = m.get("capture_tool_commit")
         tool_sha = m.get("capture_tool_sha256")
-        if commit and tool_sha:
+        if not commit or not tool_sha:
+            errors.append(f"{path.name}: capture tool provenance fields "
+                          "are REQUIRED (commit + content sha)")
+        else:
             blob = subprocess.run(
                 ["git", "show", f"{commit}:tools/capture_inventory.py"],
                 capture_output=True)

@@ -61,21 +61,20 @@ MEASURES = {
     "agent_events.total_users": ("COUNT(DISTINCT user_id)", "events"),
     "v_llm_response.total_tokens_consumed": (f"SUM({TOK_TOTAL})", "llm"),
     "v_llm_response.total_llm_calls": (f"COUNT(DISTINCT {PK})", "llm"),
-    # Float aggregates are ROUNDed to 6 decimals INSIDE the query so results
-    # are deterministic across BigQuery's nondeterministic summation order
-    # (observed ulp-level AVG variance on identical rows). 1e-6 relative is
-    # five orders below the block's displayed precision (decimal_1) and lets
-    # the comparator demand full equality with no hidden epsilon.
-    "v_llm_response.average_llm_latency": ("ROUND(AVG(total_ms), 6)", "llm"),
-    "v_tool_completed.average_tool_latency":
-        ("ROUND(AVG(total_ms), 6)", "tool"),
+    # Aggregates stay FAITHFUL to the pinned LookML (raw AVG/PERCENTILE —
+    # no rounding inside the query). Cross-run IEEE summation-order noise
+    # is a COMPARATOR concern, handled by the declared canonical float
+    # precision policy in oracle/runner.py, never by altering query
+    # semantics (PR #1 sixth review).
+    "v_llm_response.average_llm_latency": ("AVG(total_ms)", "llm"),
+    "v_tool_completed.average_tool_latency": ("AVG(total_ms)", "tool"),
     "v_tool_error.total_tool_errors": (f"COUNT(DISTINCT {PK})", "err"),
 }
 for p in (50, 75, 90, 99):
     MEASURES[f"v_llm_response.p{p}_llm_latency"] = (
-        f"ROUND(PERCENTILE_CONT(total_ms, 0.{p:02d}) OVER (), 6)", "llm")
+        f"PERCENTILE_CONT(total_ms, 0.{p:02d}) OVER ()", "llm")
     MEASURES[f"v_tool_completed.p{p}_tool_latency"] = (
-        f"ROUND(PERCENTILE_CONT(total_ms, 0.{p:02d}) OVER (), 6)", "tool")
+        f"PERCENTILE_CONT(total_ms, 0.{p:02d}) OVER ()", "tool")
 
 # pop_<base>_{current,previous,change} → base measure semantics
 POP_BASE = {
@@ -230,8 +229,8 @@ def build_query(c: dict) -> str:
             kind = m.rsplit("_", 1)[1]
             col = {"current": "cur.value",
                    "previous": "prev.value",
-                   "change": "ROUND(SAFE_DIVIDE(cur.value - prev.value,"
-                             " prev.value), 6)"}[kind]
+                   "change": "SAFE_DIVIDE(cur.value - prev.value,"
+                             " prev.value)"}[kind]
             wanted.append(f"  {col} AS {alias(m)}")
         return (header
                 + "WITH cur AS (\n  SELECT " + expr + " AS value FROM (\n"

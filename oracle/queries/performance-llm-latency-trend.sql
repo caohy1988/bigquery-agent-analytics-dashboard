@@ -7,7 +7,7 @@
 -- translation; must never share the production union SQL.
 SELECT
   DATE(timestamp, 'UTC') AS timestamp_date,
-  ROUND(AVG(total_ms), 6) AS average_llm_latency
+  AVG(total_ms) AS average_llm_latency
 FROM (
   SELECT * FROM `{{PROJECT}}.{{DATASET}}.{{VIEW_PREFIX}}_llm_response`
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')

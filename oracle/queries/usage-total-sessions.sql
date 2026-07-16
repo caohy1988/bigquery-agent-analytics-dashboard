@@ -92,5 +92,5 @@ prev AS (
 )
 SELECT
   cur.value AS pop_total_sessions_current,
-  ROUND(SAFE_DIVIDE(cur.value - prev.value, prev.value), 6) AS pop_total_sessions_change
+  SAFE_DIVIDE(cur.value - prev.value, prev.value) AS pop_total_sessions_change
 FROM cur CROSS JOIN prev

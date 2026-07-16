@@ -1,0 +1,1170 @@
+{
+  "capture_tool_commit": "1c897ea537377d8849ae663398e6c8dd631d95e3",
+  "capture_tool_sha256": "e877b45140285514dd84268991eed0589250a6264fc52f9160f3e67c1cad4ba2",
+  "dataset_location": "US",
+  "declared_adk_release": "1.27.0",
+  "declared_adk_source_ref": "v1.27.0",
+  "fingerprint_sha256": "87ba8bb3ca7d8af46c230cd00a2b0912f01e28a26bd3e672ebe52168f2aeafb9",
+  "provisioning_receipt_sha256": "672c3d2f73a091ea5b50e31c3065008236b6f1aa71bbe0a86d6dfe97f5c8751e",
+  "source_dataset": "bqaa_fixture_adk_1_27_0",
+  "source_project": "test-project-0728-467323",
+  "view_count": 15,
+  "view_prefix": "v",
+  "views": [
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "total_ms",
+          "position": 13,
+          "type": "INT64"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, CAST(JSON_VALUE(latency_ms, '$.total_ms') AS INT64) AS total_ms FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'AGENT_COMPLETED'",
+      "view": "v_agent_completed"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "agent_instruction",
+          "position": 13,
+          "type": "STRING"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_VALUE(content, '$.text_summary') AS agent_instruction FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'AGENT_STARTING'",
+      "view": "v_agent_starting"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "tool_name",
+          "position": 13,
+          "type": "STRING"
+        },
+        {
+          "name": "tool_args",
+          "position": 14,
+          "type": "JSON"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_VALUE(content, '$.tool') AS tool_name, JSON_QUERY(content, '$.args') AS tool_args FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'HITL_CONFIRMATION_REQUEST'",
+      "view": "v_hitl_confirmation_request"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "tool_name",
+          "position": 13,
+          "type": "STRING"
+        },
+        {
+          "name": "tool_args",
+          "position": 14,
+          "type": "JSON"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_VALUE(content, '$.tool') AS tool_name, JSON_QUERY(content, '$.args') AS tool_args FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'HITL_CREDENTIAL_REQUEST'",
+      "view": "v_hitl_credential_request"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "tool_name",
+          "position": 13,
+          "type": "STRING"
+        },
+        {
+          "name": "tool_args",
+          "position": 14,
+          "type": "JSON"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_VALUE(content, '$.tool') AS tool_name, JSON_QUERY(content, '$.args') AS tool_args FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'HITL_INPUT_REQUEST'",
+      "view": "v_hitl_input_request"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'INVOCATION_COMPLETED'",
+      "view": "v_invocation_completed"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'INVOCATION_STARTING'",
+      "view": "v_invocation_starting"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "total_ms",
+          "position": 13,
+          "type": "INT64"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, CAST(JSON_VALUE(latency_ms, '$.total_ms') AS INT64) AS total_ms FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'LLM_ERROR'",
+      "view": "v_llm_error"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "model",
+          "position": 13,
+          "type": "STRING"
+        },
+        {
+          "name": "request_content",
+          "position": 14,
+          "type": "JSON"
+        },
+        {
+          "name": "llm_config",
+          "position": 15,
+          "type": "JSON"
+        },
+        {
+          "name": "tools",
+          "position": 16,
+          "type": "JSON"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_VALUE(attributes, '$.model') AS model, content AS request_content, JSON_QUERY(attributes, '$.llm_config') AS llm_config, JSON_QUERY(attributes, '$.tools') AS tools FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'LLM_REQUEST'",
+      "view": "v_llm_request"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "response",
+          "position": 13,
+          "type": "JSON"
+        },
+        {
+          "name": "usage_prompt_tokens",
+          "position": 14,
+          "type": "INT64"
+        },
+        {
+          "name": "usage_completion_tokens",
+          "position": 15,
+          "type": "INT64"
+        },
+        {
+          "name": "usage_total_tokens",
+          "position": 16,
+          "type": "INT64"
+        },
+        {
+          "name": "total_ms",
+          "position": 17,
+          "type": "INT64"
+        },
+        {
+          "name": "ttft_ms",
+          "position": 18,
+          "type": "INT64"
+        },
+        {
+          "name": "model_version",
+          "position": 19,
+          "type": "STRING"
+        },
+        {
+          "name": "usage_metadata",
+          "position": 20,
+          "type": "JSON"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_QUERY(content, '$.response') AS response, CAST(JSON_VALUE(content, '$.usage.prompt') AS INT64) AS usage_prompt_tokens, CAST(JSON_VALUE(content, '$.usage.completion') AS INT64) AS usage_completion_tokens, CAST(JSON_VALUE(content, '$.usage.total') AS INT64) AS usage_total_tokens, CAST(JSON_VALUE(latency_ms, '$.total_ms') AS INT64) AS total_ms, CAST(JSON_VALUE(latency_ms, '$.time_to_first_token_ms') AS INT64) AS ttft_ms, JSON_VALUE(attributes, '$.model_version') AS model_version, JSON_QUERY(attributes, '$.usage_metadata') AS usage_metadata FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'LLM_RESPONSE'",
+      "view": "v_llm_response"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "state_delta",
+          "position": 13,
+          "type": "JSON"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_QUERY(attributes, '$.state_delta') AS state_delta FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'STATE_DELTA'",
+      "view": "v_state_delta"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "tool_name",
+          "position": 13,
+          "type": "STRING"
+        },
+        {
+          "name": "tool_result",
+          "position": 14,
+          "type": "JSON"
+        },
+        {
+          "name": "tool_origin",
+          "position": 15,
+          "type": "STRING"
+        },
+        {
+          "name": "total_ms",
+          "position": 16,
+          "type": "INT64"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_VALUE(content, '$.tool') AS tool_name, JSON_QUERY(content, '$.result') AS tool_result, JSON_VALUE(content, '$.tool_origin') AS tool_origin, CAST(JSON_VALUE(latency_ms, '$.total_ms') AS INT64) AS total_ms FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'TOOL_COMPLETED'",
+      "view": "v_tool_completed"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "tool_name",
+          "position": 13,
+          "type": "STRING"
+        },
+        {
+          "name": "tool_args",
+          "position": 14,
+          "type": "JSON"
+        },
+        {
+          "name": "tool_origin",
+          "position": 15,
+          "type": "STRING"
+        },
+        {
+          "name": "total_ms",
+          "position": 16,
+          "type": "INT64"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_VALUE(content, '$.tool') AS tool_name, JSON_QUERY(content, '$.args') AS tool_args, JSON_VALUE(content, '$.tool_origin') AS tool_origin, CAST(JSON_VALUE(latency_ms, '$.total_ms') AS INT64) AS total_ms FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'TOOL_ERROR'",
+      "view": "v_tool_error"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        },
+        {
+          "name": "tool_name",
+          "position": 13,
+          "type": "STRING"
+        },
+        {
+          "name": "tool_args",
+          "position": 14,
+          "type": "JSON"
+        },
+        {
+          "name": "tool_origin",
+          "position": 15,
+          "type": "STRING"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated, JSON_VALUE(content, '$.tool') AS tool_name, JSON_QUERY(content, '$.args') AS tool_args, JSON_VALUE(content, '$.tool_origin') AS tool_origin FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'TOOL_STARTING'",
+      "view": "v_tool_starting"
+    },
+    {
+      "columns": [
+        {
+          "name": "timestamp",
+          "position": 1,
+          "type": "TIMESTAMP"
+        },
+        {
+          "name": "event_type",
+          "position": 2,
+          "type": "STRING"
+        },
+        {
+          "name": "agent",
+          "position": 3,
+          "type": "STRING"
+        },
+        {
+          "name": "session_id",
+          "position": 4,
+          "type": "STRING"
+        },
+        {
+          "name": "invocation_id",
+          "position": 5,
+          "type": "STRING"
+        },
+        {
+          "name": "user_id",
+          "position": 6,
+          "type": "STRING"
+        },
+        {
+          "name": "trace_id",
+          "position": 7,
+          "type": "STRING"
+        },
+        {
+          "name": "span_id",
+          "position": 8,
+          "type": "STRING"
+        },
+        {
+          "name": "parent_span_id",
+          "position": 9,
+          "type": "STRING"
+        },
+        {
+          "name": "status",
+          "position": 10,
+          "type": "STRING"
+        },
+        {
+          "name": "error_message",
+          "position": 11,
+          "type": "STRING"
+        },
+        {
+          "name": "is_truncated",
+          "position": 12,
+          "type": "BOOL"
+        }
+      ],
+      "definition_normalized": "SELECT timestamp, event_type, agent, session_id, invocation_id, user_id, trace_id, span_id, parent_span_id, status, error_message, is_truncated FROM `__PROJECT__.__DATASET__.agent_events` WHERE event_type = 'USER_MESSAGE_RECEIVED'",
+      "view": "v_user_message_received"
+    }
+  ]
+}

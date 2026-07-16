@@ -66,6 +66,28 @@ jobs:
       - name: Lint
         run: pipx run ruff check tools/ oracle/
 
+  # Fails while evidence/.refresh-in-progress exists: the M0 evidence set
+  # is absent or being regenerated, and that state must be RED, not green
+  # (PR #1 sixth review). Removed together with the refreshed artifacts.
+  m0-evidence-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Evidence present and not mid-refresh
+        run: |
+          if [ -f evidence/.refresh-in-progress ]; then
+            echo "::error::M0 evidence refresh in progress — evidence set is incomplete"
+            exit 1
+          fi
+          for f in evidence/inventories/adk-1.27.0.json \
+                   evidence/inventories/adk-1.36.1.json \
+                   evidence/inventories/adk-2.4.0.json \
+                   evidence/benchmark-10m.json; do
+            [ -f "$f" ] || { echo "::error::missing $f"; exit 1; }
+          done
+          ls oracle/expected/*/*.json >/dev/null 2>&1 || { echo "::error::no expected results"; exit 1; }
+          ls evidence/oracle-compare/*.json >/dev/null 2>&1 || { echo "::error::no compare receipts"; exit 1; }
+
   secret-scan:
     runs-on: ubuntu-latest
     steps:

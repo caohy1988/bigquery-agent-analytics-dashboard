@@ -1,0 +1,32 @@
+{
+ "bindings": {
+  "executed_at_utc": "2026-07-16T08:48:19.663818+00:00",
+  "generator_sha256": "e693162bf1550c7b0babc2f5ac9cba54160bf456e2b936a8dc45983e6c3338ab",
+  "inventory_fingerprint": "87ba8bb3ca7d8af46c230cd00a2b0912f01e28a26bd3e672ebe52168f2aeafb9",
+  "job_id": "bqjob_r4611c2ae4c3038ec_0000019f6a1cbdc1_1",
+  "profile": "1.27.0",
+  "query_sha256": "6414e5cb663d35b5b2f9b580874034494ab82bfc529602376a869294fdefd336",
+  "repo_commit": "1c897ea537377d8849ae663398e6c8dd631d95e3",
+  "runner_sha256": "b5c89d1a9d4eae2f0cc4409a88f490b32058d5055846dfd98916b93e2d7b79c3",
+  "scenario_manifest_sha256": "85604325541463403d91493225ae041e80e17c1a122f4fe5340087241f5abf64",
+  "seed_sha256": "04321db9d4e762a565d177cc2ca5974bf0465182ccf6d9a8bf94ba56daf5eed3"
+ },
+ "chart_id": "performance-p90-tool-latency",
+ "comparison": "percentile_tolerance",
+ "filters": {},
+ "rows": [
+  {
+   "p50_tool_latency": "4453.5",
+   "p75_tool_latency": "6647.25",
+   "p90_tool_latency": "8119.9",
+   "p99_tool_latency": "8902.09"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": 0.0,
+ "tolerance_kind": "relative",
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-09"
+ }
+}

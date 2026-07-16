@@ -10,6 +10,7 @@ inputs.
 import argparse
 import hashlib
 import json
+import pathlib
 import subprocess
 import sys
 
@@ -33,12 +34,45 @@ def main() -> int:
     args = ap.parse_args()
 
     sha = hashlib.sha256()
+    lines = 0
     with open(args.seed_file, "rb") as fh:
         for chunk in iter(lambda: fh.read(1 << 20), b""):
             sha.update(chunk)
+            lines += chunk.count(b"\n")
     summary = json.load(open(args.summary))
-    root = subprocess.run(["git", "rev-parse", "HEAD"],
-                          capture_output=True, text=True).stdout.strip()
+    # The hashed NDJSON must BE the artifact the summary describes.
+    if lines != summary["total_emitted"]:
+        print(f"ERROR: seed file has {lines} rows but the summary claims "
+              f"{summary['total_emitted']} — mismatched artifacts",
+              file=sys.stderr)
+        return 1
+
+    # Provenance anchored to THIS repository (never the caller's cwd),
+    # fail-closed on a dirty generator (same policy as capture/runner).
+    repo = str(pathlib.Path(__file__).resolve().parent.parent)
+    def git(*argv):
+        pr = subprocess.run(["git", "-C", repo, *argv],
+                            capture_output=True, text=True)
+        if pr.returncode != 0:
+            print(f"ERROR: git {' '.join(argv)}: {pr.stderr.strip()}",
+                  file=sys.stderr)
+            raise SystemExit(1)
+        return pr.stdout.strip()
+    root = git("rev-parse", "HEAD")
+    if git("status", "--porcelain", "--untracked-files=no"):
+        print("ERROR: modified tracked files — scenario manifests must be "
+              "produced from committed code", file=sys.stderr)
+        return 1
+    gen_blob = git("rev-parse", "HEAD:tools/seed_events.py")
+    gen_wt = git("hash-object", str(pathlib.Path(repo) / "tools"
+                                    / "seed_events.py"))
+    if gen_blob != gen_wt:
+        print("ERROR: tools/seed_events.py differs from HEAD",
+              file=sys.stderr)
+        return 1
+    gen_sha256 = hashlib.sha256(open(
+        pathlib.Path(repo) / "tools" / "seed_events.py", "rb"
+    ).read()).hexdigest()
 
     manifest = {
         "name": args.name,
@@ -46,6 +80,7 @@ def main() -> int:
         "seed": {
             "generator": "tools/seed_events.py",
             "generator_repo_commit": root,
+            "generator_sha256": gen_sha256,
             "args": {"events": args.events, "days": args.days,
                      "seed": args.seed},
             "end_date": args.end_date,
