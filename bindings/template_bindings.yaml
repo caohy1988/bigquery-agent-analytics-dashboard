@@ -13,10 +13,11 @@
 # (asserted by the renderer) so string replacement can never corrupt other
 # identifiers.
 #
-# NOTE: fixture project/dataset are provisioned in M0 (see the M0
-# prerequisites in the governing contract). Update `project` to the real
-# fixture project ID when it exists; CI re-renders and re-verifies.
+# These are the REAL provisioned M0 fixture identifiers. The sentinel view
+# prefix exists as 15 alias views (vsentinelbqaa_* -> v_*) in the fixture
+# dataset, so the rendered template SQL executes as-is at
+# template-construction time.
 placeholders:
-  PROJECT: bqaa-dash-fixture-sentinel
-  DATASET: bqaa_fixture_v1_sentinel
+  PROJECT: test-project-0728-467323
+  DATASET: bqaa_fixture_adk_1_27_0
   VIEW_PREFIX: vsentinelbqaa

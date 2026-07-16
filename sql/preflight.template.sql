@@ -57,13 +57,13 @@ expected AS (
 ),
 actual AS (
   SELECT table_name, column_name, data_type
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel`.INFORMATION_SCHEMA.COLUMNS
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0`.INFORMATION_SCHEMA.COLUMNS
 ),
 -- Object-type check: a base table shadowing a generated-view name must be
 -- rejected (WRONG_OBJECT_TYPE), not silently accepted via COLUMNS alone.
 objects AS (
   SELECT table_name, table_type
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel`.INFORMATION_SCHEMA.TABLES
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0`.INFORMATION_SCHEMA.TABLES
 )
 SELECT
   e.view_name,

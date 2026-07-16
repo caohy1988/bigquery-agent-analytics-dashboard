@@ -1,0 +1,3 @@
+Waiting on bqjob_r1f937af24154506b_0000019f6a002727_1 ... (0s) Current status: RUNNING                                                                                      Waiting on bqjob_r1f937af24154506b_0000019f6a002727_1 ... (0s) Current status: DONE   
+[{"attribute_objects":"595","bad_attributes":"0","bad_content":"0","bad_latency":"0","content_objects":"1155","latency_objects":"595","unreadable_tokens":"0","unreadable_tools":"0"}]
+live seed round-trip OK: 1155 content / 595 attribute / 595 latency objects; token and tool paths readable

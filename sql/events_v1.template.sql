@@ -37,7 +37,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_user_message_received`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_user_message_received`
   UNION ALL
   SELECT
     timestamp,
@@ -64,7 +64,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_llm_request`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_llm_request`
   UNION ALL
   SELECT
     timestamp,
@@ -91,7 +91,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_llm_response`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_llm_response`
   UNION ALL
   SELECT
     timestamp,
@@ -118,7 +118,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_llm_error`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_llm_error`
   UNION ALL
   SELECT
     timestamp,
@@ -145,7 +145,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_tool_starting`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_tool_starting`
   UNION ALL
   SELECT
     timestamp,
@@ -172,7 +172,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_tool_completed`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_tool_completed`
   UNION ALL
   SELECT
     timestamp,
@@ -199,7 +199,7 @@ WITH events AS (
     tool_name AS tool_error_name,
     tool_origin AS tool_error_origin,
     total_ms AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_tool_error`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_tool_error`
   UNION ALL
   SELECT
     timestamp,
@@ -226,7 +226,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_agent_starting`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_agent_starting`
   UNION ALL
   SELECT
     timestamp,
@@ -253,7 +253,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_agent_completed`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_agent_completed`
   UNION ALL
   SELECT
     timestamp,
@@ -280,7 +280,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_invocation_starting`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_invocation_starting`
   UNION ALL
   SELECT
     timestamp,
@@ -307,7 +307,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_invocation_completed`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_invocation_completed`
   UNION ALL
   SELECT
     timestamp,
@@ -334,7 +334,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_state_delta`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_state_delta`
   UNION ALL
   SELECT
     timestamp,
@@ -361,7 +361,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_hitl_credential_request`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_hitl_credential_request`
   UNION ALL
   SELECT
     timestamp,
@@ -388,7 +388,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_hitl_confirmation_request`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_hitl_confirmation_request`
   UNION ALL
   SELECT
     timestamp,
@@ -415,7 +415,7 @@ WITH events AS (
     CAST(NULL AS STRING) AS tool_error_name,
     CAST(NULL AS STRING) AS tool_error_origin,
     CAST(NULL AS INT64) AS tool_error_total_ms
-  FROM `bqaa-dash-fixture-sentinel.bqaa_fixture_v1_sentinel.vsentinelbqaa_hitl_input_request`
+  FROM `test-project-0728-467323.bqaa_fixture_adk_1_27_0.vsentinelbqaa_hitl_input_request`
 )
 SELECT
   e.*,
