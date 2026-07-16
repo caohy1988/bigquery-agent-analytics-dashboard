@@ -30,9 +30,10 @@ def main() -> int:
 
     adk_version = importlib.metadata.version("google-adk")
 
-    from google.adk.plugins.bigquery_agent_analytics_plugin import (
-        BigQueryAgentAnalyticsPlugin,
-    )
+    import importlib as _il
+    mod = _il.import_module(
+        "google.adk.plugins.bigquery_agent_analytics_plugin")
+    BigQueryAgentAnalyticsPlugin = mod.BigQueryAgentAnalyticsPlugin
 
     client = bigquery.Client(project=args.project)
     ds_ref = bigquery.Dataset(f"{args.project}.{args.dataset}")
@@ -46,6 +47,14 @@ def main() -> int:
     plugin = BigQueryAgentAnalyticsPlugin(**kwargs)
     if getattr(plugin, "client", None) is None:
         plugin.client = client
+    # Replicate the plugin's own _lazy_setup preamble (we drive the sync
+    # setup methods directly instead of running an agent event loop).
+    if getattr(plugin, "full_table_id", None) is None:
+        plugin.full_table_id = (
+            f"{args.project}.{args.dataset}.{plugin.table_id}")
+    if getattr(plugin, "_schema", None) is None \
+            and hasattr(mod, "_get_events_schema"):
+        plugin._schema = mod._get_events_schema()
 
     plugin._ensure_schema_exists()
     plugin._create_analytics_views()
