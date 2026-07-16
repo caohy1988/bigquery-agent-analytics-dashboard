@@ -11,15 +11,29 @@
 #   decisions.call_row_policy       — M0 evidence (raw_row | terminal_row_per_key)
 #   decisions.page_dimensions       — M2 (fixed page size, e.g. {width: 1200, height: 900})
 #   decisions.screenshot_viewport   — M2 (fixed viewport for reference screenshots)
+#   decisions.listener_design       — frozen M0 design: page_level_parity |
+#                                     data_source_aliases | global_controls_with_exceptions
+#   decisions.listener_design_detail — the selected design's data: aliases +
+#                                     chart_alias_assignments (design 2),
+#                                     control_groups, intentional_exceptions
+#                                     (each with rationale), inspector_persistence
 #   charts.<id>.oracle_query        — M0 oracle mapping (path under oracle/queries/)
-#   charts.<id>.expected_fixture_result — M0 oracle expected-result path
+#   charts.<id>.expected_results    — M0 oracle expected-result matrix:
+#                                     [{scenario, profiles, path, comparison, tolerance}]
 #   charts.<id>.screenshot_id       — M4 promoted regression golden
-#   controls.<id>.placement         — frozen M0 listener design (page | report)
+#   charts.<id>.ls_chart            — reviewed refinement of the initial
+#                                     Looker Studio chart-type hypothesis
+#   controls.<id>.placement         — control placement (page | report)
+#
+# Malformed sections (lists, scalars) fail generation — see
+# tools/test_spec_contract.py.
 
 decisions:
   call_row_policy: null
   page_dimensions: null
   screenshot_viewport: null
+  listener_design: null
+  listener_design_detail: null
 
 charts: {}
 

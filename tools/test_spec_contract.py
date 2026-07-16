@@ -53,19 +53,57 @@ def main() -> int:
     if r.returncode == 0 or "non-overridable" not in (r.stderr + r.stdout):
         errors.append("non-overridable key was not rejected")
 
+    # Malformed sections must fail closed, never coerce to {} (review P2).
+    for bad in ({"decisions": []}, {"charts": []}, {"controls": []},
+                {"charts": {"usage-token-usage-split-by-agent": []}},
+                {"decisions": {"listener_design_detail": {"aliases": []},
+                               "listener_design": None}}):
+        r = gen(block, bad, out)
+        if r.returncode == 0:
+            errors.append(f"malformed overrides accepted: {bad}")
+
     good_id = "usage-token-usage-split-by-agent"
     r = gen(block, {
-        "charts": {good_id: {"oracle_query": "oracle/queries/x.sql"}},
-        "decisions": {"call_row_policy": "terminal_row_per_key"}}, out)
+        "charts": {good_id: {
+            "oracle_query": "oracle/queries/x.sql",
+            "ls_chart": "COLUMN",
+            "expected_results": [
+                {"scenario": "seed-42-30d", "profiles": ["1.27.0", "2.4.0"],
+                 "path": "oracle/expected/seed-42-30d/x.json",
+                 "comparison": "exact", "tolerance": None}]}},
+        "decisions": {
+            "call_row_policy": "terminal_row_per_key",
+            "listener_design": "global_controls_with_exceptions",
+            "listener_design_detail": {
+                "inspector_persistence": True,
+                "intentional_exceptions": [
+                    {"control_id": "usage-control-user-id",
+                     "scope": "usage-token-usage-split-by-agent",
+                     "rationale": "pinned block quirk"}]}}}, out)
     if r.returncode != 0:
-        errors.append(f"valid override failed: {r.stderr[:200]}")
+        errors.append(f"valid override failed: {r.stderr[:300]}")
     else:
         s = yaml.safe_load(open(out))
         c = next(x for x in s["charts"] if x["id"] == good_id)
         if c["oracle_query"] != "oracle/queries/x.sql":
             errors.append("chart override did not round-trip")
-        if s["decisions"]["call_row_policy"] != "terminal_row_per_key":
-            errors.append("decision override did not round-trip")
+        if c["ls_chart"] != "COLUMN":
+            errors.append("ls_chart override did not round-trip")
+        if not c["expected_results"] or \
+                c["expected_results"][0]["comparison"] != "exact":
+            errors.append("expected_results override did not round-trip")
+        d = s["decisions"]
+        if d["call_row_policy"] != "terminal_row_per_key" or \
+                d["listener_design"] != "global_controls_with_exceptions":
+            errors.append("decision overrides did not round-trip")
+
+    r = gen(block, {"decisions": {
+        "listener_design": "data_source_aliases",
+        "listener_design_detail": {
+            "aliases": [{"name": "events", "purpose": "primary"}],
+            "chart_alias_assignments": {"no-such-chart": "events"}}}}, out)
+    if r.returncode == 0:
+        errors.append("listener detail with unknown chart id accepted")
 
     schema = json.load(open("spec/dashboard_spec.schema.json"))
     base = yaml.safe_load(open("spec/dashboard_spec.yaml"))

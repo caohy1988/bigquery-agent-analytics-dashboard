@@ -17,9 +17,11 @@ Requires the `bq` CLI authenticated as the current user, with BigQuery
 metadata permissions on the dataset. Dataset location must be passed
 explicitly.
 
-Usage:
+Usage (release and source ref are REQUIRED — committed evidence manifests
+must carry operator-declared provenance):
   python3 tools/capture_inventory.py --project P --dataset D \
-      --location US --prefix v [--adk-release 1.27.0] --out inventory.json
+      --location US --prefix v \
+      --adk-release 1.27.0 --adk-source-ref v1.27.0 --out inventory.json
 """
 
 import argparse
@@ -29,6 +31,41 @@ import pathlib
 import re
 import subprocess
 import sys
+
+
+class ProvenanceError(RuntimeError):
+    pass
+
+
+def tool_provenance(repo_dir: str, script: "pathlib.Path") -> tuple:
+    """Return (commit, content_sha256) for the executing tool.
+
+    Fails closed when git state cannot be read OR when the working-tree
+    script differs from its blob at HEAD — a modified ("dirty") tool must
+    never write provenance evidence stamped with a clean commit (PR #1
+    review P1). Covered by tools/test_provenance.py without BigQuery.
+    """
+    rel = script.resolve().relative_to(
+        pathlib.Path(repo_dir).resolve()).as_posix()
+
+    def git(*argv):
+        p = subprocess.run(["git", "-C", repo_dir, *argv],
+                           capture_output=True, text=True)
+        if p.returncode != 0:
+            raise ProvenanceError(
+                f"git {' '.join(argv)} failed: {p.stderr.strip()}")
+        return p.stdout.strip()
+
+    commit = git("rev-parse", "HEAD")
+    blob_at_head = git("rev-parse", f"HEAD:{rel}")
+    blob_in_tree = git("hash-object", str(script))
+    if blob_at_head != blob_in_tree:
+        raise ProvenanceError(
+            f"{rel} differs from its content at HEAD ({commit[:7]}); "
+            "refusing to record provenance for a modified tool — commit "
+            "the change first")
+    content_sha = hashlib.sha256(script.read_bytes()).hexdigest()
+    return commit, content_sha
 
 
 def bq_query(project: str, location: str, sql: str) -> list:
@@ -66,19 +103,15 @@ def main() -> int:
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
-    # Tool provenance must be THIS repository's commit — anchor git to the
-    # directory containing this script, never the caller's cwd, and fail
-    # closed if it cannot be captured (PR #1 review P1).
-    repo_dir = str(pathlib.Path(__file__).resolve().parent.parent)
-    proc = subprocess.run(
-        ["git", "-C", repo_dir, "rev-parse", "HEAD"],
-        capture_output=True, text=True)
-    if proc.returncode != 0:
-        print("ERROR: cannot capture the inventory tool's own commit "
-              f"(git -C {repo_dir} rev-parse HEAD failed); provenance "
-              "evidence must not be written without it.", file=sys.stderr)
+    # Tool provenance must be THIS repository's commit — anchored to the
+    # script's own repo, verified against the working tree, fail-closed.
+    script = pathlib.Path(__file__).resolve()
+    repo_dir = str(script.parent.parent)
+    try:
+        tool_commit, tool_sha256 = tool_provenance(repo_dir, script)
+    except ProvenanceError as e:
+        print(f"ERROR: {e}", file=sys.stderr)
         return 1
-    tool_commit = proc.stdout.strip()
 
     views = bq_query(args.project, args.location, f"""
         SELECT table_name, view_definition
@@ -122,6 +155,7 @@ def main() -> int:
         "dataset_location": args.location,
         "view_prefix": args.prefix,
         "capture_tool_commit": tool_commit,
+        "capture_tool_sha256": tool_sha256,
         "view_count": len(inventory),
         "fingerprint_sha256": fingerprint,
         "views": inventory,

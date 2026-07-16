@@ -45,12 +45,66 @@
       "type": "object",
       "additionalProperties": false,
       "required": ["call_row_policy", "page_dimensions",
-                   "screenshot_viewport"],
+                   "screenshot_viewport", "listener_design",
+                   "listener_design_detail"],
       "properties": {
         "call_row_policy": {"enum": [null, "raw_row",
                                       "terminal_row_per_key"]},
         "page_dimensions": {"$ref": "#/definitions/dimensions_px"},
-        "screenshot_viewport": {"$ref": "#/definitions/dimensions_px"}
+        "screenshot_viewport": {"$ref": "#/definitions/dimensions_px"},
+        "listener_design": {"enum": [null, "page_level_parity",
+                                      "data_source_aliases",
+                                      "global_controls_with_exceptions"]},
+        "listener_design_detail": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "properties": {
+            "inspector_persistence": {"type": "boolean"},
+            "aliases": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name", "purpose"],
+                "properties": {
+                  "name": {"type": "string"},
+                  "purpose": {"type": "string"},
+                  "sql_ref": {"type": "string"}
+                }
+              }
+            },
+            "chart_alias_assignments": {
+              "type": "object",
+              "additionalProperties": {"type": "string"}
+            },
+            "control_groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["control_id", "chart_ids"],
+                "properties": {
+                  "control_id": {"type": "string"},
+                  "chart_ids": {"type": "array",
+                                 "items": {"type": "string"}}
+                }
+              }
+            },
+            "intentional_exceptions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["control_id", "scope", "rationale"],
+                "properties": {
+                  "control_id": {"type": "string"},
+                  "scope": {"type": "string"},
+                  "rationale": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
       }
     },
     "tabs": {
@@ -102,8 +156,7 @@
                      "measures", "pivots", "fill_fields", "tile_filters",
                      "sorts", "limit", "column_limit", "listen", "geometry",
                      "comparison_previous_period", "percentile", "style",
-                     "oracle_query", "expected_fixture_result",
-                     "screenshot_id"],
+                     "oracle_query", "expected_results", "screenshot_id"],
         "properties": {
           "id": {"type": "string", "minLength": 1},
           "source_dashboard": {"enum": ["usage", "performance"]},
@@ -129,7 +182,26 @@
           "percentile": {"type": "boolean"},
           "style": {"type": "object"},
           "oracle_query": {"type": ["string", "null"]},
-          "expected_fixture_result": {"type": ["string", "null"]},
+          "expected_results": {
+            "type": ["array", "null"],
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["scenario", "profiles", "path", "comparison"],
+              "properties": {
+                "scenario": {"type": "string", "minLength": 1},
+                "profiles": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {"enum": ["1.27.0", "1.36.1", "2.4.0"]}
+                },
+                "path": {"type": "string", "minLength": 1},
+                "comparison": {"enum": ["exact", "percentile_tolerance"]},
+                "tolerance": {"type": ["number", "null"]}
+              }
+            }
+          },
           "screenshot_id": {"type": ["string", "null"]}
         }
       }

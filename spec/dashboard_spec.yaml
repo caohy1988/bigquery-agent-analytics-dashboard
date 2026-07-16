@@ -198,7 +198,7 @@ charts:
     note_text: A breakdown of total token consumption distributed across your different agents, highlighting
       which bots are the most resource-intensive.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-top-5-users-with-most-tokens-consumption
   source_dashboard: usage
@@ -268,7 +268,7 @@ charts:
     note_display: hover
     note_text: A leaderboard of the top 5 individual end-users who have driven the highest token costs.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-total-tokens-consumption-over-the-time
   source_dashboard: usage
@@ -356,7 +356,7 @@ charts:
     note_display: hover
     note_text: A daily time-series area chart tracking the aggregate volume of tokens burned
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-total-tokens
   source_dashboard: usage
@@ -453,7 +453,7 @@ charts:
     note_text: The total aggregate number of prompt and completion tokens consumed by all LLM requests
       within the selected timeframe
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-top-5-users-with-most-traces
   source_dashboard: usage
@@ -525,7 +525,7 @@ charts:
     note_text: A leaderboard of your most active power-users, ranked by the total number of distinct interactions
       they have initiated.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-total-traces
   source_dashboard: usage
@@ -621,7 +621,7 @@ charts:
     note_display: hover
     note_text: The total number of unique, end-to-end user interactions (journeys) processed by the agents
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-traces-split-by-agent
   source_dashboard: usage
@@ -702,7 +702,7 @@ charts:
     note_text: A distribution of total traffic across your agents, showing which bots are handling the
       highest volume of user requests.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-total-traces-generation-over-the-time
   source_dashboard: usage
@@ -791,7 +791,7 @@ charts:
     note_display: hover
     note_text: A daily time-series area chart showing the volume of unique agent interactions
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-total-sessions
   source_dashboard: usage
@@ -871,7 +871,7 @@ charts:
     totals_color: '#808080'
     defaults_version: 1
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-number-of-sessions-trend
   source_dashboard: usage
@@ -960,7 +960,7 @@ charts:
     defaults_version: 1
     hidden_pivots: {}
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-top-5-agents-split-by-session-count
   source_dashboard: usage
@@ -1048,7 +1048,7 @@ charts:
     defaults_version: 1
     hidden_pivots: {}
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-tool-invocations
   source_dashboard: usage
@@ -1122,7 +1122,7 @@ charts:
     note_text: A ranked list showing which specific backend tools and functions are being executed the
       most frequently by the LLMs.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-events-by-agent
   source_dashboard: usage
@@ -1198,7 +1198,7 @@ charts:
     note_text: A breakdown of total raw lifecycle events (including tool calls, errors, and LLM requests)
       distributed across your agents.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-tool-calls-over-time
   source_dashboard: usage
@@ -1283,7 +1283,7 @@ charts:
     note_text: A stacked area chart tracking the daily execution volume of specific backend tools and
       functions
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-total-calls
   source_dashboard: usage
@@ -1371,7 +1371,7 @@ charts:
     note_display: hover
     note_text: The absolute number of individual requests sent to the underlying LLM models.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-llm-call-trends
   source_dashboard: usage
@@ -1463,7 +1463,7 @@ charts:
     note_text: A highly granular scatter plot showing the frequency and clustering of LLM requests over
       time.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-top-5-agents-by-llm-calls
   source_dashboard: usage
@@ -1553,7 +1553,7 @@ charts:
     note_display: hover
     note_text: A ranking of which agents are triggering the most calls to the LLM backend.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-total-users
   source_dashboard: usage
@@ -1643,7 +1643,7 @@ charts:
     note_text: The count of unique, distinct end-users who have interacted with any agent during the selected
       timeframe.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-user-growth-over-time
   source_dashboard: usage
@@ -1736,7 +1736,7 @@ charts:
     note_text: A smoothed area chart tracking the daily count of active unique users to measure platform
       adoption and retention.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-top-5-users-by-session
   source_dashboard: usage
@@ -1827,7 +1827,7 @@ charts:
     note_text: A leaderboard ranking your top power-users by the total number of distinct conversation
       sessions they have maintained.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: usage-top-5-users-by-events
   source_dashboard: usage
@@ -1918,7 +1918,7 @@ charts:
     note_text: A ranking of users based on the raw volume of lifecycle events they generate, indicating
       deep, complex usage of the system.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-average-tool-latency-ms
   source_dashboard: performance
@@ -1994,7 +1994,7 @@ charts:
     note_text: The average time (in milliseconds) it takes for backend tools and functions to execute
       and return a result.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-tool-latency-trend
   source_dashboard: performance
@@ -2081,7 +2081,7 @@ charts:
     note_text: An area chart tracking the historical trend of average tool execution times, helping identify
       backend performance degradation.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-average-llm-latency-in-ms
   source_dashboard: performance
@@ -2174,7 +2174,7 @@ charts:
       and return a response.
     title_hidden: true
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-llm-latency-trend
   source_dashboard: performance
@@ -2274,7 +2274,7 @@ charts:
     note_text: An area chart tracking historical LLM response times to identify API throttling or model
       performance issues.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-p50-tool-latency
   source_dashboard: performance
@@ -2406,7 +2406,7 @@ charts:
     value_format_v_tool_completed.p99_tool_latency: ''
     show_comparison_v_tool_completed.p99_tool_latency: false
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-p75-tool-latency
   source_dashboard: performance
@@ -2538,7 +2538,7 @@ charts:
     value_format_v_tool_completed.p99_tool_latency: ''
     show_comparison_v_tool_completed.p99_tool_latency: false
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-p90-tool-latency
   source_dashboard: performance
@@ -2670,7 +2670,7 @@ charts:
     value_format_v_tool_completed.p99_tool_latency: ''
     show_comparison_v_tool_completed.p99_tool_latency: false
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-p99-tool-latency
   source_dashboard: performance
@@ -2802,7 +2802,7 @@ charts:
     value_format_v_tool_completed.p99_tool_latency: ''
     show_comparison_v_tool_completed.p99_tool_latency: false
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-p50-llm-latency
   source_dashboard: performance
@@ -2905,7 +2905,7 @@ charts:
     title_placement_v_tool_completed.p50_tool_latency: above
     value_format_v_tool_completed.p50_tool_latency: ''
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-p75-llm-latency
   source_dashboard: performance
@@ -3008,7 +3008,7 @@ charts:
     title_placement_v_tool_completed.p50_tool_latency: above
     value_format_v_tool_completed.p50_tool_latency: ''
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-p90-llm-latency
   source_dashboard: performance
@@ -3111,7 +3111,7 @@ charts:
     title_placement_v_tool_completed.p50_tool_latency: above
     value_format_v_tool_completed.p50_tool_latency: ''
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-p99-llm-latency
   source_dashboard: performance
@@ -3214,7 +3214,7 @@ charts:
     title_placement_v_tool_completed.p50_tool_latency: above
     value_format_v_tool_completed.p50_tool_latency: ''
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-total-errors
   source_dashboard: performance
@@ -3294,7 +3294,7 @@ charts:
     note_text: The total number of backend tool executions that resulted in an error status, including
       the Period-over-Period trend.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-tool-errors-trend
   source_dashboard: performance
@@ -3380,7 +3380,7 @@ charts:
     note_text: A daily time-series tracking the volume of tool failures. Click a spike to drill down into
       the raw error logs.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-top-5-agents-by-errors
   source_dashboard: performance
@@ -3466,7 +3466,7 @@ charts:
     note_display: hover
     note_text: A ranking showing which specific agents are experiencing the highest volume of failures.
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 - id: performance-top-5-tools-by-errors
   source_dashboard: performance
@@ -3553,7 +3553,7 @@ charts:
     note_text: A critical leaderboard of the most unstable backend tools. Focus debugging efforts on the
       tools at the top of this list
   oracle_query: null
-  expected_fixture_result: null
+  expected_results: null
   screenshot_id: null
 non_data_elements:
 - id: usage-nondata-1
@@ -3730,5 +3730,7 @@ tabs:
   title: Errors
 decisions:
   call_row_policy: null
+  listener_design: null
+  listener_design_detail: null
   page_dimensions: null
   screenshot_viewport: null

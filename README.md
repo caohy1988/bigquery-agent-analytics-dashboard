@@ -27,6 +27,8 @@ project/dataset/prefix via a Linking API URL emitted by a validating helper.
 | Path | What it is |
 |---|---|
 | `spec/dashboard_spec.yaml` | Executable parity manifest: 37 chart records, 9 non-data elements, controls, listener matrix — **generated** from the pinned block LookML, never hand-edited |
+| `spec/overrides.yaml` | **The only hand-maintained spec input** — reviewed M0/M2 decision layer (oracle mappings, expected-result matrix, screenshot goldens, listener design, control placement, `call_row_policy`) merged into every regeneration by ID |
+| `spec/dashboard_spec.schema.json` | Full record contract (draft-07, closed records) validated in CI |
 | `sql/events_v1.sql.tmpl` | Reviewed logical union query (**generated** by `tools/gen_events_tmpl.py`) |
 | `sql/events_v1.template.sql` | Sentinel-rendered SQL embedded in the canonical report (**generated** by `tools/render_template.py`) |
 | `sql/preflight.sql.tmpl` / `.template.sql` | Structural compatibility check, run by the hydration helper before emitting a link |

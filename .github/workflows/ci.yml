@@ -51,6 +51,9 @@ jobs:
       - name: Spec contract negative tests
         run: python3 tools/test_spec_contract.py .block-pinned
 
+      - name: Provenance fail-closed tests
+        run: python3 tools/test_provenance.py
+
       - name: Lint
         run: pipx run ruff check tools/
 

@@ -86,7 +86,7 @@ def element_record(dashboard_key: str, el: dict, seen: dict) -> dict:
         "style": style,
         # Populated via spec/overrides.yaml (M0/M2 decisions), never here.
         "oracle_query": None,
-        "expected_fixture_result": None,
+        "expected_results": None,
         "screenshot_id": None,
     }
     if el.get("dynamic_fields") is not None:
@@ -147,28 +147,82 @@ def verify_structural_parity(el: dict, rec: dict) -> None:
                 f"source={el[key]!r} manifest={resolved[key]!r}")
 
 
-OVERRIDABLE_CHART_KEYS = {"oracle_query", "expected_fixture_result",
-                          "screenshot_id"}
+# ls_chart is overridable because the LS_CHART_MAP values are an initial
+# hypothesis M0/M2 may refine per record — refinements are reviewed
+# override decisions, not generator edits.
+OVERRIDABLE_CHART_KEYS = {"oracle_query", "expected_results",
+                          "screenshot_id", "ls_chart"}
 OVERRIDABLE_CONTROL_KEYS = {"placement"}
-DECISION_KEYS = {"call_row_policy", "page_dimensions", "screenshot_viewport"}
+DECISION_KEYS = {"call_row_policy", "page_dimensions", "screenshot_viewport",
+                 "listener_design", "listener_design_detail"}
 
 
-def apply_overrides(spec: dict, overrides: dict) -> None:
-    """Merge the reviewed decision layer with referential integrity."""
+def _require_mapping(value, what: str) -> dict:
+    """Fail closed on malformed override sections — an empty list or any
+    non-mapping value must be rejected, never coerced to {} (fail-open bug,
+    PR #1 review P2)."""
+    if value is None:
+        return {}
+    if not isinstance(value, dict):
+        raise SystemExit(f"overrides: {what} must be a mapping, got "
+                         f"{type(value).__name__}")
+    return value
+
+
+def validate_listener_detail(detail: dict, chart_ids: set,
+                             control_ids: set) -> None:
+    """Referential integrity for the frozen listener-design detail."""
+    alias_names = {a.get("name") for a in detail.get("aliases", [])}
+    for cid, alias in (detail.get("chart_alias_assignments") or {}).items():
+        if cid not in chart_ids:
+            raise SystemExit(f"listener_design_detail: unknown chart {cid!r}")
+        if alias not in alias_names:
+            raise SystemExit(f"listener_design_detail: chart {cid!r} "
+                             f"assigned to undeclared alias {alias!r}")
+    for group in detail.get("control_groups", []):
+        if group.get("control_id") not in control_ids:
+            raise SystemExit("listener_design_detail: unknown control "
+                             f"{group.get('control_id')!r} in control_groups")
+        for cid in group.get("chart_ids", []):
+            if cid not in chart_ids:
+                raise SystemExit("listener_design_detail: unknown chart "
+                                 f"{cid!r} in control_groups")
+    for exc in detail.get("intentional_exceptions", []):
+        if exc.get("control_id") not in control_ids:
+            raise SystemExit("listener_design_detail: unknown control "
+                             f"{exc.get('control_id')!r} in exceptions")
+
+
+def apply_overrides(spec: dict, overrides) -> None:
+    """Merge the reviewed decision layer with referential integrity and
+    strict input typing."""
+    overrides = _require_mapping(overrides, "document")
     unknown = set(overrides) - {"decisions", "charts", "controls"}
     if unknown:
         raise SystemExit(f"overrides: unknown top-level keys {sorted(unknown)}")
 
-    decisions = overrides.get("decisions") or {}
+    decisions = _require_mapping(overrides.get("decisions"), "decisions")
     bad = set(decisions) - DECISION_KEYS
     if bad:
         raise SystemExit(f"overrides: unknown decisions {sorted(bad)}")
     spec["decisions"] = {k: decisions.get(k) for k in sorted(DECISION_KEYS)}
 
+    chart_ids = {c["id"] for c in spec["charts"]}
+    control_ids = {c["id"] for c in spec["controls"]}
+    detail = spec["decisions"].get("listener_design_detail")
+    if detail is not None:
+        detail = _require_mapping(detail, "decisions.listener_design_detail")
+        if spec["decisions"].get("listener_design") is None:
+            raise SystemExit("overrides: listener_design_detail set without "
+                             "listener_design")
+        validate_listener_detail(detail, chart_ids, control_ids)
+
     charts_by_id = {c["id"]: c for c in spec["charts"]}
-    for cid, patch in (overrides.get("charts") or {}).items():
+    for cid, patch in _require_mapping(overrides.get("charts"),
+                                       "charts").items():
         if cid not in charts_by_id:
             raise SystemExit(f"overrides: unknown chart id {cid!r}")
+        patch = _require_mapping(patch, f"charts.{cid}")
         bad = set(patch) - OVERRIDABLE_CHART_KEYS
         if bad:
             raise SystemExit(f"overrides: chart {cid!r}: non-overridable "
@@ -176,9 +230,11 @@ def apply_overrides(spec: dict, overrides: dict) -> None:
         charts_by_id[cid].update(patch)
 
     controls_by_id = {c["id"]: c for c in spec["controls"]}
-    for cid, patch in (overrides.get("controls") or {}).items():
+    for cid, patch in _require_mapping(overrides.get("controls"),
+                                       "controls").items():
         if cid not in controls_by_id:
             raise SystemExit(f"overrides: unknown control id {cid!r}")
+        patch = _require_mapping(patch, f"controls.{cid}")
         bad = set(patch) - OVERRIDABLE_CONTROL_KEYS
         if bad:
             raise SystemExit(f"overrides: control {cid!r}: non-overridable "

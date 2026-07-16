@@ -99,6 +99,19 @@ def main() -> int:
           "every pinned source tile defines column_limit; a null means the "
           "generator dropped it", errors)
 
+    # Oracle expected-results structure: percentile tolerance must be a
+    # declared number, and exact comparisons must not carry one.
+    for c in charts:
+        for er in c.get("expected_results") or []:
+            if er["comparison"] == "percentile_tolerance":
+                check(isinstance(er.get("tolerance"), (int, float)),
+                      f"{c['id']}: percentile_tolerance requires a numeric "
+                      "tolerance", errors)
+            else:
+                check(er.get("tolerance") in (None,),
+                      f"{c['id']}: exact comparison must not declare a "
+                      "tolerance", errors)
+
     date_defaults = {c["source_dashboard"]: c["default_value"]
                      for c in controls if c["name"] == "Date"}
     check(date_defaults.get("usage") == "14 day",

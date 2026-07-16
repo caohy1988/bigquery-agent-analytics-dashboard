@@ -30,20 +30,37 @@ done
 
 # The rendered SQL begins with `--` comment lines, which `bq` would parse
 # as command-line flags if passed positionally — feed it via stdin instead.
+# --max_rows must exceed the full problem-row count (each shadowed view
+# yields 12-19 rows); the bq default of 100 silently truncates and would
+# let a partial detection pass.
 ROWS=$(sed -e "s/{{PROJECT}}/$PROJECT/g" -e "s/{{DATASET}}/$DS/g" \
            -e "s/{{VIEW_PREFIX}}/v/g" sql/preflight.sql.tmpl \
   | bq --project_id="$PROJECT" --location="$LOCATION" query \
-      --nouse_legacy_sql --format=json)
+      --nouse_legacy_sql --format=json --max_rows=10000)
 
 python3 - "$ROWS" <<'EOF'
 import json, sys
+EXPECTED = {f"v_{s}" for s in [
+    "user_message_received", "llm_request", "llm_response", "llm_error",
+    "tool_starting", "tool_completed", "tool_error", "agent_starting",
+    "agent_completed", "invocation_starting", "invocation_completed",
+    "state_delta", "hitl_credential_request", "hitl_confirmation_request",
+    "hitl_input_request"]}
 rows = json.loads(sys.argv[1] or "[]")
-wrong = [r for r in rows if r["problem"] == "WRONG_OBJECT_TYPE"]
 if not rows:
     print("FAIL: preflight returned [] for a table-shadowed dataset",
           file=sys.stderr); sys.exit(1)
-if len(wrong) < 15:
-    print(f"FAIL: expected >=15 WRONG_OBJECT_TYPE rows, got {len(wrong)}",
+wrong = [r for r in rows if r["problem"] == "WRONG_OBJECT_TYPE"]
+seen = {r["view_name"] for r in wrong}
+if seen != EXPECTED:
+    print(f"FAIL: WRONG_OBJECT_TYPE views != expected 15; "
+          f"missing={sorted(EXPECTED - seen)} extra={sorted(seen - EXPECTED)}",
           file=sys.stderr); sys.exit(1)
-print(f"live preflight shadow test OK: {len(wrong)} WRONG_OBJECT_TYPE rows")
+bad_type = {r["view_name"] for r in wrong
+            if r.get("observed_object_type") != "BASE TABLE"}
+if bad_type:
+    print(f"FAIL: observed_object_type not BASE TABLE for {sorted(bad_type)}",
+          file=sys.stderr); sys.exit(1)
+print(f"live preflight shadow test OK: all 15 views reported "
+      f"WRONG_OBJECT_TYPE as BASE TABLE ({len(wrong)} problem rows)")
 EOF
