@@ -1,6 +1,8 @@
 # Never commit datasets, seeds, or raw benchmark output
 *.ndjson
-seed*.json
+# seed summaries live outside the repo; scenario manifests and
+# compare receipts are EVIDENCE and must never be ignored
+*.summary.json
 evidence/raw/
 *.log
 

@@ -1,0 +1,51 @@
+{
+ "bindings": {
+  "executed_at_utc": "2026-07-16T15:07:29.103162+00:00",
+  "generator_sha256": "921d586c8007f0cd12c074a478b95ce86816910468d5aad59ccb4f4ffb773336",
+  "inventory_fingerprint": "87ba8bb3ca7d8af46c230cd00a2b0912f01e28a26bd3e672ebe52168f2aeafb9",
+  "job_id": "oracle_7cbc0805d16842c4866a3ed0df0416ca",
+  "profile": "1.27.0",
+  "query_sha256": "2eb527c91a87f2120a383fd8ec2c967e6ee10832ece98fbcd133fd9f6d5daa10",
+  "repo_commit": "010af3c88b2016090b1f4e11c39d0e1136d62fb9",
+  "runner_sha256": "3af74b6da9a9fde8804f11cdbe28e5c77a1839899c9e27de0353f3559671e155",
+  "scenario_manifest_sha256": "dd6be431097a9896142c28e385a01de287c93fcc0c9bce0bb768cefcecf730ff",
+  "seed_sha256": "04321db9d4e762a565d177cc2ca5974bf0465182ccf6d9a8bf94ba56daf5eed3",
+  "spec_sha256": "3a96b9d1d8c1c44a147a77f2732af29e1db4cca2bd213475337b05e128f8eb16"
+ },
+ "chart_id": "performance-tool-latency-trend",
+ "comparison": "exact",
+ "filters": {},
+ "rows": [
+  {
+   "average_tool_latency": "4455.347629796843",
+   "timestamp_date": "2026-07-14"
+  },
+  {
+   "average_tool_latency": "4505.418092909539",
+   "timestamp_date": "2026-07-13"
+  },
+  {
+   "average_tool_latency": "4579.110403397029",
+   "timestamp_date": "2026-07-12"
+  },
+  {
+   "average_tool_latency": "4327.859903381642",
+   "timestamp_date": "2026-07-11"
+  },
+  {
+   "average_tool_latency": "4467.367886178861",
+   "timestamp_date": "2026-07-10"
+  },
+  {
+   "average_tool_latency": "4380.226781857453",
+   "timestamp_date": "2026-07-09"
+  }
+ ],
+ "scenario": "seed-20260715-30d-100k",
+ "tolerance": null,
+ "tolerance_kind": null,
+ "window": {
+  "end_date": "2026-07-15",
+  "start_date": "2026-07-09"
+ }
+}

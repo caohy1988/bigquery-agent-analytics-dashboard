@@ -1,0 +1,45 @@
+{
+ "base_scenario": "seed-20260715-30d-100k",
+ "filters": {},
+ "name": "seed-20260715-30d-100k",
+ "seed": {
+  "args": {
+   "days": 30,
+   "events": 100000,
+   "seed": 20260715
+  },
+  "by_event_type": {
+   "AGENT_COMPLETED": 1,
+   "AGENT_STARTING": 1,
+   "HITL_CONFIRMATION_COMPLETED": 131,
+   "HITL_CONFIRMATION_REQUEST": 1,
+   "HITL_CREDENTIAL_COMPLETED": 132,
+   "HITL_CREDENTIAL_REQUEST": 1,
+   "HITL_INPUT_REQUEST": 1,
+   "INVOCATION_COMPLETED": 14093,
+   "INVOCATION_STARTING": 14093,
+   "LLM_ERROR": 1,
+   "LLM_REQUEST": 14093,
+   "LLM_RESPONSE": 15604,
+   "STATE_DELTA": 1,
+   "TOOL_COMPLETED": 13004,
+   "TOOL_ERROR": 943,
+   "TOOL_STARTING": 13808,
+   "USER_MESSAGE_RECEIVED": 14093
+  },
+  "end_date": "2026-07-15",
+  "fixture_counters": {
+   "base_table_only_rows": 263,
+   "duplicate_tool_terminal_rows": 138,
+   "streaming_partial_rows": 1511,
+   "token_conflict": 1440,
+   "token_content_only": 2752,
+   "token_metadata_only": 9901
+  },
+  "generator": "tools/seed_events.py",
+  "generator_repo_commit": "010af3c88b2016090b1f4e11c39d0e1136d62fb9",
+  "generator_sha256": "816d05bbad2e9d1b06b1a57458973c75bd7cad57d05e84667dcc9979755377be",
+  "ndjson_sha256": "04321db9d4e762a565d177cc2ca5974bf0465182ccf6d9a8bf94ba56daf5eed3",
+  "total_emitted": 100001
+ }
+}

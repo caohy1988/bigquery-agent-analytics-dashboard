@@ -1,0 +1,197 @@
+{
+ "charts": {
+  "performance-average-llm-latency-in-ms": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "performance-average-tool-latency-ms": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "performance-llm-latency-trend": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "performance-p50-llm-latency": {
+   "detail": "match",
+   "job_id": "bqjob_r213f4c29f41b2fdd_0000019f6a2735ab_1",
+   "pass": true
+  },
+  "performance-p50-tool-latency": {
+   "detail": "match",
+   "job_id": "bqjob_r60ab6cf7d46fe57e_0000019f6a26ed7c_1",
+   "pass": true
+  },
+  "performance-p75-llm-latency": {
+   "detail": "match",
+   "job_id": "bqjob_r751420cc23ae9c4c_0000019f6a2746a6_1",
+   "pass": true
+  },
+  "performance-p75-tool-latency": {
+   "detail": "match",
+   "job_id": "bqjob_r3e06eefa2f4f0a2a_0000019f6a26fd0d_1",
+   "pass": true
+  },
+  "performance-p90-llm-latency": {
+   "detail": "match",
+   "job_id": "bqjob_r284f050e368bbe4a_0000019f6a275ace_1",
+   "pass": true
+  },
+  "performance-p90-tool-latency": {
+   "detail": "match",
+   "job_id": "bqjob_r604ebe79f854e971_0000019f6a271146_1",
+   "pass": true
+  },
+  "performance-p99-llm-latency": {
+   "detail": "match",
+   "job_id": "bqjob_r24cb933180aeadee_0000019f6a276d79_1",
+   "pass": true
+  },
+  "performance-p99-tool-latency": {
+   "detail": "match",
+   "job_id": "bqjob_r1fff58dd48b322a2_0000019f6a2720d7_1",
+   "pass": true
+  },
+  "performance-tool-errors-trend": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "performance-tool-latency-trend": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "performance-top-5-agents-by-errors": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "performance-top-5-tools-by-errors": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "performance-total-errors": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-events-by-agent": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-llm-call-trends": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-number-of-sessions-trend": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-token-usage-split-by-agent": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-tool-calls-over-time": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-tool-invocations": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-top-5-agents-by-llm-calls": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-top-5-agents-split-by-session-count": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-top-5-users-by-events": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-top-5-users-by-session": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-top-5-users-with-most-tokens-consumption": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-top-5-users-with-most-traces": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-total-calls": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-total-sessions": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-total-tokens": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-total-tokens-consumption-over-the-time": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-total-traces": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-total-traces-generation-over-the-time": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-total-users": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-traces-split-by-agent": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  },
+  "usage-user-growth-over-time": {
+   "detail": "match",
+   "job_id": null,
+   "pass": true
+  }
+ },
+ "dataset": "test-project-0728-467323.bqaa_fixture_adk_2_4_0",
+ "executed_at_utc": "2026-07-16T09:00:12.489996+00:00",
+ "inventory_fingerprint": "bdbff8813969b9951959f107109a366270991f2dd0836a5310968f6d5a41e367",
+ "pass": true,
+ "profile": "2.4.0",
+ "repo_commit": "1c897ea537377d8849ae663398e6c8dd631d95e3",
+ "scenario": "seed-20260715-30d-100k-f1",
+ "scenario_manifest_sha256": "f5655592314bcc4904fe16c925abe48ffa01f81747bbfa5350b4efba039ba527"
+}
