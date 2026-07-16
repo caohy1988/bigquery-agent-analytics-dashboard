@@ -1,12 +1,36 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "title": "dashboard_spec",
+  "definitions": {
+    "geometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["row", "col", "width", "height"],
+      "properties": {
+        "row": {"type": "integer", "minimum": 0},
+        "col": {"type": "integer", "minimum": 0},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1}
+      }
+    },
+    "dimensions_px": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1}
+      }
+    }
+  },
   "type": "object",
   "additionalProperties": false,
-  "required": ["meta", "controls", "charts", "non_data_elements", "tabs"],
+  "required": ["meta", "controls", "charts", "non_data_elements", "tabs",
+               "decisions"],
   "properties": {
     "meta": {
       "type": "object",
+      "additionalProperties": false,
       "required": ["source_repo", "pinned_commit", "source_files",
                    "generator", "contract_issue"],
       "properties": {
@@ -17,12 +41,25 @@
         "contract_issue": {"type": "string"}
       }
     },
+    "decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["call_row_policy", "page_dimensions",
+                   "screenshot_viewport"],
+      "properties": {
+        "call_row_policy": {"enum": [null, "raw_row",
+                                      "terminal_row_per_key"]},
+        "page_dimensions": {"$ref": "#/definitions/dimensions_px"},
+        "screenshot_viewport": {"$ref": "#/definitions/dimensions_px"}
+      }
+    },
     "tabs": {
       "type": "array",
       "minItems": 7,
       "maxItems": 7,
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["source_dashboard", "name", "title"],
         "properties": {
           "source_dashboard": {"enum": ["usage", "performance"]},
@@ -37,6 +74,7 @@
       "maxItems": 11,
       "items": {
         "type": "object",
+        "additionalProperties": false,
         "required": ["id", "source_dashboard", "name", "field",
                      "default_value", "allow_multiple_values", "ui_config",
                      "placement"],
@@ -86,16 +124,7 @@
           "column_limit": {"type": "integer"},
           "listen": {"type": "object",
                      "additionalProperties": {"type": "string"}},
-          "geometry": {
-            "type": "object",
-            "required": ["row", "col", "width", "height"],
-            "properties": {
-              "row": {"type": "integer", "minimum": 0},
-              "col": {"type": "integer", "minimum": 0},
-              "width": {"type": "integer", "minimum": 1},
-              "height": {"type": "integer", "minimum": 1}
-            }
-          },
+          "geometry": {"$ref": "#/definitions/geometry"},
           "comparison_previous_period": {"type": "boolean"},
           "percentile": {"type": "boolean"},
           "style": {"type": "object"},
@@ -120,10 +149,7 @@
           "page": {"type": "string"},
           "looker_type": {"enum": ["text", "button"]},
           "ls_chart": {"enum": ["TEXT", "BUTTON"]},
-          "geometry": {
-            "type": "object",
-            "required": ["row", "col", "width", "height"]
-          },
+          "geometry": {"$ref": "#/definitions/geometry"},
           "payload": {"type": "object"}
         }
       }

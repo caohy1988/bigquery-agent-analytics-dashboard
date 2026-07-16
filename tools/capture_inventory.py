@@ -25,6 +25,7 @@ Usage:
 import argparse
 import hashlib
 import json
+import pathlib
 import re
 import subprocess
 import sys
@@ -55,20 +56,29 @@ def main() -> int:
     ap.add_argument("--dataset", required=True)
     ap.add_argument("--location", required=True)
     ap.add_argument("--prefix", default="v")
-    ap.add_argument("--adk-release", default=None,
-                    help="Operator-declared provenance; never inferred.")
-    ap.add_argument("--adk-source-ref", default=None,
+    ap.add_argument("--adk-release", required=True,
+                    help="Operator-declared provenance; never inferred. "
+                         "Required: committed evidence manifests must carry "
+                         "it (e.g. 1.27.0).")
+    ap.add_argument("--adk-source-ref", required=True,
                     help="ADK source tag/commit the release was installed "
-                         "from (e.g. v1.27.0).")
+                         "from (e.g. v1.27.0). Required for evidence.")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
-    try:
-        tool_commit = subprocess.run(
-            ["git", "rev-parse", "HEAD"], capture_output=True, text=True,
-            check=True).stdout.strip()
-    except Exception:
-        tool_commit = None
+    # Tool provenance must be THIS repository's commit — anchor git to the
+    # directory containing this script, never the caller's cwd, and fail
+    # closed if it cannot be captured (PR #1 review P1).
+    repo_dir = str(pathlib.Path(__file__).resolve().parent.parent)
+    proc = subprocess.run(
+        ["git", "-C", repo_dir, "rev-parse", "HEAD"],
+        capture_output=True, text=True)
+    if proc.returncode != 0:
+        print("ERROR: cannot capture the inventory tool's own commit "
+              f"(git -C {repo_dir} rev-parse HEAD failed); provenance "
+              "evidence must not be written without it.", file=sys.stderr)
+        return 1
+    tool_commit = proc.stdout.strip()
 
     views = bq_query(args.project, args.location, f"""
         SELECT table_name, view_definition

@@ -28,10 +28,12 @@ for v in user_message_received llm_request llm_response llm_error \
        tool_name STRING, tool_origin STRING)" >/dev/null
 done
 
-SQL=$(sed -e "s/{{PROJECT}}/$PROJECT/g" -e "s/{{DATASET}}/$DS/g" \
-          -e "s/{{VIEW_PREFIX}}/v/g" sql/preflight.sql.tmpl)
-ROWS=$(bq --project_id="$PROJECT" --location="$LOCATION" query \
-  --nouse_legacy_sql --format=json "$SQL")
+# The rendered SQL begins with `--` comment lines, which `bq` would parse
+# as command-line flags if passed positionally — feed it via stdin instead.
+ROWS=$(sed -e "s/{{PROJECT}}/$PROJECT/g" -e "s/{{DATASET}}/$DS/g" \
+           -e "s/{{VIEW_PREFIX}}/v/g" sql/preflight.sql.tmpl \
+  | bq --project_id="$PROJECT" --location="$LOCATION" query \
+      --nouse_legacy_sql --format=json)
 
 python3 - "$ROWS" <<'EOF'
 import json, sys

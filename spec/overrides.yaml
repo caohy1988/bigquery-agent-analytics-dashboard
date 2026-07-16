@@ -1,0 +1,26 @@
+# Reviewed decision layer — the ONLY hand-maintained spec input.
+#
+# Two-layer design (PR #1 review): spec/dashboard_spec.yaml is always
+# regenerated from the pinned LookML, so M0/M2 decisions live HERE and are
+# merged in by tools/lookml_to_spec.py, keyed by stable record IDs. The
+# generator fails on any key referencing an unknown ID or an unknown
+# property (referential integrity), and CI drift checks cover this file the
+# same as every committed artifact.
+#
+# Populated as decisions are frozen:
+#   decisions.call_row_policy       — M0 evidence (raw_row | terminal_row_per_key)
+#   decisions.page_dimensions       — M2 (fixed page size, e.g. {width: 1200, height: 900})
+#   decisions.screenshot_viewport   — M2 (fixed viewport for reference screenshots)
+#   charts.<id>.oracle_query        — M0 oracle mapping (path under oracle/queries/)
+#   charts.<id>.expected_fixture_result — M0 oracle expected-result path
+#   charts.<id>.screenshot_id       — M4 promoted regression golden
+#   controls.<id>.placement         — frozen M0 listener design (page | report)
+
+decisions:
+  call_row_policy: null
+  page_dimensions: null
+  screenshot_viewport: null
+
+charts: {}
+
+controls: {}

@@ -21,12 +21,19 @@ bq --project_id="$PROJECT" --location="$LOCATION" load \
   "$DS.agent_events" /tmp/seed-rt.ndjson \
   timestamp:TIMESTAMP,event_type:STRING,agent:STRING,session_id:STRING,invocation_id:STRING,user_id:STRING,trace_id:STRING,span_id:STRING,parent_span_id:STRING,content:JSON,attributes:JSON,latency_ms:JSON,status:STRING,error_message:STRING,is_truncated:BOOLEAN
 
+# BigQuery JSON-null semantics: a native JSON `null` is NOT SQL NULL, so
+# `field IS NOT NULL AND JSON_TYPE(field) != 'object'` misclassifies it.
+# Accept 'object' and 'null'; count everything else as bad. Positive object
+# counts guard against the test passing vacuously.
 RESULT=$(bq --project_id="$PROJECT" --location="$LOCATION" query \
   --nouse_legacy_sql --format=json "
   SELECT
-    COUNTIF(content IS NOT NULL AND JSON_TYPE(content) != 'object') AS bad_content,
-    COUNTIF(attributes IS NOT NULL AND JSON_TYPE(attributes) != 'object') AS bad_attributes,
-    COUNTIF(latency_ms IS NOT NULL AND JSON_TYPE(latency_ms) != 'object') AS bad_latency,
+    COUNTIF(JSON_TYPE(content) NOT IN ('object', 'null')) AS bad_content,
+    COUNTIF(JSON_TYPE(attributes) NOT IN ('object', 'null')) AS bad_attributes,
+    COUNTIF(JSON_TYPE(latency_ms) NOT IN ('object', 'null')) AS bad_latency,
+    COUNTIF(JSON_TYPE(content) = 'object') AS content_objects,
+    COUNTIF(JSON_TYPE(attributes) = 'object') AS attribute_objects,
+    COUNTIF(JSON_TYPE(latency_ms) = 'object') AS latency_objects,
     COUNTIF(event_type = 'LLM_RESPONSE'
       AND JSON_VALUE(attributes, '\$.usage_metadata.total_token_count') IS NULL
       AND JSON_VALUE(content, '\$.usage.total') IS NULL) AS unreadable_tokens,
@@ -37,9 +44,13 @@ RESULT=$(bq --project_id="$PROJECT" --location="$LOCATION" query \
 echo "$RESULT"
 python3 - "$RESULT" <<'EOF'
 import json, sys
-row = json.loads(sys.argv[1])[0]
-bad = {k: int(v) for k, v in row.items() if int(v) != 0}
-if bad:
-    print(f"FAIL: {bad}", file=sys.stderr); sys.exit(1)
-print("live seed round-trip OK: all JSON payloads are objects; token and tool paths readable")
+row = {k: int(v) for k, v in json.loads(sys.argv[1])[0].items()}
+bad = {k: v for k, v in row.items() if k.startswith(("bad_", "unreadable_"))
+       and v != 0}
+empty = {k: v for k, v in row.items() if k.endswith("_objects") and v == 0}
+if bad or empty:
+    print(f"FAIL: bad={bad} vacuous={empty}", file=sys.stderr); sys.exit(1)
+print(f"live seed round-trip OK: {row['content_objects']} content / "
+      f"{row['attribute_objects']} attribute / {row['latency_objects']} "
+      "latency objects; token and tool paths readable")
 EOF

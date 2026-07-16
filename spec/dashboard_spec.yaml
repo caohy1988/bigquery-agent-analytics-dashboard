@@ -3728,3 +3728,7 @@ tabs:
 - source_dashboard: performance
   name: Errors
   title: Errors
+decisions:
+  call_row_policy: null
+  page_dimensions: null
+  screenshot_viewport: null

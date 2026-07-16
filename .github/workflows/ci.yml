@@ -48,6 +48,9 @@ jobs:
       - name: Seed generator structural tests
         run: python3 tools/test_seed_events.py
 
+      - name: Spec contract negative tests
+        run: python3 tools/test_spec_contract.py .block-pinned
+
       - name: Lint
         run: pipx run ruff check tools/
 

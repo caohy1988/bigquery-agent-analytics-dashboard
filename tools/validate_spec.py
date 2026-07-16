@@ -64,14 +64,16 @@ def main() -> int:
     ids = [c["id"] for c in charts] + [n["id"] for n in nd]
     check(len(ids) == len(set(ids)), "duplicate record ids", errors)
 
-    for c in charts:
+    # Geometry assertions run over ALL executable records — charts AND the
+    # nine non-data elements (PR #1 review P2).
+    for c in charts + nd:
         check(c["page"] is not None, f"{c['id']}: missing page", errors)
         check(c["ls_chart"] != "UNMAPPED",
               f"{c['id']}: unmapped chart type {c['looker_type']}", errors)
         geo = c["geometry"]
-        check(all(geo.get(k) is not None
+        check(all(isinstance(geo.get(k), int)
                   for k in ("row", "col", "width", "height")),
-              f"{c['id']}: incomplete geometry", errors)
+              f"{c['id']}: incomplete or non-integer geometry", errors)
 
     check(len(spec["tabs"]) == 7,
           f"expected 7 tabs, got {len(spec['tabs'])}", errors)

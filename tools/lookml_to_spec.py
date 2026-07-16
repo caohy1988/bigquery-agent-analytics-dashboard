@@ -84,32 +84,106 @@ def element_record(dashboard_key: str, el: dict, seen: dict) -> dict:
         "comparison_previous_period": any("pop_" in f for f in fields),
         "percentile": any(t in f for f in fields for t in PERCENTILE_TOKENS),
         "style": style,
-        # Filled during M0 oracle work; None means "not yet generated".
+        # Populated via spec/overrides.yaml (M0/M2 decisions), never here.
         "oracle_query": None,
         "expected_fixture_result": None,
         "screenshot_id": None,
     }
-    # Source-to-manifest structural parity: every structural key present on
-    # the source element must be represented in the record. A structural key
-    # this generator does not map is a hard failure, not a silent drop
-    # (regression guard for the column_limit class of bug, PR #1 review P1).
-    mapped = {
-        "title": "source_tile", "name": None, "model": None, "explore": None,
-        "type": "looker_type", "fields": "fields", "pivots": "pivots",
-        "fill_fields": "fill_fields", "filters": "tile_filters",
-        "sorts": "sorts", "limit": "limit", "column_limit": "column_limit",
-        "listen": "listen", "row": "geometry", "col": "geometry",
-        "width": "geometry", "height": "geometry", "tab_name": "page",
-        "dynamic_fields": "style",
-    }
-    for key in el:
-        if key in STRUCTURAL_KEYS and key not in mapped:
-            raise SystemExit(
-                f"structural key {key!r} on element {el['title']!r} has no "
-                "manifest mapping — add one before regenerating")
     if el.get("dynamic_fields") is not None:
         rec["style"]["dynamic_fields"] = el["dynamic_fields"]
+    verify_structural_parity(el, rec)
     return rec
+
+
+# Intentional structural omissions — each must hold as an invariant of the
+# pinned block, asserted below, so the omission can never hide real data.
+EXPLICIT_OMISSIONS = {
+    "name": "duplicate of title on every pinned chart element (asserted)",
+    "model": "single model 'agent-analytics' across the block (asserted)",
+    "explore": "single explore 'agent_events' across the block (asserted)",
+}
+
+
+def verify_structural_parity(el: dict, rec: dict) -> None:
+    """Every structural key PRESENT on the source element must resolve to a
+    manifest path holding an EQUIVALENT value (PR #1 review: presence in a
+    mapping table proves nothing). Unknown structural keys hard-fail."""
+    resolved = {
+        "title": rec["source_tile"],
+        "type": rec["looker_type"],
+        "fields": rec["fields"],
+        "pivots": rec["pivots"],
+        "fill_fields": rec["fill_fields"],
+        "filters": rec["tile_filters"],
+        "sorts": rec["sorts"],
+        "limit": rec["limit"],
+        "column_limit": rec["column_limit"],
+        "listen": rec["listen"],
+        "row": rec["geometry"]["row"],
+        "col": rec["geometry"]["col"],
+        "width": rec["geometry"]["width"],
+        "height": rec["geometry"]["height"],
+        "tab_name": rec["page"],
+        "dynamic_fields": rec["style"].get("dynamic_fields"),
+    }
+    title = el.get("title")
+    if el.get("name") != el.get("title"):
+        raise SystemExit(f"{title!r}: name != title breaks the documented "
+                         "omission invariant")
+    if el.get("model") != "agent-analytics":
+        raise SystemExit(f"{title!r}: unexpected model {el.get('model')!r}")
+    if el.get("explore") != "agent_events":
+        raise SystemExit(f"{title!r}: unexpected explore "
+                         f"{el.get('explore')!r}")
+    for key in el:
+        if key not in STRUCTURAL_KEYS or key in EXPLICIT_OMISSIONS:
+            continue
+        if key not in resolved:
+            raise SystemExit(f"structural key {key!r} on {title!r} has no "
+                             "manifest mapping — add one before regenerating")
+        if el[key] != resolved[key]:
+            raise SystemExit(
+                f"structural value drift for {key!r} on {title!r}: "
+                f"source={el[key]!r} manifest={resolved[key]!r}")
+
+
+OVERRIDABLE_CHART_KEYS = {"oracle_query", "expected_fixture_result",
+                          "screenshot_id"}
+OVERRIDABLE_CONTROL_KEYS = {"placement"}
+DECISION_KEYS = {"call_row_policy", "page_dimensions", "screenshot_viewport"}
+
+
+def apply_overrides(spec: dict, overrides: dict) -> None:
+    """Merge the reviewed decision layer with referential integrity."""
+    unknown = set(overrides) - {"decisions", "charts", "controls"}
+    if unknown:
+        raise SystemExit(f"overrides: unknown top-level keys {sorted(unknown)}")
+
+    decisions = overrides.get("decisions") or {}
+    bad = set(decisions) - DECISION_KEYS
+    if bad:
+        raise SystemExit(f"overrides: unknown decisions {sorted(bad)}")
+    spec["decisions"] = {k: decisions.get(k) for k in sorted(DECISION_KEYS)}
+
+    charts_by_id = {c["id"]: c for c in spec["charts"]}
+    for cid, patch in (overrides.get("charts") or {}).items():
+        if cid not in charts_by_id:
+            raise SystemExit(f"overrides: unknown chart id {cid!r}")
+        bad = set(patch) - OVERRIDABLE_CHART_KEYS
+        if bad:
+            raise SystemExit(f"overrides: chart {cid!r}: non-overridable "
+                             f"keys {sorted(bad)}")
+        charts_by_id[cid].update(patch)
+
+    controls_by_id = {c["id"]: c for c in spec["controls"]}
+    for cid, patch in (overrides.get("controls") or {}).items():
+        if cid not in controls_by_id:
+            raise SystemExit(f"overrides: unknown control id {cid!r}")
+        bad = set(patch) - OVERRIDABLE_CONTROL_KEYS
+        if bad:
+            raise SystemExit(f"overrides: control {cid!r}: non-overridable "
+                             f"keys {sorted(bad)}")
+        controls_by_id[cid].update(patch)
 
 
 def non_data_record(dashboard_key: str, el: dict, idx: int) -> dict:
@@ -144,6 +218,7 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--block-repo", required=True)
     ap.add_argument("--pinned-commit", required=True)
+    ap.add_argument("--overrides", default="spec/overrides.yaml")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 
@@ -182,6 +257,9 @@ def main() -> int:
                 nd_idx += 1
                 spec["non_data_elements"].append(
                     non_data_record(key, el, nd_idx))
+
+    with open(args.overrides) as fh:
+        apply_overrides(spec, yaml.safe_load(fh) or {})
 
     with open(args.out, "w") as fh:
         fh.write("# GENERATED by tools/lookml_to_spec.py — do not hand-edit.\n"
