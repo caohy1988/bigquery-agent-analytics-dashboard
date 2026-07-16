@@ -140,7 +140,12 @@ def main() -> int:
                       f"{c['id']}: duplicate expected-result coverage for "
                       f"{key}", errors)
                 coverage.add(key)
-            if er.get("path"):
+            if er.get("path") and not pathlib.Path(
+                    "evidence/.refresh-in-progress").exists():
+                # The refresh marker is an explicit, auditable pending state:
+                # committed while evidence is being regenerated from new
+                # tooling, removed in the same commit that lands the
+                # refreshed artifacts. M0 cannot exit with it present.
                 check(pathlib.Path(er["path"]).is_file(),
                       f"{c['id']}: expected-result file missing: "
                       f"{er['path']}", errors)

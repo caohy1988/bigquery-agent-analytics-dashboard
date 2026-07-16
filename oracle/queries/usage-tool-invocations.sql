@@ -13,10 +13,10 @@ FROM (
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
     AND timestamp < TIMESTAMP(DATE_ADD(@end_date, INTERVAL 1 DAY), 'UTC')
     AND tool_name IS NOT NULL
-    AND (@filter_agent = '' OR agent = @filter_agent)
-    AND (@filter_span_id = '' OR span_id = @filter_span_id)
-    AND (@filter_trace_id = '' OR trace_id = @filter_trace_id)
-    AND (@filter_user_id = '' OR user_id = @filter_user_id)
+    AND (ARRAY_LENGTH(@filter_agent) = 0 OR agent IN UNNEST(@filter_agent))
+    AND (ARRAY_LENGTH(@filter_span_id) = 0 OR span_id IN UNNEST(@filter_span_id))
+    AND (ARRAY_LENGTH(@filter_trace_id) = 0 OR trace_id IN UNNEST(@filter_trace_id))
+    AND (ARRAY_LENGTH(@filter_user_id) = 0 OR user_id IN UNNEST(@filter_user_id))
 )
 GROUP BY tool_name
 ORDER BY total_invocations DESC, tool_name

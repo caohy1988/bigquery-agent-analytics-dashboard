@@ -11,7 +11,7 @@ identically to both shapes:
 
 The pinned block's explore declares `one_to_one` joins on
 `trace_id, span_id, event_type`; streaming partial + final responses share
-one key and fan out n×n in a live Looker render, inflating SUM/AVG measures.
+one key and fan out n×n in the pinned join shape (measured here as a BigQuery simulation of the explore join, not a live Looker render), inflating SUMs and reweighting averages toward high-multiplicity keys (the measured average decreases).
 The v1 dashboard and oracle aggregate the view directly under the frozen
 `raw_row` policy — an **intentional, documented divergence** from block
 behavior on the repeated-key population (distinct-count measures are

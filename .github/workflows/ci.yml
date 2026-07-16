@@ -57,6 +57,9 @@ jobs:
       - name: Provenance fail-closed tests
         run: python3 tools/test_provenance.py
 
+      - name: Comparator adversarial tests
+        run: python3 tools/test_runner_compare.py
+
       - name: Validate inventory evidence (fingerprints + profile sets)
         run: python3 tools/validate_inventories.py
 

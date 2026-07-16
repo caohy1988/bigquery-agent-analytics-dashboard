@@ -82,6 +82,31 @@ def main() -> int:
         if not isinstance(um, dict) or "total_token_count" not in um:
             errors.append("usage_metadata is not a readable object")
 
+        # Streaming sequencing invariant (ADK semantics): within one
+        # trace/span, partial elapsed latencies are strictly increasing and
+        # every partial is below the final row's total duration.
+        seqs: dict = {}
+        for r in rows:
+            if r["event_type"] == "LLM_RESPONSE":
+                seqs.setdefault((r["trace_id"], r["span_id"]),
+                                []).append(r)
+        multi = 0
+        for key, group in seqs.items():
+            if len(group) < 2:
+                continue
+            multi += 1
+            group.sort(key=lambda r: r["timestamp"])
+            lats = [g["latency_ms"]["total_ms"] for g in group]
+            partials, final = lats[:-1], lats[-1]
+            if any(b <= a for a, b in zip(partials, partials[1:])):
+                errors.append(f"non-monotonic partial latencies {key}")
+                break
+            if partials and max(partials) >= final:
+                errors.append(f"partial latency >= final {key}")
+                break
+        if multi == 0:
+            errors.append("no streaming sequences in sample")
+
     if errors:
         for e in errors:
             print(f"FAIL: {e}", file=sys.stderr)

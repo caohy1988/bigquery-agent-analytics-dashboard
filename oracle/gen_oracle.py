@@ -61,15 +61,21 @@ MEASURES = {
     "agent_events.total_users": ("COUNT(DISTINCT user_id)", "events"),
     "v_llm_response.total_tokens_consumed": (f"SUM({TOK_TOTAL})", "llm"),
     "v_llm_response.total_llm_calls": (f"COUNT(DISTINCT {PK})", "llm"),
-    "v_llm_response.average_llm_latency": ("AVG(total_ms)", "llm"),
-    "v_tool_completed.average_tool_latency": ("AVG(total_ms)", "tool"),
+    # Float aggregates are ROUNDed to 6 decimals INSIDE the query so results
+    # are deterministic across BigQuery's nondeterministic summation order
+    # (observed ulp-level AVG variance on identical rows). 1e-6 relative is
+    # five orders below the block's displayed precision (decimal_1) and lets
+    # the comparator demand full equality with no hidden epsilon.
+    "v_llm_response.average_llm_latency": ("ROUND(AVG(total_ms), 6)", "llm"),
+    "v_tool_completed.average_tool_latency":
+        ("ROUND(AVG(total_ms), 6)", "tool"),
     "v_tool_error.total_tool_errors": (f"COUNT(DISTINCT {PK})", "err"),
 }
 for p in (50, 75, 90, 99):
     MEASURES[f"v_llm_response.p{p}_llm_latency"] = (
-        f"PERCENTILE_CONT(total_ms, 0.{p:02d}) OVER ()", "llm")
+        f"ROUND(PERCENTILE_CONT(total_ms, 0.{p:02d}) OVER (), 6)", "llm")
     MEASURES[f"v_tool_completed.p{p}_tool_latency"] = (
-        f"PERCENTILE_CONT(total_ms, 0.{p:02d}) OVER ()", "tool")
+        f"ROUND(PERCENTILE_CONT(total_ms, 0.{p:02d}) OVER (), 6)", "tool")
 
 # pop_<base>_{current,previous,change} → base measure semantics
 POP_BASE = {
@@ -94,9 +100,11 @@ DIMENSIONS = {
 
 # Runtime filter parameters encode the pinned listener matrix directly in
 # each oracle query: a chart gains a control's predicate ONLY when its
-# manifest `listen` includes that control. The runner passes '' (no filter)
-# or a value, so filtered scenarios can prove per-chart listener scope —
-# including the four User ID exceptions and Tool Name's one-chart scope.
+# manifest `listen` includes that control. Every source control allows
+# multiple values, so parameters are ARRAY<STRING>: an empty array means
+# "no filter". Filtered scenarios can therefore prove per-chart listener
+# scope — including the four User ID exceptions and Tool Name's one-chart
+# scope — as executable expected results.
 CONTROL_PARAMS = {
     "Agent": ("filter_agent", "agent"),
     "User ID": ("filter_user_id", "user_id"),
@@ -114,7 +122,8 @@ def listener_predicates(chart: dict) -> list:
         if control not in CONTROL_PARAMS:
             raise SystemExit(f"{chart['id']}: unmapped control {control!r}")
         param, col = CONTROL_PARAMS[control]
-        preds.append(f"(@{param} = '' OR {col} = @{param})")
+        preds.append(f"(ARRAY_LENGTH(@{param}) = 0 OR {col} IN "
+                     f"UNNEST(@{param}))")
     return preds
 
 
@@ -221,8 +230,8 @@ def build_query(c: dict) -> str:
             kind = m.rsplit("_", 1)[1]
             col = {"current": "cur.value",
                    "previous": "prev.value",
-                   "change": "SAFE_DIVIDE(cur.value - prev.value,"
-                             " prev.value)"}[kind]
+                   "change": "ROUND(SAFE_DIVIDE(cur.value - prev.value,"
+                             " prev.value), 6)"}[kind]
             wanted.append(f"  {col} AS {alias(m)}")
         return (header
                 + "WITH cur AS (\n  SELECT " + expr + " AS value FROM (\n"
@@ -274,6 +283,12 @@ def build_query(c: dict) -> str:
             raise SystemExit(f"{cid}: multiple cross-source filters "
                              "unsupported")
         m_expr, m_src = MEASURES[m]
+        # The auxiliary aggregation carries the SAME listener predicates as
+        # the base (they reference common event columns present on every
+        # view). Dropping them reproduced a live defect: with a non-LLM
+        # Span ID selected, the pinned join yields 0 rows but an unfiltered
+        # aux still admitted the group (PR #1 fifth review).
+        aux_where = [p for p in where]
         keys = ", ".join(DIMENSIONS[d] + " AS " + alias(d) for d in dims)
         on = " AND ".join(f"base.{alias(d)} = aux.{alias(d)}" for d in dims)
         sql = (header
@@ -283,7 +298,7 @@ def build_query(c: dict) -> str:
                + "GROUP BY " + ", ".join(group) + "\n"
                + "),\naux AS (\n"
                + f"SELECT {keys}, {m_expr} AS filter_value FROM (\n"
-               + source_sql(m_src, []) + "\n)\n"
+               + source_sql(m_src, aux_where) + "\n)\n"
                + "GROUP BY " + ", ".join(group) + "\n)\n"
                + "SELECT base.*\nFROM base\nJOIN aux ON " + on
                + "\nWHERE aux.filter_value IS NOT NULL\n")
@@ -293,11 +308,13 @@ def build_query(c: dict) -> str:
         fld = alias(bits[0])
         desc = " DESC" if "desc" in bits[1:] else ""
         parts.append(fld + desc)
-    # Determinism additions (documented divergence from the pinned block,
-    # which leaves ties and unsorted LIMITs engine-ordered):
+    # Determinism additions — FROZEN INTENTIONAL DIVERGENCES from the
+    # pinned block (docs/decisions/determinism-additions.md), which leaves
+    # ties and unsorted LIMITs engine-ordered; both are upstream candidates:
     #  * a tile with a LIMIT but no declared sort gets measures DESC —
     #    matching the tile's visual "top N" intent — so LIMIT never
-    #    selects arbitrary rows;
+    #    selects arbitrary rows (affects "Top 5 users with most Tokens
+    #    consumption", whose pinned LookML has LIMIT 5 and no sorts);
     #  * every dimension not already sorted is appended as a tie-breaker.
     if c["limit"] and not parts:
         parts = [alias(m) + " DESC" for m in plain]

@@ -92,7 +92,7 @@ def row(ts, event_type, agent, session, invocation, user, trace, span,
 
 
 def llm_response(rng, ts, agent, session, invocation, user, trace, span,
-                 variant, partial=False):
+                 variant, total_ms, ttft_ms):
     prompt = rng.randint(200, 4000)
     completion = rng.randint(20, 800)
     total = prompt + completion
@@ -108,18 +108,23 @@ def llm_response(rng, ts, agent, session, invocation, user, trace, span,
             "total_token_count": total + 2 * bump,
         }
     attributes["model_version"] = rng.choice(MODELS)
-    # ADK 1.27.0 logs elapsed duration on PARTIAL responses too
-    # (plugin L3074-3083 computes duration/tfft without popping the span),
-    # so partial rows carry deterministic, smaller-than-final latencies.
-    total = rng.randint(300, 12000)
-    ttft = rng.randint(80, min(1500, total))
-    if partial:
-        latency = {"total_ms": rng.randint(ttft, total),
-                   "time_to_first_token_ms": ttft}
-    else:
-        latency = {"total_ms": total, "time_to_first_token_ms": ttft}
+    latency = {"total_ms": total_ms, "time_to_first_token_ms": ttft_ms}
     return row(ts, "LLM_RESPONSE", agent, session, invocation, user, trace,
                span, content=content, attributes=attributes, latency=latency)
+
+
+def llm_latency_sequence(rng, n_partials: int) -> tuple:
+    """One streaming sequence per ADK semantics (plugin L3074-3125): the
+    span's clock starts once; each PARTIAL row logs the elapsed duration so
+    far, so partial latencies are strictly increasing and all below the
+    FINAL row's total duration. Returns (final_total, ttft, [partials])."""
+    total = rng.randint(300 + n_partials + 1, 12000)
+    ttft = rng.randint(80, min(1500, total - n_partials - 1))
+    if n_partials:
+        partials = sorted(rng.sample(range(ttft, total), n_partials))
+    else:
+        partials = []
+    return total, ttft, partials
 
 
 class Emitter:
@@ -156,9 +161,11 @@ def warmup_turn(em: Emitter, rng: random.Random, start: datetime):
       content={"request": {"text": "synthetic"}},
       attributes={"model": MODELS[0], "llm_config": {"temperature": 0},
                   "tools": [{"name": TOOLS[0]}]})
+    w_total, w_ttft, _ = llm_latency_sequence(rng, 0)
     em.emit(llm_response(rng, ts + timedelta(seconds=4), agent, session,
                          invocation, user, trace, hexid(rng, 16),
-                         "metadata_only"), fixture="token_metadata_only")
+                         "metadata_only", w_total, w_ttft),
+            fixture="token_metadata_only")
     r(5, "LLM_ERROR", status="ERROR", error="synthetic: model unavailable",
       latency={"total_ms": 1200})
     r(6, "TOOL_STARTING",
@@ -227,15 +234,19 @@ def main() -> int:
             variant = rng.choices(
                 ["metadata_only", "content_only", "conflict"],
                 weights=[70, 20, 10])[0]
-            if rng.random() < 0.05:
-                for _ in range(rng.randint(1, 3)):
-                    em.emit(llm_response(rng, ts, agent, session, invocation,
-                                         user, trace, span, variant,
-                                         partial=True),
-                            fixture="streaming_partial_rows")
-            em.emit(llm_response(rng, ts + timedelta(seconds=2), agent,
-                                 session, invocation, user, trace, span,
-                                 variant), fixture=f"token_{variant}")
+            n_partials = rng.randint(1, 3) if rng.random() < 0.05 else 0
+            f_total, f_ttft, partials = llm_latency_sequence(rng, n_partials)
+            for elapsed in partials:
+                em.emit(llm_response(rng, ts + timedelta(milliseconds=elapsed),
+                                     agent, session, invocation, user,
+                                     trace, span, variant, elapsed, f_ttft),
+                        fixture="streaming_partial_rows")
+            # The final row's wall-clock position is its own total elapsed
+            # duration, so it always lands after every partial.
+            em.emit(llm_response(rng, ts + timedelta(milliseconds=f_total),
+                                 agent, session, invocation, user, trace,
+                                 span, variant, f_total, f_ttft),
+                    fixture=f"token_{variant}")
 
             for _ in range(rng.randint(0, 2)):
                 tspan = hexid(rng, 16)

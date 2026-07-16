@@ -8,7 +8,8 @@ script never composes view SQL itself, so the captured inventory is
 authentic to the release that produced it.
 
 Run inside a venv with the target `google-adk` version installed:
-  python3 tools/provision_fixture.py --project P --dataset D --location US
+  python3 tools/provision_fixture.py --project P --dataset D --location US \
+      --expected-adk-version 1.27.0 [--replace] [--receipt out.receipt.json]
 Prints the installed ADK version and the created view list as JSON.
 """
 

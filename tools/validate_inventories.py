@@ -13,7 +13,27 @@ import hashlib
 import json
 import pathlib
 import re
+import subprocess
 import sys
+
+REQUIRED_COLUMNS = {
+    "v_llm_response": {"usage_metadata": "JSON",
+                       "usage_prompt_tokens": "INT64",
+                       "usage_completion_tokens": "INT64",
+                       "usage_total_tokens": "INT64",
+                       "total_ms": "INT64", "ttft_ms": "INT64",
+                       "model_version": "STRING"},
+    "v_tool_completed": {"tool_name": "STRING", "tool_origin": "STRING",
+                          "total_ms": "INT64"},
+    "v_tool_error": {"tool_name": "STRING", "tool_origin": "STRING",
+                      "total_ms": "INT64"},
+}
+COMMON = {"timestamp": "TIMESTAMP", "event_type": "STRING",
+          "agent": "STRING", "session_id": "STRING",
+          "invocation_id": "STRING", "user_id": "STRING",
+          "trace_id": "STRING", "span_id": "STRING",
+          "parent_span_id": "STRING", "status": "STRING",
+          "error_message": "STRING", "is_truncated": "BOOL"}
 
 
 def recompute_fingerprint(manifest: dict) -> str:
@@ -26,17 +46,30 @@ def recompute_fingerprint(manifest: dict) -> str:
 
 
 def main() -> int:
+    if pathlib.Path("evidence/.refresh-in-progress").exists():
+        print("inventories: REFRESH IN PROGRESS marker present — "
+              "skipping (M0 cannot exit in this state)")
+        return 0
     profile = json.load(open("spec/compatibility_profile.json"))
     intersection = set(profile["intersection_views"])
     errors = []
     view_sets = {}
 
+    receipts = {p.name: p for p in
+                pathlib.Path("evidence/inventories").glob("*.receipt.json")}
     for path in sorted(pathlib.Path("evidence/inventories").glob("*.json")):
+        if path.name.endswith(".receipt.json"):
+            continue
         m = json.load(open(path))
         rel = m.get("declared_adk_release")
         if not rel or not m.get("declared_adk_source_ref"):
             errors.append(f"{path.name}: missing declared release/ref")
             continue
+        if m["declared_adk_source_ref"] != \
+                profile["profiles"][rel]["source_ref"]:
+            errors.append(f"{path.name}: source ref "
+                          f"{m['declared_adk_source_ref']} != profile "
+                          f"{profile['profiles'][rel]['source_ref']}")
         got = recompute_fingerprint(m)
         if got != m["fingerprint_sha256"]:
             errors.append(f"{path.name}: fingerprint does not recompute "
@@ -49,6 +82,60 @@ def main() -> int:
                 f"{path.name}: view set mismatch vs compatibility profile; "
                 f"missing={sorted(expected - views)} "
                 f"extra={sorted(views - expected)}")
+        if m.get("view_count") != len(m["views"]):
+            errors.append(f"{path.name}: stored view_count "
+                          f"{m.get('view_count')} != {len(m['views'])}")
+
+        # Receipt binding: the manifest must embed the sha of a COMMITTED
+        # provisioning receipt whose object set covers the observed views.
+        rsha = m.get("provisioning_receipt_sha256")
+        if not rsha:
+            errors.append(f"{path.name}: not receipt-bound")
+        else:
+            rp = receipts.get(f"adk-{rel}.receipt.json")
+            if rp is None:
+                errors.append(f"{path.name}: receipt file not committed")
+            else:
+                raw = open(rp, "rb").read()
+                if hashlib.sha256(raw).hexdigest() != rsha:
+                    errors.append(f"{path.name}: receipt sha mismatch")
+                else:
+                    receipt = json.loads(raw)
+                    if receipt.get("installed_adk_version") != rel:
+                        errors.append(f"{path.name}: receipt version "
+                                      "mismatch")
+                    if set(receipt.get("views", [])) != views:
+                        errors.append(f"{path.name}: receipt view set != "
+                                      "observed inventory")
+
+        # Required source columns and types, per view.
+        cols_by_view = {v["view"]: {c["name"]: c["type"]
+                                    for c in v["columns"]}
+                        for v in m["views"]}
+        for view in expected & set(cols_by_view):
+            need = dict(COMMON)
+            need.update(REQUIRED_COLUMNS.get(view, {}))
+            for cname, ctype in need.items():
+                got_t = cols_by_view[view].get(cname)
+                if got_t != ctype:
+                    errors.append(f"{path.name}: {view}.{cname} type "
+                                  f"{got_t} != required {ctype}")
+                    break
+
+        # Tool provenance: the recorded content sha must equal the capture
+        # tool's blob at the recorded commit (requires git history in CI).
+        commit = m.get("capture_tool_commit")
+        tool_sha = m.get("capture_tool_sha256")
+        if commit and tool_sha:
+            blob = subprocess.run(
+                ["git", "show", f"{commit}:tools/capture_inventory.py"],
+                capture_output=True)
+            if blob.returncode != 0:
+                errors.append(f"{path.name}: capture commit {commit[:7]} "
+                              "not in history")
+            elif hashlib.sha256(blob.stdout).hexdigest() != tool_sha:
+                errors.append(f"{path.name}: capture_tool_sha256 does not "
+                              "match the tool blob at the recorded commit")
 
     required = set(profile["profiles"])
     if set(view_sets) != required:

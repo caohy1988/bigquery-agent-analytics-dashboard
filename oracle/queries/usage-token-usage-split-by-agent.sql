@@ -12,9 +12,9 @@ FROM (
   SELECT * FROM `{{PROJECT}}.{{DATASET}}.{{VIEW_PREFIX}}_llm_response`
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
     AND timestamp < TIMESTAMP(DATE_ADD(@end_date, INTERVAL 1 DAY), 'UTC')
-    AND (@filter_agent = '' OR agent = @filter_agent)
-    AND (@filter_span_id = '' OR span_id = @filter_span_id)
-    AND (@filter_trace_id = '' OR trace_id = @filter_trace_id)
+    AND (ARRAY_LENGTH(@filter_agent) = 0 OR agent IN UNNEST(@filter_agent))
+    AND (ARRAY_LENGTH(@filter_span_id) = 0 OR span_id IN UNNEST(@filter_span_id))
+    AND (ARRAY_LENGTH(@filter_trace_id) = 0 OR trace_id IN UNNEST(@filter_trace_id))
 )
 GROUP BY agent
 HAVING SUM(COALESCE(CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), usage_total_tokens)) IS NOT NULL

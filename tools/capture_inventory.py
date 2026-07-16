@@ -100,12 +100,12 @@ def main() -> int:
     ap.add_argument("--adk-source-ref", required=True,
                     help="ADK source tag/commit the release was installed "
                          "from (e.g. v1.27.0). Required for evidence.")
-    ap.add_argument("--receipt", default=None,
-                    help="Provisioning receipt from provision_fixture.py; "
-                         "when given, the declared release must match the "
-                         "receipt's installed version and the dataset must "
-                         "match — binding observed provenance to the "
-                         "provisioning run.")
+    ap.add_argument("--receipt", required=True,
+                    help="Provisioning receipt from provision_fixture.py — "
+                         "REQUIRED: candidate-profile evidence must bind "
+                         "the declared release to the provisioning run "
+                         "(installed version, project, dataset, location "
+                         "all cross-checked; receipt sha embedded).")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
 

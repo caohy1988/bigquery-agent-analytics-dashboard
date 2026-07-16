@@ -187,6 +187,16 @@ def validate_listener_detail(design: str, detail: dict, chart_ids: set,
             raise SystemExit(
                 "listener_design_detail: data_source_aliases requires "
                 "non-empty aliases AND chart_alias_assignments")
+        default = detail.get("default_alias")
+        if default is not None and default not in alias_names:
+            raise SystemExit("listener_design_detail: default_alias "
+                             f"{default!r} is not a declared alias")
+        unassigned = chart_ids - set(assignments)
+        if unassigned and default is None:
+            raise SystemExit(
+                "listener_design_detail: data_source_aliases leaves "
+                f"{len(unassigned)} charts unassigned with no "
+                "default_alias — coverage must be complete or defaulted")
     elif design == "global_controls_with_exceptions":
         if not exceptions:
             raise SystemExit(

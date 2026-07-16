@@ -60,6 +60,7 @@
           "additionalProperties": false,
           "properties": {
             "inspector_persistence": {"type": "boolean"},
+            "default_alias": {"type": "string"},
             "aliases": {
               "type": "array",
               "items": {

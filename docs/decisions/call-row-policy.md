@@ -16,8 +16,8 @@ generator emits deterministic partial latencies accordingly.
 
 The pinned block's **explore** joins `agent_events` to `v_llm_response` on
 `trace_id, span_id, event_type` and declares the join `one_to_one`.
-Repeated keys violate that declaration and **fan out n×n** in a live Looker
-render. Measured on the committed scenario (see
+Repeated keys violate that declaration and **fan out n×n** in the join
+shape (measured as a BigQuery simulation of the pinned explore join). Measured on the committed scenario (see
 `evidence/repeated-key-divergence.md`): direct view 6,994 rows /
 17,425,015 tokens vs join shape 9,280 rows / 23,073,041 tokens; distinct
 calls identical (6,314).
