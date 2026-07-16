@@ -9,8 +9,10 @@ estimated — 4 on Usage (2 h1 section headers, 1 button, 1 empty text) and
 pinned LookML by tools/lookml_to_spec.py.
 """
 
+import json
 import sys
 import yaml
+from jsonschema import Draft7Validator
 
 USER_ID_EXCEPTIONS = {
     "Token Usage split by Agent",
@@ -29,6 +31,14 @@ def main() -> int:
     spec = yaml.safe_load(open("spec/dashboard_spec.yaml"))
     charts = spec["charts"]
     errors: list = []
+
+    # Full record contract: JSON Schema validation of every property on
+    # every record (the count-and-quirk checks below are supplements, not
+    # the contract).
+    schema = json.load(open("spec/dashboard_spec.schema.json"))
+    for err in Draft7Validator(schema).iter_errors(spec):
+        path = "/".join(str(p) for p in err.absolute_path)
+        errors.append(f"schema: {path}: {err.message[:120]}")
 
     usage = [c for c in charts if c["source_dashboard"] == "usage"]
     perf = [c for c in charts if c["source_dashboard"] == "performance"]
@@ -63,7 +73,30 @@ def main() -> int:
                   for k in ("row", "col", "width", "height")),
               f"{c['id']}: incomplete geometry", errors)
 
+    check(len(spec["tabs"]) == 7,
+          f"expected 7 tabs, got {len(spec['tabs'])}", errors)
+
     controls = spec["controls"]
+    check(len(controls) == 11,
+          f"expected 11 controls, got {len(controls)}", errors)
+
+    # Listener-matrix completeness: every listen key on every chart must be
+    # a declared control of the same source dashboard.
+    controls_by_dash: dict = {}
+    for c in controls:
+        controls_by_dash.setdefault(c["source_dashboard"], set()).add(
+            c["name"])
+    for c in charts:
+        unknown = set(c["listen"]) - controls_by_dash.get(
+            c["source_dashboard"], set())
+        check(not unknown,
+              f"{c['id']}: listens to undeclared controls {sorted(unknown)}",
+              errors)
+
+    check(all(c["column_limit"] is not None for c in charts),
+          "every pinned source tile defines column_limit; a null means the "
+          "generator dropped it", errors)
+
     date_defaults = {c["source_dashboard"]: c["default_value"]
                      for c in controls if c["name"] == "Date"}
     check(date_defaults.get("usage") == "14 day",
@@ -93,8 +126,9 @@ def main() -> int:
         for e in errors:
             print(f"FAIL: {e}", file=sys.stderr)
         return 1
-    print(f"spec OK: 37 charts (21+16), 6 comparison, 8 percentile, "
-          f"9 non-data, listener matrix verified")
+    print("spec OK: schema valid; 37 charts (21+16), 7 tabs, 11 controls, "
+          "6 comparison, 8 percentile, 9 non-data, column_limit retained, "
+          "listener matrix complete")
     return 0
 
 

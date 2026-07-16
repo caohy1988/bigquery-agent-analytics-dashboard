@@ -78,6 +78,7 @@ def element_record(dashboard_key: str, el: dict, seen: dict) -> dict:
         "tile_filters": el.get("filters") or {},
         "sorts": el.get("sorts") or [],
         "limit": el.get("limit"),
+        "column_limit": el.get("column_limit"),
         "listen": el.get("listen") or {},
         "geometry": {k: el.get(k) for k in ("row", "col", "width", "height")},
         "comparison_previous_period": any("pop_" in f for f in fields),
@@ -88,6 +89,26 @@ def element_record(dashboard_key: str, el: dict, seen: dict) -> dict:
         "expected_fixture_result": None,
         "screenshot_id": None,
     }
+    # Source-to-manifest structural parity: every structural key present on
+    # the source element must be represented in the record. A structural key
+    # this generator does not map is a hard failure, not a silent drop
+    # (regression guard for the column_limit class of bug, PR #1 review P1).
+    mapped = {
+        "title": "source_tile", "name": None, "model": None, "explore": None,
+        "type": "looker_type", "fields": "fields", "pivots": "pivots",
+        "fill_fields": "fill_fields", "filters": "tile_filters",
+        "sorts": "sorts", "limit": "limit", "column_limit": "column_limit",
+        "listen": "listen", "row": "geometry", "col": "geometry",
+        "width": "geometry", "height": "geometry", "tab_name": "page",
+        "dynamic_fields": "style",
+    }
+    for key in el:
+        if key in STRUCTURAL_KEYS and key not in mapped:
+            raise SystemExit(
+                f"structural key {key!r} on element {el['title']!r} has no "
+                "manifest mapping — add one before regenerating")
+    if el.get("dynamic_fields") is not None:
+        rec["style"]["dynamic_fields"] = el["dynamic_fields"]
     return rec
 
 

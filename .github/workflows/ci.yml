@@ -23,7 +23,7 @@ jobs:
         with:
           python-version: "3.12"
 
-      - run: pip install pyyaml
+      - run: pip install 'pyyaml==6.0.2' 'jsonschema==4.23.0'
 
       # The manifest and SQL artifacts are generated; CI proves the committed
       # files match a fresh regeneration (no hand edits, no drift).
@@ -42,8 +42,14 @@ jobs:
       - name: Assert no generated-file drift
         run: git diff --exit-code
 
-      - name: Validate manifest assertions
+      - name: Validate manifest against schema and assertions
         run: python3 tools/validate_spec.py
+
+      - name: Seed generator structural tests
+        run: python3 tools/test_seed_events.py
+
+      - name: Lint
+        run: pipx run ruff check tools/
 
   secret-scan:
     runs-on: ubuntu-latest

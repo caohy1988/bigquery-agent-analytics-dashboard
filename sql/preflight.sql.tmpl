@@ -57,23 +57,32 @@ expected AS (
 actual AS (
   SELECT table_name, column_name, data_type
   FROM `{{PROJECT}}.{{DATASET}}`.INFORMATION_SCHEMA.COLUMNS
+),
+-- Object-type check: a base table shadowing a generated-view name must be
+-- rejected (WRONG_OBJECT_TYPE), not silently accepted via COLUMNS alone.
+objects AS (
+  SELECT table_name, table_type
+  FROM `{{PROJECT}}.{{DATASET}}`.INFORMATION_SCHEMA.TABLES
 )
 SELECT
   e.view_name,
   e.required_column,
   e.column_type AS expected_type,
   a.data_type AS observed_type,
+  o.table_type AS observed_object_type,
   CASE
-    WHEN a2.table_name IS NULL THEN 'MISSING_VIEW'
+    WHEN o.table_name IS NULL THEN 'MISSING_VIEW'
+    WHEN o.table_type != 'VIEW' THEN 'WRONG_OBJECT_TYPE'
     WHEN a.column_name IS NULL THEN 'MISSING_COLUMN'
     ELSE 'TYPE_MISMATCH'
   END AS problem
 FROM expected e
-LEFT JOIN (SELECT DISTINCT table_name FROM actual) a2
-  ON a2.table_name = e.view_name
+LEFT JOIN objects o
+  ON o.table_name = e.view_name
 LEFT JOIN actual a
   ON a.table_name = e.view_name AND a.column_name = e.required_column
-WHERE a2.table_name IS NULL
+WHERE o.table_name IS NULL
+   OR o.table_type != 'VIEW'
    OR a.column_name IS NULL
    OR a.data_type != e.column_type
 ORDER BY e.view_name, e.required_column

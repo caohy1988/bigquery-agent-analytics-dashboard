@@ -57,8 +57,18 @@ def main() -> int:
     ap.add_argument("--prefix", default="v")
     ap.add_argument("--adk-release", default=None,
                     help="Operator-declared provenance; never inferred.")
+    ap.add_argument("--adk-source-ref", default=None,
+                    help="ADK source tag/commit the release was installed "
+                         "from (e.g. v1.27.0).")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
+
+    try:
+        tool_commit = subprocess.run(
+            ["git", "rev-parse", "HEAD"], capture_output=True, text=True,
+            check=True).stdout.strip()
+    except Exception:
+        tool_commit = None
 
     views = bq_query(args.project, args.location, f"""
         SELECT table_name, view_definition
@@ -96,8 +106,12 @@ def main() -> int:
 
     manifest = {
         "declared_adk_release": args.adk_release,
+        "declared_adk_source_ref": args.adk_source_ref,
+        "source_project": args.project,
+        "source_dataset": args.dataset,
         "dataset_location": args.location,
         "view_prefix": args.prefix,
+        "capture_tool_commit": tool_commit,
         "view_count": len(inventory),
         "fingerprint_sha256": fingerprint,
         "views": inventory,

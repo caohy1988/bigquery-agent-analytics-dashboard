@@ -92,7 +92,7 @@ ERR_EXPRS = {
 
 
 def branch(view: str) -> str:
-    lines = [f"  SELECT"]
+    lines = ["  SELECT"]
     for c in COMMON:
         lines.append(f"    {c},")
     for fields, exprs, active in (
