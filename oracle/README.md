@@ -22,6 +22,4 @@ Deliverables (M0, per the bootstrap contract):
 - coverage of tile filters, sorting, limits, current/previous periods, and
   the frozen `call_row_policy`.
 
-Blocked on (in order): fixture dataset provisioning (M0 prerequisite),
-`call_row_policy` freeze (M0 evidence), then independent review of each
-query against the pinned LookML.
+Status: 37 queries generated (oracle/gen_oracle.py) and dry-run validated on all three candidate-profile fixture datasets (evidence/oracle-dryrun.md); `call_row_policy` frozen as `raw_row` (docs/decisions/call-row-policy.md). Remaining: deterministic expected results per seeded scenario, the runner's compare mode, and the independent review pass over each query against the pinned LookML.
