@@ -86,23 +86,41 @@ def main() -> int:
 
     # verify_expected: every provenance/declaration field, mutated one at
     # a time, must produce a problem (stale-runner evidence fails closed).
+    # The valid fixture uses the REAL HEAD commit with the REAL blob
+    # hashes at that commit, because verify_commit_blobs checks that the
+    # recorded commit exists and contains the recorded tools.
+    import hashlib
+    import subprocess
+    root = str(pathlib.Path(__file__).parent.parent)
+
+    def head_blob(rel):
+        out = subprocess.run(["git", "-C", root, "show", f"HEAD:{rel}"],
+                             capture_output=True, check=True).stdout
+        return hashlib.sha256(out).hexdigest()
+
+    head = subprocess.run(["git", "-C", root, "rev-parse", "HEAD"],
+                          capture_output=True, text=True,
+                          check=True).stdout.strip()
+    r_sha = head_blob("oracle/runner.py")
+    g_sha = head_blob("oracle/gen_oracle.py")
+    s_sha = head_blob("spec/dashboard_spec.yaml")
     chart = {"id": "c1"}
     window = {"start_date": "2026-07-02", "end_date": "2026-07-15"}
     filters = {"filter_agent": ["a"]}
     current = {"comparison": "exact", "tolerance": None,
                "tolerance_kind": None, "query_sha256": "Q",
-               "runner_sha256": "R", "generator_sha256": "G",
-               "spec_sha256": "S", "recording_profile": "1.27.0",
+               "runner_sha256": r_sha, "generator_sha256": g_sha,
+               "spec_sha256": s_sha, "recording_profile": "1.27.0",
                "recording_fingerprint": "F"}
     good = {"chart_id": "c1", "scenario": "sc", "comparison": "exact",
             "tolerance": None, "tolerance_kind": None, "window": window,
             "filters": filters,
             "bindings": {"scenario_manifest_sha256": "M",
-                          "query_sha256": "Q", "runner_sha256": "R",
-                          "generator_sha256": "G", "spec_sha256": "S",
+                          "query_sha256": "Q", "runner_sha256": r_sha,
+                          "generator_sha256": g_sha, "spec_sha256": s_sha,
                           "inventory_fingerprint": "F",
                           "profile": "1.27.0", "job_id": "oracle_x",
-                          "repo_commit": "abc123"}}
+                          "repo_commit": head}}
     if runner.verify_expected(good, chart, "sc", window, filters, "M",
                               current):
         errors.append("valid expected file rejected")
@@ -123,7 +141,8 @@ def main() -> int:
                         ("generator_sha256", "X"), ("spec_sha256", "X"),
                         ("inventory_fingerprint", "X"),
                         ("profile", "2.4.0"), ("job_id", None),
-                        ("repo_commit", "abc123+dirty")]:
+                        ("repo_commit", head + "+dirty"),
+                        ("repo_commit", "deadbeef" * 5)]:
         bad = json.loads(json.dumps(good))
         bad["bindings"][bkey] = bval
         if not runner.verify_expected(bad, chart, "sc", window, filters,
