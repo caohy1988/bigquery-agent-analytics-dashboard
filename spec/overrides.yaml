@@ -59,6 +59,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-token-usage-split-by-agent.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-token-usage-split-by-agent.json
+      comparison: exact
+      tolerance: null
   usage-top-5-users-with-most-tokens-consumption:
     oracle_query: oracle/queries/usage-top-5-users-with-most-tokens-consumption.sql
     expected_results:
@@ -70,6 +75,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-top-5-users-with-most-tokens-consumption.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-top-5-users-with-most-tokens-consumption.json
       comparison: exact
       tolerance: null
   usage-total-tokens-consumption-over-the-time:
@@ -85,6 +95,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-total-tokens-consumption-over-the-time.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-total-tokens-consumption-over-the-time.json
+      comparison: exact
+      tolerance: null
   usage-total-tokens:
     oracle_query: oracle/queries/usage-total-tokens.sql
     expected_results:
@@ -96,6 +111,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-total-tokens.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-total-tokens.json
       comparison: exact
       tolerance: null
   usage-top-5-users-with-most-traces:
@@ -111,6 +131,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-top-5-users-with-most-traces.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-top-5-users-with-most-traces.json
+      comparison: exact
+      tolerance: null
   usage-total-traces:
     oracle_query: oracle/queries/usage-total-traces.sql
     expected_results:
@@ -122,6 +147,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-total-traces.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-total-traces.json
       comparison: exact
       tolerance: null
   usage-traces-split-by-agent:
@@ -137,6 +167,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-traces-split-by-agent.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-traces-split-by-agent.json
+      comparison: exact
+      tolerance: null
   usage-total-traces-generation-over-the-time:
     oracle_query: oracle/queries/usage-total-traces-generation-over-the-time.sql
     expected_results:
@@ -148,6 +183,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-total-traces-generation-over-the-time.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-total-traces-generation-over-the-time.json
       comparison: exact
       tolerance: null
   usage-total-sessions:
@@ -163,6 +203,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-total-sessions.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-total-sessions.json
+      comparison: exact
+      tolerance: null
   usage-number-of-sessions-trend:
     oracle_query: oracle/queries/usage-number-of-sessions-trend.sql
     expected_results:
@@ -174,6 +219,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-number-of-sessions-trend.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-number-of-sessions-trend.json
       comparison: exact
       tolerance: null
   usage-top-5-agents-split-by-session-count:
@@ -189,6 +239,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-top-5-agents-split-by-session-count.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-top-5-agents-split-by-session-count.json
+      comparison: exact
+      tolerance: null
   usage-tool-invocations:
     oracle_query: oracle/queries/usage-tool-invocations.sql
     expected_results:
@@ -200,6 +255,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-tool-invocations.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-tool-invocations.json
       comparison: exact
       tolerance: null
   usage-events-by-agent:
@@ -215,6 +275,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-events-by-agent.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-events-by-agent.json
+      comparison: exact
+      tolerance: null
   usage-tool-calls-over-time:
     oracle_query: oracle/queries/usage-tool-calls-over-time.sql
     expected_results:
@@ -226,6 +291,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-tool-calls-over-time.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-tool-calls-over-time.json
       comparison: exact
       tolerance: null
   usage-total-calls:
@@ -241,6 +311,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-total-calls.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-total-calls.json
+      comparison: exact
+      tolerance: null
   usage-llm-call-trends:
     oracle_query: oracle/queries/usage-llm-call-trends.sql
     expected_results:
@@ -252,6 +327,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-llm-call-trends.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-llm-call-trends.json
       comparison: exact
       tolerance: null
   usage-top-5-agents-by-llm-calls:
@@ -267,6 +347,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-top-5-agents-by-llm-calls.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-top-5-agents-by-llm-calls.json
+      comparison: exact
+      tolerance: null
   usage-total-users:
     oracle_query: oracle/queries/usage-total-users.sql
     expected_results:
@@ -278,6 +363,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-total-users.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-total-users.json
       comparison: exact
       tolerance: null
   usage-user-growth-over-time:
@@ -293,6 +383,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-user-growth-over-time.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-user-growth-over-time.json
+      comparison: exact
+      tolerance: null
   usage-top-5-users-by-session:
     oracle_query: oracle/queries/usage-top-5-users-by-session.sql
     expected_results:
@@ -304,6 +399,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-top-5-users-by-session.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-top-5-users-by-session.json
       comparison: exact
       tolerance: null
   usage-top-5-users-by-events:
@@ -319,6 +419,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/usage-top-5-users-by-events.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/usage-top-5-users-by-events.json
+      comparison: exact
+      tolerance: null
   performance-average-tool-latency-ms:
     oracle_query: oracle/queries/performance-average-tool-latency-ms.sql
     expected_results:
@@ -330,6 +435,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-average-tool-latency-ms.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-average-tool-latency-ms.json
       comparison: exact
       tolerance: null
   performance-tool-latency-trend:
@@ -345,6 +455,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-tool-latency-trend.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-tool-latency-trend.json
+      comparison: exact
+      tolerance: null
   performance-average-llm-latency-in-ms:
     oracle_query: oracle/queries/performance-average-llm-latency-in-ms.sql
     expected_results:
@@ -356,6 +471,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-average-llm-latency-in-ms.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-average-llm-latency-in-ms.json
       comparison: exact
       tolerance: null
   performance-llm-latency-trend:
@@ -371,6 +491,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-llm-latency-trend.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-llm-latency-trend.json
+      comparison: exact
+      tolerance: null
   performance-p50-tool-latency:
     oracle_query: oracle/queries/performance-p50-tool-latency.sql
     expected_results:
@@ -383,6 +508,12 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-p50-tool-latency.json
+      comparison: percentile_tolerance
+      tolerance: 0.0
+      tolerance_kind: relative
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-p50-tool-latency.json
       comparison: percentile_tolerance
       tolerance: 0.0
       tolerance_kind: relative
@@ -401,6 +532,12 @@ charts:
       comparison: percentile_tolerance
       tolerance: 0.0
       tolerance_kind: relative
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-p75-tool-latency.json
+      comparison: percentile_tolerance
+      tolerance: 0.0
+      tolerance_kind: relative
   performance-p90-tool-latency:
     oracle_query: oracle/queries/performance-p90-tool-latency.sql
     expected_results:
@@ -413,6 +550,12 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-p90-tool-latency.json
+      comparison: percentile_tolerance
+      tolerance: 0.0
+      tolerance_kind: relative
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-p90-tool-latency.json
       comparison: percentile_tolerance
       tolerance: 0.0
       tolerance_kind: relative
@@ -431,6 +574,12 @@ charts:
       comparison: percentile_tolerance
       tolerance: 0.0
       tolerance_kind: relative
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-p99-tool-latency.json
+      comparison: percentile_tolerance
+      tolerance: 0.0
+      tolerance_kind: relative
   performance-p50-llm-latency:
     oracle_query: oracle/queries/performance-p50-llm-latency.sql
     expected_results:
@@ -443,6 +592,12 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-p50-llm-latency.json
+      comparison: percentile_tolerance
+      tolerance: 0.0
+      tolerance_kind: relative
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-p50-llm-latency.json
       comparison: percentile_tolerance
       tolerance: 0.0
       tolerance_kind: relative
@@ -461,6 +616,12 @@ charts:
       comparison: percentile_tolerance
       tolerance: 0.0
       tolerance_kind: relative
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-p75-llm-latency.json
+      comparison: percentile_tolerance
+      tolerance: 0.0
+      tolerance_kind: relative
   performance-p90-llm-latency:
     oracle_query: oracle/queries/performance-p90-llm-latency.sql
     expected_results:
@@ -473,6 +634,12 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-p90-llm-latency.json
+      comparison: percentile_tolerance
+      tolerance: 0.0
+      tolerance_kind: relative
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-p90-llm-latency.json
       comparison: percentile_tolerance
       tolerance: 0.0
       tolerance_kind: relative
@@ -491,6 +658,12 @@ charts:
       comparison: percentile_tolerance
       tolerance: 0.0
       tolerance_kind: relative
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-p99-llm-latency.json
+      comparison: percentile_tolerance
+      tolerance: 0.0
+      tolerance_kind: relative
   performance-total-errors:
     oracle_query: oracle/queries/performance-total-errors.sql
     expected_results:
@@ -502,6 +675,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-total-errors.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-total-errors.json
       comparison: exact
       tolerance: null
   performance-tool-errors-trend:
@@ -517,6 +695,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-tool-errors-trend.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-tool-errors-trend.json
+      comparison: exact
+      tolerance: null
   performance-top-5-agents-by-errors:
     oracle_query: oracle/queries/performance-top-5-agents-by-errors.sql
     expected_results:
@@ -530,6 +713,11 @@ charts:
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-top-5-agents-by-errors.json
       comparison: exact
       tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-top-5-agents-by-errors.json
+      comparison: exact
+      tolerance: null
   performance-top-5-tools-by-errors:
     oracle_query: oracle/queries/performance-top-5-tools-by-errors.sql
     expected_results:
@@ -541,6 +729,11 @@ charts:
     - scenario: seed-20260715-30d-100k-f1
       profiles: ['1.27.0', '1.36.1', '2.4.0']
       path: oracle/expected/seed-20260715-30d-100k-f1/performance-top-5-tools-by-errors.json
+      comparison: exact
+      tolerance: null
+    - scenario: seed-20260715-30d-100k-f2
+      profiles: ['1.27.0', '1.36.1', '2.4.0']
+      path: oracle/expected/seed-20260715-30d-100k-f2/performance-top-5-tools-by-errors.json
       comparison: exact
       tolerance: null
 

@@ -22,4 +22,4 @@ Deliverables (M0, per the bootstrap contract):
 - coverage of tile filters, sorting, limits, current/previous periods, and
   the frozen `call_row_policy`.
 
-Status: 37 queries generated (oracle/gen_oracle.py) and dry-run validated on all three candidate-profile fixture datasets (evidence/oracle-dryrun.md); `call_row_policy` frozen as `raw_row` (docs/decisions/call-row-policy.md). Remaining: deterministic expected results per seeded scenario, the runner's compare mode, and the independent review pass over each query against the pinned LookML.
+Status: 37 queries generated and mapped via spec/overrides.yaml; expected results + cross-profile compare receipts are produced under the enforced-provenance runner across three scenarios (base, filtered f1, trace/span-filtered f2) and validated end-to-end by tools/validate_evidence.py in CI. Remaining: independent human review of the 37 translations against the pinned LookML.

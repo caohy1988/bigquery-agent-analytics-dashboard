@@ -73,20 +73,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Evidence present and not mid-refresh
-        run: |
-          if [ -f evidence/.refresh-in-progress ]; then
-            echo "::error::M0 evidence refresh in progress — evidence set is incomplete"
-            exit 1
-          fi
-          for f in evidence/inventories/adk-1.27.0.json \
-                   evidence/inventories/adk-1.36.1.json \
-                   evidence/inventories/adk-2.4.0.json \
-                   evidence/benchmark-10m.json; do
-            [ -f "$f" ] || { echo "::error::missing $f"; exit 1; }
-          done
-          ls oracle/expected/*/*.json >/dev/null 2>&1 || { echo "::error::no expected results"; exit 1; }
-          ls evidence/oracle-compare/*.json >/dev/null 2>&1 || { echo "::error::no compare receipts"; exit 1; }
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install 'pyyaml==6.0.2'
+      - name: Content-aware evidence validation
+        run: python3 tools/validate_evidence.py
 
   secret-scan:
     runs-on: ubuntu-latest

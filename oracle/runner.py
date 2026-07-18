@@ -98,6 +98,9 @@ def run_query(sql_path: str, project: str, dataset: str, prefix: str,
     return json.loads(proc.stdout or "[]"), job_id
 
 
+FLOAT_MEASURE_RE = re.compile(r"^(average_|p\d{2}_)|_change$")
+
+
 def values_equal(a, b, kind: str, comparison: str, tolerance,
                  tolerance_kind) -> bool:
     if a is None or b is None:
@@ -105,6 +108,14 @@ def values_equal(a, b, kind: str, comparison: str, tolerance,
     sa, sb = str(a), str(b)
     if kind == "dimension":
         return sa == sb
+    if kind == "integer_measure":
+        # Counts, distinct counts, and integer sums are EXACT — no float
+        # canonicalization may ever apply ("1" vs "1.0000001" must fail;
+        # seventh review). A non-integer value on an integer measure is
+        # itself a mismatch.
+        if not (INT_RE.match(sa) and INT_RE.match(sb)):
+            return False
+        return int(sa) == int(sb)
     if comparison == "exact" and INT_RE.match(sa) and INT_RE.match(sb):
         return int(sa) == int(sb)
     try:
@@ -132,7 +143,9 @@ def rows_equal(got: list, want: list, field_kinds: dict, comparison: str,
         if set(g) != set(w):
             return f"row {i}: column sets differ"
         for k in g:
-            kind = field_kinds.get(k, "measure")
+            kind = field_kinds.get(k)
+            if kind is None:
+                return f"row {i}: {k}: field has no declared kind"
             if not values_equal(g[k], w[k], kind, comparison, tolerance,
                                 tolerance_kind):
                 return f"row {i}: {k} ({kind}): {g[k]!r} != {w[k]!r}"
@@ -144,7 +157,9 @@ def field_kinds_for(chart: dict) -> dict:
     for d in chart["dimensions"]:
         kinds[d.split(".", 1)[1]] = "dimension"
     for m in chart["measures"]:
-        kinds[m.split(".", 1)[1]] = "measure"
+        name = m.split(".", 1)[1]
+        kinds[name] = ("float_measure" if FLOAT_MEASURE_RE.search(name)
+                       else "integer_measure")
     return kinds
 
 
@@ -203,7 +218,60 @@ def verify_expected(exp: dict, chart: dict, scenario: str, window: dict,
         problems.append("bindings.job_id absent")
     if "+dirty" in (b.get("repo_commit") or "") or not b.get("repo_commit"):
         problems.append("bindings.repo_commit dirty or absent")
+    else:
+        problems.extend(verify_commit_blobs(b["repo_commit"], b))
     return problems
+
+
+def verify_commit_blobs(commit: str, bindings: dict) -> list:
+    """The recorded commit must exist in history, and the runner/spec blobs
+    at that commit must hash to the recorded values — a fabricated commit
+    or hash pairing fails (seventh review)."""
+    root = str(pathlib.Path(__file__).resolve().parent.parent)
+    problems = []
+    for rel, key in (("oracle/runner.py", "runner_sha256"),
+                      ("oracle/gen_oracle.py", "generator_sha256"),
+                      ("spec/dashboard_spec.yaml", "spec_sha256")):
+        pr = subprocess.run(["git", "-C", root, "show", f"{commit}:{rel}"],
+                            capture_output=True)
+        if pr.returncode != 0:
+            problems.append(f"recorded commit {commit[:9]} lacks {rel}")
+            continue
+        if hashlib.sha256(pr.stdout).hexdigest() != bindings.get(key):
+            problems.append(f"bindings.{key} does not match {rel} at the "
+                            "recorded commit")
+    return problems
+
+
+def verify_runtime_source(project: str, dataset: str, location: str,
+                          prefix: str, profile: str) -> None:
+    """Bind the runtime source to the claimed profile: the queried
+    project/dataset/location/prefix must be the ones described by the
+    receipt-bound inventory, and the live view set must still equal that
+    inventory (a 1.36.1 dataset cannot be labeled 2.4.0)."""
+    m = json.load(open(f"evidence/inventories/adk-{profile}.json"))
+    for got, want, name in ((project, m["source_project"], "project"),
+                             (dataset, m["source_dataset"], "dataset"),
+                             (location, m["dataset_location"], "location"),
+                             (prefix, m["view_prefix"], "prefix")):
+        if got != want:
+            raise SystemExit(f"runtime {name} {got!r} != inventory "
+                             f"{want!r} for profile {profile}")
+    sql = (f"SELECT table_name FROM `{project}.{dataset}`"
+           f".INFORMATION_SCHEMA.VIEWS WHERE STARTS_WITH(table_name,"
+           f" '{prefix}_') ORDER BY table_name")
+    pr = subprocess.run(
+        ["bq", f"--project_id={project}", f"--location={location}",
+         "query", "--nouse_legacy_sql", "--format=json",
+         "--max_rows=1000"], input=sql, capture_output=True, text=True)
+    if pr.returncode != 0:
+        raise SystemExit(f"runtime source check failed: {pr.stderr[:200]}")
+    live = {r["table_name"] for r in json.loads(pr.stdout or "[]")}
+    inv = {v["view"] for v in m["views"]}
+    if live != inv:
+        raise SystemExit(
+            f"live view set != inventory for profile {profile}: "
+            f"missing={sorted(inv - live)} extra={sorted(live - inv)}")
 
 
 def main() -> int:
@@ -246,6 +314,8 @@ def main() -> int:
             f"evidence/inventories/adk-{profile}.json"))[
                 "fingerprint_sha256"]
 
+    verify_runtime_source(args.project, args.dataset, args.location,
+                          args.prefix, args.profile)
     spec_sha = sha256_file(args.spec)
     spec = yaml.safe_load(open(args.spec))
     charts = spec["charts"]

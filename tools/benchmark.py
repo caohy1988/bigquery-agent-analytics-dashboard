@@ -23,8 +23,11 @@ Requires google-cloud-bigquery (run inside one of the fixture venvs).
 """
 
 import argparse
+import hashlib
 import json
+import pathlib
 import statistics
+import subprocess
 import sys
 
 from google.cloud import bigquery
@@ -88,6 +91,7 @@ def run_cold(client, sql, runs):
             use_query_cache=False))
         job.result()
         stats.append({
+            "job_id": job.job_id,
             "bytes_processed": job.total_bytes_processed,
             "bytes_billed": job.total_bytes_billed,
             "slot_ms": job.slot_millis,
@@ -110,17 +114,46 @@ def main() -> int:
     ap.add_argument("--start", default="2026-06-16")
     ap.add_argument("--end", default="2026-07-15")
     ap.add_argument("--runs", type=int, default=20)
+    ap.add_argument("--scenario-manifest", required=True)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
     p, d = args.project, args.dataset
     client = bigquery.Client(project=p)
 
+    # Provenance bindings (seventh review): benchmark evidence must bind
+    # its scenario/seed, tool, repo commit, and template SQL.
+    root = str(pathlib.Path(__file__).resolve().parent.parent)
+    def sh(pth):
+        return hashlib.sha256(open(pth, "rb").read()).hexdigest()
+    commit = subprocess.run(["git", "-C", root, "rev-parse", "HEAD"],
+                            capture_output=True, text=True,
+                            check=True).stdout.strip()
+    if subprocess.run(["git", "-C", root, "status", "--porcelain",
+                       "--untracked-files=no"], capture_output=True,
+                      text=True, check=True).stdout.strip():
+        print("ERROR: modified tracked files — benchmark evidence must "
+              "come from committed code", file=sys.stderr)
+        return 1
+    manifest = json.load(open(args.scenario_manifest))
+
+    import datetime as _dt
     result = {"project": p, "dataset": d,
               "window": {"start": args.start, "end": args.end},
               "runs_per_shape": args.runs,
               "query_cache": "disabled",
               "bi_engine": "no reservation in project",
               "pricing_model": "on-demand",
+              "bindings": {
+                  "scenario": manifest["name"],
+                  "scenario_manifest_sha256": sh(args.scenario_manifest),
+                  "seed_sha256": manifest["seed"]["ndjson_sha256"],
+                  "benchmark_tool_sha256": sh(__file__),
+                  "template_sql_sha256": sh(pathlib.Path(root) / "sql"
+                                            / "events_v1.template.sql"),
+                  "repo_commit": commit,
+                  "executed_at_utc": _dt.datetime.now(
+                      _dt.timezone.utc).isoformat(),
+              },
               "shapes": {}, "gates": {}}
 
     for name, sql in shapes(p, d, args.start, args.end).items():
@@ -181,10 +214,56 @@ def main() -> int:
              DATE_ADD(DATE '{args.end}', INTERVAL 1 DAY)) AS after_end_rows
     """).result())
     row = dict(bq_rows[0])
+    # Falsifiability (seventh review): the seed plants rows dated end+1
+    # (boundary_after_end_rows), so after-end exclusion can actually fail.
+    planted = manifest["seed"]["fixture_counters"][
+        "boundary_after_end_rows"]
+    before = list(client.query(f"""
+        SELECT
+          (SELECT COUNT(*) FROM ({union_sql(p, d)})
+           WHERE DATE(timestamp,'UTC') <
+             DATE '{args.start}') AS before_start_rows,
+          (SELECT COUNT(*) FROM ({union_sql(p, d)})
+           WHERE DATE(timestamp,'UTC') = DATE '{args.start}')
+             AS start_day_rows
+    """).result())
+    brow = dict(before[0])
+    row.update(brow)
     boundary_pass = (row["in_window"] == row["raw_in_window"]
-                     and row["end_day_rows"] > 0)
-    result["gates"]["date_boundary"] = {**row, "pass": boundary_pass}
-    print(f"date boundary: {row} ({'PASS' if boundary_pass else 'FAIL'})")
+                     and row["end_day_rows"] > 0
+                     and row["start_day_rows"] > 0
+                     and row["before_start_rows"] > 0
+                     and row["after_end_rows"] == planted
+                     and planted > 0)
+    # The PRODUCTION template, with the actual Looker Studio YYYYMMDD
+    # date parameters, must return exactly the in-window count.
+    tmpl = open(pathlib.Path(root) / "sql"
+                / "events_v1.template.sql").read()
+    bindings = __import__("yaml").safe_load(
+        open(pathlib.Path(root) / "bindings"
+             / "template_bindings.yaml"))["placeholders"]
+    tmpl = (tmpl.replace(bindings["PROJECT"], p)
+                .replace(bindings["DATASET"], d)
+                .replace(bindings["VIEW_PREFIX"], "v"))
+    job = client.query(
+        f"SELECT COUNT(*) AS n FROM ({tmpl})",
+        job_config=bigquery.QueryJobConfig(
+            use_query_cache=False,
+            query_parameters=[
+                bigquery.ScalarQueryParameter(
+                    "DS_START_DATE", "STRING",
+                    args.start.replace("-", "")),
+                bigquery.ScalarQueryParameter(
+                    "DS_END_DATE", "STRING", args.end.replace("-", "")),
+            ]))
+    tmpl_n = int(list(job.result())[0]["n"])
+    row["production_template_in_window"] = tmpl_n
+    row["production_template_job_id"] = job.job_id
+    boundary_pass = boundary_pass and tmpl_n == row["in_window"]
+    result["gates"]["date_boundary"] = {**row, "planted_after_end": planted,
+                                        "pass": boundary_pass}
+    print(f"date boundary: {row} planted={planted} "
+          f"({'PASS' if boundary_pass else 'FAIL'})")
 
     # --- partition-pruning proof ---
     one_day = DATE_PRED.format(start=args.end, end=args.end)
@@ -205,6 +284,12 @@ def main() -> int:
     with open(args.out, "w") as fh:
         json.dump(result, fh, indent=1, sort_keys=True)
         fh.write("\n")
+    # Hard gates fail the process (seventh review: a failing gate must
+    # never exit 0).
+    failed = [k for k, v in result["gates"].items() if not v["pass"]]
+    if failed:
+        print(f"GATES FAILED: {failed}", file=sys.stderr)
+        return 1
     return 0
 
 

@@ -55,12 +55,26 @@ def main() -> int:
         errors.append("absolute tolerance behaved like relative")
     if not veq("100", "100.4", "percentile_tolerance", 0.5, "absolute"):
         errors.append("absolute tolerance not applied")
+    # Integer measures never inherit float canonicalization (7th review).
+    if veq("1", "1.0000001", "exact", None, None, role="integer_measure"):
+        errors.append("integer measure accepted float noise")
+    if veq("9007199254740992", "9007199254740992.0000001", "exact", None,
+           None, role="integer_measure"):
+        errors.append("large integer measure accepted float noise")
+    if not veq("42", "42", "exact", None, None, role="integer_measure"):
+        errors.append("identical integer measures unequal")
+    if not veq("6152.743617021271", "6152.7436170212705", "exact", None,
+               None, role="float_measure"):
+        errors.append("float measure canonical precision not applied")
     if not veq(None, None, "exact", None, None):
         errors.append("null != null")
     if veq(None, "0", "exact", None, None):
         errors.append("null == 0")
 
-    kinds = {"user": "dimension", "n": "measure"}
+    kinds = {"user": "dimension", "n": "integer_measure"}
+    if runner.rows_equal([{"x": "1"}], [{"x": "1"}], {}, "exact", None,
+                          None) == "":
+        errors.append("undeclared field kind did not fail closed")
     a = [{"user": "u1", "n": "5"}, {"user": "u2", "n": "3"}]
     b = [{"user": "u2", "n": "3"}, {"user": "u1", "n": "5"}]
     if req(a, b, kinds, "exact", None, None) == "":

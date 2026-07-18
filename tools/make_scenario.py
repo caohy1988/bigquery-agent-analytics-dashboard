@@ -40,7 +40,20 @@ def main() -> int:
             sha.update(chunk)
             lines += chunk.count(b"\n")
     summary = json.load(open(args.summary))
-    # The hashed NDJSON must BE the artifact the summary describes.
+    # Cryptographic binding: the summary must carry the sha of THIS file
+    # and the same generation arguments (a same-row-count summary from a
+    # different seed fails; seventh review).
+    if summary.get("ndjson_sha256") != sha.hexdigest():
+        print("ERROR: summary ndjson_sha256 does not match the seed file",
+              file=sys.stderr)
+        return 1
+    if summary.get("args") != {"events": args.events, "days": args.days,
+                                "seed": args.seed}:
+        print("ERROR: summary generation args do not match", file=sys.stderr)
+        return 1
+    if summary.get("end_date") != args.end_date:
+        print("ERROR: summary end_date does not match", file=sys.stderr)
+        return 1
     if lines != summary["total_emitted"]:
         print(f"ERROR: seed file has {lines} rows but the summary claims "
               f"{summary['total_emitted']} — mismatched artifacts",

@@ -39,6 +39,7 @@ Usage:
 """
 
 import argparse
+import hashlib
 import json
 import random
 import sys
@@ -55,7 +56,7 @@ BASE_TABLE_ONLY = ["HITL_CREDENTIAL_COMPLETED", "HITL_CONFIRMATION_COMPLETED"]
 FIXTURE_COUNTERS = [
     "token_metadata_only", "token_content_only", "token_conflict",
     "streaming_partial_rows", "duplicate_tool_terminal_rows",
-    "base_table_only_rows",
+    "base_table_only_rows", "boundary_after_end_rows",
 ]
 
 
@@ -206,6 +207,16 @@ def main() -> int:
     with open(args.out, "w") as fh:
         em = Emitter(fh)
         warmup_turn(em, rng, start)
+        # After-end boundary fixtures: deterministic rows dated end+1 day,
+        # so every upper-bound window assertion is FALSIFIABLE (a window
+        # that leaks past its end date now returns extra rows; seventh
+        # review: without these the after-end proof was vacuous).
+        for i in range(7):
+            em.emit(row(end + timedelta(days=1, hours=i + 1),
+                        "USER_MESSAGE_RECEIVED", AGENTS[0],
+                        f"sess-boundary-{i}", f"inv-boundary-{i}",
+                        "user-0001", hexid(rng, 32), hexid(rng, 16)),
+                    fixture="boundary_after_end_rows")
 
         while em.total < args.events:
             day_offset = rng.random() * args.days
@@ -295,11 +306,22 @@ def main() -> int:
                         "INVOCATION_COMPLETED", agent, session, invocation,
                         user, trace, hexid(rng, 16)))
 
+    # The summary binds itself to the exact artifact: sha256 of the file
+    # just written plus the normalized generation arguments, so a summary
+    # from a different seed cannot be paired with this NDJSON.
+    sha = hashlib.sha256()
+    with open(args.out, "rb") as fh:
+        for chunk in iter(lambda: fh.read(1 << 20), b""):
+            sha.update(chunk)
     summary = {
         "requested_minimum": args.events,
         "total_emitted": em.total,
         "by_event_type": dict(sorted(em.counts.items())),
         "fixtures": em.fixtures,
+        "ndjson_sha256": sha.hexdigest(),
+        "args": {"events": args.events, "days": args.days,
+                 "seed": args.seed},
+        "end_date": end.date().isoformat(),
     }
     print(json.dumps(summary, indent=2))
     return 0
