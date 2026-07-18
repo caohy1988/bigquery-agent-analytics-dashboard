@@ -1,1 +1,0 @@
-[{"avg_latency":"5922.75","distinct_calls":"6323","rows_n":"6985","shape":"direct_view","tokens":"17568787"},{"avg_latency":"5569.991","distinct_calls":"6323","rows_n":"9257","shape":"pinned_join_fanout","tokens":"23269595"}]
