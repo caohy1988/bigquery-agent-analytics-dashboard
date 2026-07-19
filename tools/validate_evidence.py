@@ -19,6 +19,7 @@ Enumerates the REQUIRED evidence matrix — never "at least one file":
 Run by the m0-evidence-gate CI job; exits non-zero on any violation.
 """
 
+import argparse
 import hashlib
 import json
 import pathlib
@@ -28,6 +29,11 @@ import sys
 import yaml
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
+REQUIRED_GATES = {"structural_union", "date_boundary", "partition_pruning"}
+REQUIRED_SHAPES = {"scorecard_total_events_union",
+                   "scorecard_distinct_sessions_union",
+                   "trend_tokens_by_day", "bar_top5_users_by_traces_union",
+                   "scorecard_p90_tool_latency", "scorecard_pop_tokens"}
 COMPARE_PROFILES = ["1.36.1", "2.4.0"]
 RECORDING_PROFILE = "1.27.0"
 
@@ -44,7 +50,10 @@ def git_blob_sha256(commit: str, rel: str):
     return hashlib.sha256(pr.stdout).hexdigest()
 
 
-def main() -> int:
+def main(root=None) -> int:
+    global ROOT
+    if root is not None:
+        ROOT = pathlib.Path(root)
     errors = []
 
     def check(cond, msg):
@@ -74,13 +83,30 @@ def main() -> int:
         msha = sha(mp)
         exp_dir = ROOT / "oracle/expected" / name
         files = sorted(exp_dir.glob("*.json")) if exp_dir.is_dir() else []
-        check(len(files) == 37,
-              f"{name}: expected 37 result files, got {len(files)}")
+        # EXACT identity: the file set must be exactly {chart_id}.json for
+        # the spec's 37 charts, each file claiming its own chart and this
+        # scenario (a tree of 37 copies of one chart fails; eighth review).
+        check({f.stem for f in files} == set(charts),
+              f"{name}: expected-file set != spec chart-id set")
         for f in files:
             e = json.load(open(f))
             b = e.get("bindings", {})
             cid = e.get("chart_id")
-            check(cid in charts, f"{f.name}: unknown chart id")
+            check(cid == f.stem, f"{name}/{f.name}: chart_id != filename")
+            check(e.get("scenario") == name,
+                  f"{name}/{f.name}: scenario field mismatch")
+            decl = next((er for er in
+                          (charts.get(cid, {}).get("expected_results")
+                           or []) if er["scenario"] == name), None)
+            check(decl is not None and str(pathlib.Path(decl["path"]))
+                  == str(f.relative_to(ROOT)),
+                  f"{name}/{f.name}: not the declared path for this "
+                  "scenario")
+            if cid in charts:
+                qp = charts[cid]["oracle_query"]
+                check(b.get("query_sha256") == sha(ROOT / qp),
+                      f"{name}/{f.name}: query hash != current "
+                      f"{qp}")
             check(b.get("job_id"), f"{name}/{f.name}: null job id")
             check(b.get("runner_sha256") == runner_sha,
                   f"{name}/{f.name}: stale runner hash")
@@ -109,12 +135,23 @@ def main() -> int:
                 continue
             r = json.load(open(rp))
             check(r.get("pass") is True, f"{rp.name}: not passing")
-            check(len(r.get("charts", {})) == 37,
-                  f"{rp.name}: expected 37 charts, got "
-                  f"{len(r.get('charts', {}))}")
+            check(r.get("scenario") == name,
+                  f"{rp.name}: scenario field mismatch")
+            check(r.get("profile") == prof,
+                  f"{rp.name}: profile field mismatch")
+            check(set(r.get("charts", {})) == set(charts),
+                  f"{rp.name}: receipt chart-id set != spec chart-id set")
             for cid, cr in r.get("charts", {}).items():
                 check(cr.get("pass") is True, f"{rp.name}:{cid} failing")
                 check(cr.get("job_id"), f"{rp.name}:{cid} null job id")
+                # The receipt must bind the exact expected file it
+                # validated — editing expected rows after a comparison
+                # invalidates the receipt (eighth review).
+                ef = exp_dir / f"{cid}.json"
+                check(ef.is_file() and cr.get("expected_file_sha256")
+                      == sha(ef),
+                      f"{rp.name}:{cid} expected-file hash not bound or "
+                      "stale")
             check(r.get("scenario_manifest_sha256") == msha,
                   f"{rp.name}: manifest sha mismatch")
             check(r.get("runner_sha256") == runner_sha,
@@ -148,6 +185,22 @@ def main() -> int:
                     "benchmark_tool_sha256", "template_sql_sha256",
                     "repo_commit"):
             check(bb.get(key), f"benchmark: missing binding {key}")
+        check(bb.get("benchmark_tool_sha256")
+              == sha(ROOT / "tools/benchmark.py"),
+              "benchmark: tool hash != current tools/benchmark.py")
+        check(bb.get("template_sql_sha256")
+              == sha(ROOT / "sql/events_v1.template.sql"),
+              "benchmark: template hash != current rendered template")
+        check(set(bench.get("gates", {})) == REQUIRED_GATES,
+              f"benchmark: gate set {sorted(bench.get('gates', {}))} != "
+              "required")
+        check(set(bench.get("shapes", {})) == REQUIRED_SHAPES,
+              "benchmark: shape set != required six shapes")
+        check(bench.get("runs_per_shape") == 20,
+              "benchmark: runs_per_shape != 20")
+        for sname, s in bench.get("shapes", {}).items():
+            check(len(s.get("raw", [])) == 20,
+                  f"benchmark shape {sname}: expected 20 recorded runs")
         bname = bb.get("scenario")
         if bname in scenarios:
             check(bb.get("scenario_manifest_sha256")
@@ -180,4 +233,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--root", default=None,
+                    help="Alternate evidence tree root (adversarial tests)")
+    a = ap.parse_args()
+    sys.exit(main(a.root))

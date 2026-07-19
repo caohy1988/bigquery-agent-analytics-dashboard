@@ -114,6 +114,8 @@ def main() -> int:
     ap.add_argument("--start", default="2026-06-16")
     ap.add_argument("--end", default="2026-07-15")
     ap.add_argument("--runs", type=int, default=20)
+    ap.add_argument("--allow-fewer-runs", action="store_true",
+                    help="Dev only; contract minimum is 20 cold runs")
     ap.add_argument("--scenario-manifest", required=True)
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
@@ -135,14 +137,40 @@ def main() -> int:
               "come from committed code", file=sys.stderr)
         return 1
     manifest = json.load(open(args.scenario_manifest))
+    if args.runs < 20 and not args.allow_fewer_runs:
+        print("ERROR: contract minimum is 20 cold runs per shape",
+              file=sys.stderr)
+        return 1
+
+    # Load verification: the queried table must BE the manifest's seed.
+    n_rows = int(list(client.query(
+        f"SELECT COUNT(*) AS n FROM `{p}.{d}.agent_events`").result()
+    )[0]["n"])
+    if n_rows != manifest["seed"]["total_emitted"]:
+        print(f"ERROR: table has {n_rows} rows but the scenario manifest "
+              f"binds a seed of {manifest['seed']['total_emitted']} — "
+              "wrong or partial load", file=sys.stderr)
+        return 1
+
+    # Observed (not asserted) capacity state.
+    def observe(sql):
+        try:
+            return [dict(r) for r in client.query(sql).result()]
+        except Exception as e:
+            return f"query failed: {str(e)[:120]}"
+    bi_obs = observe("SELECT * FROM `region-us`."
+                     "INFORMATION_SCHEMA.BI_CAPACITIES")
+    res_obs = observe("SELECT * FROM `region-us`."
+                      "INFORMATION_SCHEMA.ASSIGNMENTS_BY_PROJECT")
 
     import datetime as _dt
     result = {"project": p, "dataset": d,
               "window": {"start": args.start, "end": args.end},
               "runs_per_shape": args.runs,
               "query_cache": "disabled",
-              "bi_engine": "no reservation in project",
-              "pricing_model": "on-demand",
+              "table_rows_verified": n_rows,
+              "bi_engine_observed": bi_obs,
+              "reservation_assignments_observed": res_obs,
               "bindings": {
                   "scenario": manifest["name"],
                   "scenario_manifest_sha256": sh(args.scenario_manifest),
@@ -179,13 +207,17 @@ def main() -> int:
     union_all_cols = union_sql(p, d, union_cols)
     union_probe = (f"SELECT COUNT(*), COUNT(DISTINCT trace_id) FROM "
                    f"({union_all_cols}) WHERE {w}")
+    types = ", ".join(f"'{v.upper()}'" for v in V1_VIEWS)
     base_probe = (f"SELECT COUNT(*), COUNT(DISTINCT trace_id) FROM "
-                  f"(SELECT {union_cols} FROM `{p}.{d}.agent_events`) "
+                  f"(SELECT {union_cols} FROM `{p}.{d}.agent_events` "
+                  f"WHERE event_type IN ({types})) "
                   f"WHERE {w}")
     ub = run_cold(client, union_probe, 3)
     bb = run_cold(client, base_probe, 3)
     ratio = ub[0]["bytes_processed"] / bb[0]["bytes_processed"]
     result["gates"]["structural_union"] = {
+        "union_job_ids": [s["job_id"] for s in ub],
+        "base_job_ids": [s["job_id"] for s in bb],
         "union_bytes_processed": ub[0]["bytes_processed"],
         "base_scan_bytes_processed": bb[0]["bytes_processed"],
         "ratio": round(ratio, 4),
@@ -197,7 +229,7 @@ def main() -> int:
           f"({'PASS' if ratio <= 3.0 else 'FAIL'})")
 
     # --- date-boundary proof ---
-    bq_rows = list(client.query(f"""
+    boundary_job = client.query(f"""
         SELECT
           (SELECT COUNT(*) FROM ({union_sql(p, d)})
            WHERE {w}) AS in_window,
@@ -212,8 +244,10 @@ def main() -> int:
           (SELECT COUNT(*) FROM ({union_sql(p, d)})
            WHERE DATE(timestamp,'UTC') =
              DATE_ADD(DATE '{args.end}', INTERVAL 1 DAY)) AS after_end_rows
-    """).result())
+    """)
+    bq_rows = list(boundary_job.result())
     row = dict(bq_rows[0])
+    row["boundary_job_id"] = boundary_job.job_id
     # Falsifiability (seventh review): the seed plants rows dated end+1
     # (boundary_after_end_rows), so after-end exclusion can actually fail.
     planted = manifest["seed"]["fixture_counters"][
@@ -272,6 +306,7 @@ def main() -> int:
     wide = result["shapes"]["scorecard_total_events_union"]
     frac = narrow[0]["bytes_processed"] / wide["bytes_processed"]
     result["gates"]["partition_pruning"] = {
+        "job_id": narrow[0]["job_id"],
         "one_day_bytes": narrow[0]["bytes_processed"],
         "thirty_day_bytes": wide["bytes_processed"],
         "fraction": round(frac, 4),

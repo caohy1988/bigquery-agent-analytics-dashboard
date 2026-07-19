@@ -1,0 +1,834 @@
+{
+ "bi_engine": "no reservation in project",
+ "dataset": "bqaa_bench_10m",
+ "gates": {
+  "date_boundary": {
+   "after_end_rows": 0,
+   "end_day_rows": 52,
+   "in_window": 9627067,
+   "pass": true,
+   "raw_in_window": 9627067
+  },
+  "partition_pruning": {
+   "fraction": 0.0,
+   "one_day_bytes": 1443,
+   "pass": true,
+   "thirty_day_bytes": 247627785
+  },
+  "structural_union": {
+   "base_scan_bytes_processed": 405475182,
+   "limit": 3.0,
+   "pass": true,
+   "ratio": 1.4202,
+   "union_bytes_processed": 575869599
+  }
+ },
+ "pricing_model": "on-demand",
+ "project": "test-project-0728-467323",
+ "query_cache": "disabled",
+ "runs_per_shape": 20,
+ "shapes": {
+  "bar_top5_users_by_traces_union": {
+   "bytes_billed_max": 682622976,
+   "bytes_processed": 682065480,
+   "elapsed_ms": {
+    "max": 864,
+    "min": 603,
+    "p50": 689,
+    "p95": 839
+   },
+   "raw": [
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 685,
+     "slot_ms": 46725
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 744,
+     "slot_ms": 34687
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 701,
+     "slot_ms": 38758
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 721,
+     "slot_ms": 42121
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 761,
+     "slot_ms": 39204
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 768,
+     "slot_ms": 37523
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 748,
+     "slot_ms": 38435
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 610,
+     "slot_ms": 36056
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 628,
+     "slot_ms": 37424
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 839,
+     "slot_ms": 37130
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 664,
+     "slot_ms": 38523
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 689,
+     "slot_ms": 33876
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 629,
+     "slot_ms": 35900
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 631,
+     "slot_ms": 33922
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 603,
+     "slot_ms": 38315
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 652,
+     "slot_ms": 40366
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 864,
+     "slot_ms": 45729
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 610,
+     "slot_ms": 39551
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 702,
+     "slot_ms": 37824
+    },
+    {
+     "bytes_billed": 682622976,
+     "bytes_processed": 682065480,
+     "elapsed_ms": 655,
+     "slot_ms": 35183
+    }
+   ],
+   "slot_ms_median": 38069.5
+  },
+  "scorecard_distinct_sessions_union": {
+   "bytes_billed_max": 432013312,
+   "bytes_processed": 431057034,
+   "elapsed_ms": {
+    "max": 1398,
+    "min": 442,
+    "p50": 521,
+    "p95": 832
+   },
+   "raw": [
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 641,
+     "slot_ms": 33349
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 481,
+     "slot_ms": 24854
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 565,
+     "slot_ms": 25762
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 539,
+     "slot_ms": 29448
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 1398,
+     "slot_ms": 40990
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 502,
+     "slot_ms": 25655
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 474,
+     "slot_ms": 23936
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 506,
+     "slot_ms": 27666
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 505,
+     "slot_ms": 25516
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 520,
+     "slot_ms": 27626
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 472,
+     "slot_ms": 26166
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 521,
+     "slot_ms": 26497
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 511,
+     "slot_ms": 24950
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 538,
+     "slot_ms": 26722
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 735,
+     "slot_ms": 33731
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 587,
+     "slot_ms": 25503
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 832,
+     "slot_ms": 30042
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 703,
+     "slot_ms": 28860
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 485,
+     "slot_ms": 26525
+    },
+    {
+     "bytes_billed": 432013312,
+     "bytes_processed": 431057034,
+     "elapsed_ms": 442,
+     "slot_ms": 24061
+    }
+   ],
+   "slot_ms_median": 26511.0
+  },
+  "scorecard_p90_tool_latency": {
+   "bytes_billed_max": 193986560,
+   "bytes_processed": 193269691,
+   "elapsed_ms": {
+    "max": 1601,
+    "min": 1115,
+    "p50": 1390,
+    "p95": 1587
+   },
+   "raw": [
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1252,
+     "slot_ms": 18537
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1489,
+     "slot_ms": 24943
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1387,
+     "slot_ms": 22838
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1390,
+     "slot_ms": 22091
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1115,
+     "slot_ms": 21312
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1243,
+     "slot_ms": 20838
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1384,
+     "slot_ms": 22697
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1279,
+     "slot_ms": 22033
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1577,
+     "slot_ms": 26333
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1434,
+     "slot_ms": 20074
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1362,
+     "slot_ms": 21146
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1395,
+     "slot_ms": 19105
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1516,
+     "slot_ms": 20829
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1587,
+     "slot_ms": 35258
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1357,
+     "slot_ms": 22384
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1447,
+     "slot_ms": 19774
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1377,
+     "slot_ms": 24631
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1601,
+     "slot_ms": 27146
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1543,
+     "slot_ms": 22443
+    },
+    {
+     "bytes_billed": 193986560,
+     "bytes_processed": 193269691,
+     "elapsed_ms": 1166,
+     "slot_ms": 20710
+    }
+   ],
+   "slot_ms_median": 22062.0
+  },
+  "scorecard_pop_tokens": {
+   "bytes_billed_max": 228589568,
+   "bytes_processed": 228260139,
+   "elapsed_ms": {
+    "max": 636,
+    "min": 305,
+    "p50": 375,
+    "p95": 456
+   },
+   "raw": [
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 361,
+     "slot_ms": 1450
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 354,
+     "slot_ms": 1230
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 373,
+     "slot_ms": 1288
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 362,
+     "slot_ms": 1170
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 399,
+     "slot_ms": 1189
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 363,
+     "slot_ms": 1215
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 399,
+     "slot_ms": 1341
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 384,
+     "slot_ms": 1312
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 414,
+     "slot_ms": 1295
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 447,
+     "slot_ms": 1354
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 391,
+     "slot_ms": 1293
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 456,
+     "slot_ms": 1247
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 366,
+     "slot_ms": 1215
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 375,
+     "slot_ms": 1100
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 338,
+     "slot_ms": 1305
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 406,
+     "slot_ms": 1213
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 305,
+     "slot_ms": 1296
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 636,
+     "slot_ms": 1412
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 346,
+     "slot_ms": 1353
+    },
+    {
+     "bytes_billed": 228589568,
+     "bytes_processed": 228260139,
+     "elapsed_ms": 355,
+     "slot_ms": 1191
+    }
+   ],
+   "slot_ms_median": 1290.5
+  },
+  "scorecard_total_events_union": {
+   "bytes_billed_max": 248512512,
+   "bytes_processed": 247627785,
+   "elapsed_ms": {
+    "max": 463,
+    "min": 306,
+    "p50": 347,
+    "p95": 450
+   },
+   "raw": [
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 463,
+     "slot_ms": 19093
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 339,
+     "slot_ms": 8108
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 353,
+     "slot_ms": 8569
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 337,
+     "slot_ms": 8376
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 394,
+     "slot_ms": 8100
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 440,
+     "slot_ms": 8028
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 356,
+     "slot_ms": 8086
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 306,
+     "slot_ms": 7720
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 377,
+     "slot_ms": 7899
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 320,
+     "slot_ms": 7955
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 313,
+     "slot_ms": 8097
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 317,
+     "slot_ms": 8017
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 395,
+     "slot_ms": 8318
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 337,
+     "slot_ms": 7811
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 320,
+     "slot_ms": 7799
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 447,
+     "slot_ms": 8600
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 450,
+     "slot_ms": 9996
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 312,
+     "slot_ms": 8077
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 327,
+     "slot_ms": 8587
+    },
+    {
+     "bytes_billed": 248512512,
+     "bytes_processed": 247627785,
+     "elapsed_ms": 347,
+     "slot_ms": 8235
+    }
+   ],
+   "slot_ms_median": 8098.5
+  },
+  "trend_tokens_by_day": {
+   "bytes_billed_max": 221249536,
+   "bytes_processed": 220907328,
+   "elapsed_ms": {
+    "max": 515,
+    "min": 322,
+    "p50": 409,
+    "p95": 493
+   },
+   "raw": [
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 467,
+     "slot_ms": 3632
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 388,
+     "slot_ms": 2123
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 410,
+     "slot_ms": 2371
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 493,
+     "slot_ms": 2270
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 410,
+     "slot_ms": 2444
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 409,
+     "slot_ms": 2207
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 419,
+     "slot_ms": 2152
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 381,
+     "slot_ms": 2165
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 477,
+     "slot_ms": 2223
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 479,
+     "slot_ms": 1953
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 384,
+     "slot_ms": 2280
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 515,
+     "slot_ms": 2307
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 373,
+     "slot_ms": 2181
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 401,
+     "slot_ms": 2273
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 322,
+     "slot_ms": 2130
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 388,
+     "slot_ms": 2214
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 361,
+     "slot_ms": 2065
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 376,
+     "slot_ms": 2085
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 434,
+     "slot_ms": 2172
+    },
+    {
+     "bytes_billed": 221249536,
+     "bytes_processed": 220907328,
+     "elapsed_ms": 379,
+     "slot_ms": 2245
+    }
+   ],
+   "slot_ms_median": 2210.5
+  }
+ },
+ "window": {
+  "end": "2026-07-15",
+  "start": "2026-06-16"
+ }
+}

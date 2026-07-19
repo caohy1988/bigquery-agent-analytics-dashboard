@@ -1,0 +1,199 @@
+{
+ "charts": {
+  "performance-average-llm-latency-in-ms": {
+   "detail": "match",
+   "job_id": "oracle_b40d1074203b441dbf7b1ba35dbd83e0",
+   "pass": true
+  },
+  "performance-average-tool-latency-ms": {
+   "detail": "match",
+   "job_id": "oracle_37e08b3a8c4e474985ed671931f699f6",
+   "pass": true
+  },
+  "performance-llm-latency-trend": {
+   "detail": "match",
+   "job_id": "oracle_8145265de9a44946b606fb6871d5c833",
+   "pass": true
+  },
+  "performance-p50-llm-latency": {
+   "detail": "match",
+   "job_id": "oracle_eabec931363c46f2964fa9bf761ddda7",
+   "pass": true
+  },
+  "performance-p50-tool-latency": {
+   "detail": "match",
+   "job_id": "oracle_a93078b8b1d24916a325008456891e9e",
+   "pass": true
+  },
+  "performance-p75-llm-latency": {
+   "detail": "match",
+   "job_id": "oracle_6167d431496d44c6b54e6f61645b927e",
+   "pass": true
+  },
+  "performance-p75-tool-latency": {
+   "detail": "match",
+   "job_id": "oracle_1158d6d2ae59460dad447d46b16b4a7b",
+   "pass": true
+  },
+  "performance-p90-llm-latency": {
+   "detail": "match",
+   "job_id": "oracle_1ff833abb4504b35afb03ffa3636c64c",
+   "pass": true
+  },
+  "performance-p90-tool-latency": {
+   "detail": "match",
+   "job_id": "oracle_57743223452f44ceaf799701583aa25b",
+   "pass": true
+  },
+  "performance-p99-llm-latency": {
+   "detail": "match",
+   "job_id": "oracle_b7348ecfade24de6bf82c2499398c6bb",
+   "pass": true
+  },
+  "performance-p99-tool-latency": {
+   "detail": "match",
+   "job_id": "oracle_145ebc421e1e4c0db578fe7cc320fc9a",
+   "pass": true
+  },
+  "performance-tool-errors-trend": {
+   "detail": "match",
+   "job_id": "oracle_688dae3d728446b08a635c48345f8d48",
+   "pass": true
+  },
+  "performance-tool-latency-trend": {
+   "detail": "match",
+   "job_id": "oracle_94b229e75a4340478f45be28efaabbca",
+   "pass": true
+  },
+  "performance-top-5-agents-by-errors": {
+   "detail": "match",
+   "job_id": "oracle_375413bc592745628035fad13af3a2a6",
+   "pass": true
+  },
+  "performance-top-5-tools-by-errors": {
+   "detail": "match",
+   "job_id": "oracle_653588d71f00481f96b6feabd965280a",
+   "pass": true
+  },
+  "performance-total-errors": {
+   "detail": "match",
+   "job_id": "oracle_053e7683951f4c68a24599a5413f3a80",
+   "pass": true
+  },
+  "usage-events-by-agent": {
+   "detail": "match",
+   "job_id": "oracle_346e312709e440f3aed85eb839008896",
+   "pass": true
+  },
+  "usage-llm-call-trends": {
+   "detail": "match",
+   "job_id": "oracle_f1122ca9c70d4111a60cdbdc27a01ce1",
+   "pass": true
+  },
+  "usage-number-of-sessions-trend": {
+   "detail": "match",
+   "job_id": "oracle_069e5d3024d84835aa731263a7fe7760",
+   "pass": true
+  },
+  "usage-token-usage-split-by-agent": {
+   "detail": "match",
+   "job_id": "oracle_5f4f39f22e3045f59b1b117de55148c6",
+   "pass": true
+  },
+  "usage-tool-calls-over-time": {
+   "detail": "match",
+   "job_id": "oracle_5c59a6ced84641deba307dcd20557e57",
+   "pass": true
+  },
+  "usage-tool-invocations": {
+   "detail": "match",
+   "job_id": "oracle_dc6d297898d3490198044e08b4c36a32",
+   "pass": true
+  },
+  "usage-top-5-agents-by-llm-calls": {
+   "detail": "match",
+   "job_id": "oracle_52f4a40138c84868a2b028eaa715d3f0",
+   "pass": true
+  },
+  "usage-top-5-agents-split-by-session-count": {
+   "detail": "match",
+   "job_id": "oracle_62ab2e32926345f2a4b0400f990e8103",
+   "pass": true
+  },
+  "usage-top-5-users-by-events": {
+   "detail": "match",
+   "job_id": "oracle_07bd5b18588340358e39107e1cd589a0",
+   "pass": true
+  },
+  "usage-top-5-users-by-session": {
+   "detail": "match",
+   "job_id": "oracle_6881565f2b2d45f7bb86ac2c0f73b737",
+   "pass": true
+  },
+  "usage-top-5-users-with-most-tokens-consumption": {
+   "detail": "match",
+   "job_id": "oracle_3b2f25458bfb4d75ac09ae46cd2c0b0e",
+   "pass": true
+  },
+  "usage-top-5-users-with-most-traces": {
+   "detail": "match",
+   "job_id": "oracle_093134baa44d46629521d05b9b4ce8e8",
+   "pass": true
+  },
+  "usage-total-calls": {
+   "detail": "match",
+   "job_id": "oracle_ee43f7bef191404da4c8c35d4cad80b3",
+   "pass": true
+  },
+  "usage-total-sessions": {
+   "detail": "match",
+   "job_id": "oracle_0758f88d780c47c88463a9ed9aae8353",
+   "pass": true
+  },
+  "usage-total-tokens": {
+   "detail": "match",
+   "job_id": "oracle_f137731008944a28b2b3314f87bd7eef",
+   "pass": true
+  },
+  "usage-total-tokens-consumption-over-the-time": {
+   "detail": "match",
+   "job_id": "oracle_4a3291e2c7004a4e8b9efa716e4084c3",
+   "pass": true
+  },
+  "usage-total-traces": {
+   "detail": "match",
+   "job_id": "oracle_8016a9d4b35f4dbfae8a470ad2d9ff1d",
+   "pass": true
+  },
+  "usage-total-traces-generation-over-the-time": {
+   "detail": "match",
+   "job_id": "oracle_e2436f9875184fc9895cf3e76283cfff",
+   "pass": true
+  },
+  "usage-total-users": {
+   "detail": "match",
+   "job_id": "oracle_01bc1a51858847909b0de0ddcdb0abdc",
+   "pass": true
+  },
+  "usage-traces-split-by-agent": {
+   "detail": "match",
+   "job_id": "oracle_069eca3254264dd9b46176fd998d4bc2",
+   "pass": true
+  },
+  "usage-user-growth-over-time": {
+   "detail": "match",
+   "job_id": "oracle_4f9f6ecba5b64e78a9f53902cc95f1d2",
+   "pass": true
+  }
+ },
+ "dataset": "test-project-0728-467323.bqaa_fixture_adk_1_36_1",
+ "executed_at_utc": "2026-07-18T10:29:49.042838+00:00",
+ "inventory_fingerprint": "cb790f0e4d4157a53401685daad184fc857ba37edf69d1af31147c0d4c98150d",
+ "pass": true,
+ "profile": "1.36.1",
+ "repo_commit": "181201a277f9b4077f4a95ed9cba2bc3820b15f9",
+ "runner_sha256": "9a9533bc47e017e520670bdc1693f8ef9370a266eeabd7ebd46b41859cb72635",
+ "scenario": "seed-20260715-30d-100k",
+ "scenario_manifest_sha256": "6e7255baca43977956e5795154b365f963630ef7ef103e7ab7ddf363b9326196",
+ "spec_sha256": "e72b7bd4cf5eb8db39677f47e10b93eb0ea9163a4928209aba934bb8170fed74"
+}

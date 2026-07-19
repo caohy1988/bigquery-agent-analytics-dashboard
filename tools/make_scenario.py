@@ -54,6 +54,60 @@ def main() -> int:
     if summary.get("end_date") != args.end_date:
         print("ERROR: summary end_date does not match", file=sys.stderr)
         return 1
+    # Recompute event-type and fixture counters FROM the bound NDJSON —
+    # a tampered summary paired with a genuine seed fails (eighth review).
+    counts, fixtures = {}, {"token_metadata_only": 0, "token_content_only": 0,
+                             "token_conflict": 0, "streaming_partial_rows": 0,
+                             "duplicate_tool_terminal_rows": 0,
+                             "base_table_only_rows": 0,
+                             "boundary_after_end_rows": 0}
+    llm_spans, tool_spans = {}, {}
+    with open(args.seed_file) as fh:
+        for line in fh:
+            r = json.loads(line)
+            et = r["event_type"]
+            counts[et] = counts.get(et, 0) + 1
+            if et in ("HITL_CREDENTIAL_COMPLETED",
+                      "HITL_CONFIRMATION_COMPLETED"):
+                fixtures["base_table_only_rows"] += 1
+            if r["timestamp"][:10] > args.end_date:
+                fixtures["boundary_after_end_rows"] += 1
+            if et == "LLM_RESPONSE":
+                key = (r["trace_id"], r["span_id"])
+                llm_spans[key] = llm_spans.get(key, 0) + 1
+            if et == "TOOL_COMPLETED":
+                key = (r["trace_id"], r["span_id"])
+                tool_spans[key] = tool_spans.get(key, 0) + 1
+    # Second pass for token variants — every row of a span shares its
+    # variant, so classify per-span from the LAST seen row, storing only
+    # two booleans per span (memory-safe on 10M rows).
+    variants = {}
+    with open(args.seed_file) as fh:
+        for line in fh:
+            r = json.loads(line)
+            if r["event_type"] != "LLM_RESPONSE":
+                continue
+            a = r.get("attributes") or {}
+            c = r.get("content") or {}
+            variants[(r["trace_id"], r["span_id"])] = (
+                "usage_metadata" in a, "usage" in c)
+    for key, (has_meta, has_content) in variants.items():
+        variant = ("token_conflict" if has_meta and has_content else
+                   "token_metadata_only" if has_meta else
+                   "token_content_only")
+        fixtures[variant] += 1
+        fixtures["streaming_partial_rows"] += llm_spans[key] - 1
+    for key, n in tool_spans.items():
+        fixtures["duplicate_tool_terminal_rows"] += n - 1
+    if counts != summary["by_event_type"]:
+        print("ERROR: recomputed event counts != summary by_event_type",
+              file=sys.stderr)
+        return 1
+    if fixtures != summary["fixtures"]:
+        print(f"ERROR: recomputed fixtures != summary fixtures\n"
+              f"  recomputed: {fixtures}\n"
+              f"  summary:    {summary['fixtures']}", file=sys.stderr)
+        return 1
     if lines != summary["total_emitted"]:
         print(f"ERROR: seed file has {lines} rows but the summary claims "
               f"{summary['total_emitted']} — mismatched artifacts",

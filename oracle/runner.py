@@ -257,21 +257,56 @@ def verify_runtime_source(project: str, dataset: str, location: str,
         if got != want:
             raise SystemExit(f"runtime {name} {got!r} != inventory "
                              f"{want!r} for profile {profile}")
-    sql = (f"SELECT table_name FROM `{project}.{dataset}`"
-           f".INFORMATION_SCHEMA.VIEWS WHERE STARTS_WITH(table_name,"
-           f" '{prefix}_') ORDER BY table_name")
-    pr = subprocess.run(
-        ["bq", f"--project_id={project}", f"--location={location}",
-         "query", "--nouse_legacy_sql", "--format=json",
-         "--max_rows=1000"], input=sql, capture_output=True, text=True)
-    if pr.returncode != 0:
-        raise SystemExit(f"runtime source check failed: {pr.stderr[:200]}")
-    live = {r["table_name"] for r in json.loads(pr.stdout or "[]")}
-    inv = {v["view"] for v in m["views"]}
-    if live != inv:
+    # Full fingerprint check (eighth review): recompute the normalized
+    # inventory fingerprint from the LIVE dataset — same canonicalization
+    # as capture_inventory — and require equality with the committed
+    # profile fingerprint. Name-set equality alone would accept a
+    # same-name view with changed columns or SQL.
+    def bq_json(sql):
+        pr = subprocess.run(
+            ["bq", f"--project_id={project}", f"--location={location}",
+             "query", "--nouse_legacy_sql", "--format=json",
+             "--max_rows=10000"], input=sql, capture_output=True,
+            text=True)
+        if pr.returncode != 0:
+            raise SystemExit(f"runtime source check failed: "
+                             f"{pr.stderr[:200]}")
+        return json.loads(pr.stdout or "[]")
+
+    views = bq_json(
+        f"SELECT table_name, view_definition FROM `{project}.{dataset}`"
+        f".INFORMATION_SCHEMA.VIEWS WHERE STARTS_WITH(table_name,"
+        f" '{prefix}_') ORDER BY table_name")
+    columns = bq_json(
+        f"SELECT table_name, column_name, ordinal_position, data_type "
+        f"FROM `{project}.{dataset}`.INFORMATION_SCHEMA.COLUMNS "
+        f"WHERE STARTS_WITH(table_name, '{prefix}_') "
+        f"ORDER BY table_name, ordinal_position")
+    cols_by_view = {}
+    for c in columns:
+        cols_by_view.setdefault(c["table_name"], []).append(
+            {"name": c["column_name"], "type": c["data_type"],
+             "position": int(c["ordinal_position"])})
+    inventory = []
+    for v in views:
+        d = v["view_definition"].replace(project, "__PROJECT__")
+        d = d.replace(dataset, "__DATASET__")
+        d = re.sub(r"\s+", " ", d).strip()
+        inventory.append({
+            "view": v["table_name"],
+            "columns": cols_by_view.get(v["table_name"], []),
+            "definition_normalized": d,
+        })
+    canonical = json.dumps(
+        [{**iv, "view": re.sub(f"^{re.escape(prefix)}_", "__PREFIX___",
+                               iv["view"])} for iv in inventory],
+        sort_keys=True, separators=(",", ":"))
+    live_fp = hashlib.sha256(canonical.encode()).hexdigest()
+    if live_fp != m["fingerprint_sha256"]:
         raise SystemExit(
-            f"live view set != inventory for profile {profile}: "
-            f"missing={sorted(inv - live)} extra={sorted(live - inv)}")
+            f"LIVE inventory fingerprint {live_fp[:12]} != committed "
+            f"{m['fingerprint_sha256'][:12]} for profile {profile} — the "
+            "dataset does not match the receipt-bound inventory")
 
 
 def main() -> int:
@@ -389,7 +424,10 @@ def main() -> int:
                                     comparison, tolerance, tolerance_kind)
             receipt_charts[cid] = {"pass": not reason,
                                    "detail": reason or "match",
-                                   "job_id": job_id}
+                                   "job_id": job_id,
+                                   "expected_file_sha256": sha256_file(
+                                       pathlib.Path(args.expected)
+                                       / f"{cid}.json")}
             if reason:
                 failures.append(f"{cid}: {reason}")
             else:

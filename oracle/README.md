@@ -22,4 +22,4 @@ Deliverables (M0, per the bootstrap contract):
 - coverage of tile filters, sorting, limits, current/previous periods, and
   the frozen `call_row_policy`.
 
-Status: 37 queries generated and mapped via spec/overrides.yaml; expected results + cross-profile compare receipts are produced under the enforced-provenance runner across three scenarios (base, filtered f1, trace/span-filtered f2) and validated end-to-end by tools/validate_evidence.py in CI. Remaining: independent human review of the 37 translations against the pinned LookML.
+Status: evidence REGENERATION PENDING under the eighth-review provenance contract (refresh marker up, m0-evidence-gate red). The 37 queries and three scenarios are defined; expected results, compare receipts, and the bound benchmark land with the next evidence commit and are validated by tools/validate_evidence.py.

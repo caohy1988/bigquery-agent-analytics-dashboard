@@ -54,6 +54,9 @@ jobs:
       - name: Spec contract negative tests
         run: python3 tools/test_spec_contract.py .block-pinned
 
+      - name: Fabricated-evidence rejection test
+        run: python3 tools/test_validate_evidence.py
+
       - name: Provenance fail-closed tests
         run: python3 tools/test_provenance.py
 
