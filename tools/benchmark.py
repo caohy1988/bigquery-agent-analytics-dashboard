@@ -16,8 +16,16 @@ Runs, per the contract's benchmark methodology:
   * partition-pruning proof: a 1-day window must process a small fraction
     of the 30-day window's bytes.
 
-BI Engine state: this project has no BI Engine reservation; cache is
-disabled per run. Both are recorded in the output.
+Capacity contract (ninth review): the reference is on-demand with BI
+Engine disabled. Capacity state is verified fail-closed — an unreadable
+INFORMATION_SCHEMA, a nonempty BI Engine capacity, a reservation
+assignment, or an accelerated/reservation-backed job aborts the run.
+Only sanitized counts and job ids are recorded, never raw capacity rows.
+
+Dataset binding (ninth review): --load-receipt (from tools/load_seed.py)
+is required; the receipt's load job is re-fetched from BigQuery and must
+match the scenario manifest's seed sha and row count, and the live
+table's per-event-type counts must equal the manifest's.
 
 Requires google-cloud-bigquery (run inside one of the fixture venvs).
 """
@@ -84,12 +92,35 @@ def shapes(p, d, start, end):
     }
 
 
+class CapacityViolation(RuntimeError):
+    pass
+
+
+def job_capacity_state(job):
+    """(bi_engine_accelerated, reservation_used) from job statistics."""
+    st = job._properties.get("statistics", {})
+    bi = st.get("query", {}).get("biEngineStatistics")
+    accelerated = bool(bi) and bi.get("biEngineMode") not in (None,
+                                                             "DISABLED")
+    return accelerated, bool(st.get("reservation_id"))
+
+
 def run_cold(client, sql, runs):
     stats = []
     for _ in range(runs):
         job = client.query(sql, job_config=bigquery.QueryJobConfig(
             use_query_cache=False))
         job.result()
+        accelerated, reserved = job_capacity_state(job)
+        if accelerated:
+            raise CapacityViolation(
+                f"job {job.job_id} was BI Engine accelerated — the "
+                "contract requires an on-demand reference with BI Engine "
+                "disabled")
+        if reserved:
+            raise CapacityViolation(
+                f"job {job.job_id} ran on a reservation — the contract "
+                "requires on-demand pricing")
         stats.append({
             "job_id": job.job_id,
             "bytes_processed": job.total_bytes_processed,
@@ -97,6 +128,8 @@ def run_cold(client, sql, runs):
             "slot_ms": job.slot_millis,
             "elapsed_ms": int((job.ended - job.started).total_seconds()
                               * 1000),
+            "bi_engine_accelerated": False,
+            "reservation_used": False,
         })
     return stats
 
@@ -117,6 +150,9 @@ def main() -> int:
     ap.add_argument("--allow-fewer-runs", action="store_true",
                     help="Dev only; contract minimum is 20 cold runs")
     ap.add_argument("--scenario-manifest", required=True)
+    ap.add_argument("--load-receipt", required=True,
+                    help="Receipt written by tools/load_seed.py binding "
+                         "the table to the manifest's seed")
     ap.add_argument("--out", required=True)
     args = ap.parse_args()
     p, d = args.project, args.dataset
@@ -142,39 +178,103 @@ def main() -> int:
               file=sys.stderr)
         return 1
 
-    # Load verification: the queried table must BE the manifest's seed.
-    n_rows = int(list(client.query(
-        f"SELECT COUNT(*) AS n FROM `{p}.{d}.agent_events`").result()
-    )[0]["n"])
-    if n_rows != manifest["seed"]["total_emitted"]:
-        print(f"ERROR: table has {n_rows} rows but the scenario manifest "
-              f"binds a seed of {manifest['seed']['total_emitted']} — "
-              "wrong or partial load", file=sys.stderr)
+    # Load verification: the queried table must BE the manifest's seed,
+    # proven by the load receipt (not just a row count — a different
+    # 10M-row table would otherwise pass; ninth review).
+    receipt = json.load(open(args.load_receipt))
+    total = manifest["seed"]["total_emitted"]
+    if receipt.get("ndjson_sha256") != manifest["seed"]["ndjson_sha256"]:
+        print("ERROR: load receipt seed sha != scenario manifest seed sha",
+              file=sys.stderr)
         return 1
+    if receipt.get("destination_table") != f"{p}.{d}.agent_events":
+        print(f"ERROR: load receipt destination "
+              f"{receipt.get('destination_table')} is not "
+              f"{p}.{d}.agent_events", file=sys.stderr)
+        return 1
+    if receipt.get("output_rows") != total:
+        print("ERROR: load receipt row count != manifest total_emitted",
+              file=sys.stderr)
+        return 1
+    load_job = client.get_job(receipt["load_job_id"],
+                              location=receipt.get("load_job_location"))
+    if (load_job.job_type != "load" or load_job.state != "DONE"
+            or load_job.error_result
+            or load_job.output_rows != receipt["output_rows"]
+            or str(load_job.destination).replace(":", ".")
+            != receipt["destination_table"]):
+        print(f"ERROR: BigQuery load job {receipt['load_job_id']} does "
+              "not corroborate the receipt", file=sys.stderr)
+        return 1
+    counts_job = client.query(
+        f"SELECT event_type, COUNT(*) AS n, "
+        f"AVG(BYTE_LENGTH(TO_JSON_STRING(content))) AS content_avg, "
+        f"AVG(BYTE_LENGTH(TO_JSON_STRING(attributes))) AS attrs_avg "
+        f"FROM `{p}.{d}.agent_events` GROUP BY event_type")
+    dist = {r["event_type"]: r for r in counts_job.result()}
+    et_counts = {k: int(v["n"]) for k, v in dist.items()}
+    n_rows = sum(et_counts.values())
+    if n_rows != total:
+        print(f"ERROR: table has {n_rows} rows but the scenario manifest "
+              f"binds a seed of {total} — wrong or partial load",
+              file=sys.stderr)
+        return 1
+    if et_counts != manifest["seed"]["by_event_type"]:
+        print("ERROR: live per-event-type counts != scenario manifest "
+              f"by_event_type\n  live:     {et_counts}\n  manifest: "
+              f"{manifest['seed']['by_event_type']}", file=sys.stderr)
+        return 1
+    load_verification = {
+        "load_receipt": receipt,
+        "load_job_verified": True,
+        "table_rows_verified": n_rows,
+        "row_count_job_id": counts_job.job_id,
+        "event_type_counts": et_counts,
+        "payload_avg_bytes_by_event_type": {
+            k: {"content": round(float(v["content_avg"] or 0), 1),
+                "attributes": round(float(v["attrs_avg"] or 0), 1)}
+            for k, v in dist.items()},
+    }
 
-    # Observed (not asserted) capacity state.
-    def observe(sql):
-        try:
-            return [dict(r) for r in client.query(sql).result()]
-        except Exception as e:
-            return f"query failed: {str(e)[:120]}"
-    bi_obs = observe("SELECT * FROM `region-us`."
-                     "INFORMATION_SCHEMA.BI_CAPACITIES")
-    res_obs = observe("SELECT * FROM `region-us`."
-                      "INFORMATION_SCHEMA.ASSIGNMENTS_BY_PROJECT")
+    # Capacity state, fail-closed and sanitized (ninth review): raw
+    # INFORMATION_SCHEMA rows can carry project/reservation/principal
+    # identifiers and must never enter publishable evidence.
+    def count_rows(sql):
+        job = client.query(sql)
+        return len(list(job.result())), job.job_id
+    try:
+        bi_n, bi_job = count_rows(
+            "SELECT * FROM `region-us`.INFORMATION_SCHEMA.BI_CAPACITIES")
+        res_n, res_job = count_rows(
+            "SELECT * FROM `region-us`.INFORMATION_SCHEMA."
+            "ASSIGNMENTS_BY_PROJECT")
+    except Exception as e:
+        print(f"ERROR: could not establish capacity state "
+              f"({type(e).__name__}) — the contract requires a verified "
+              "on-demand reference; failing closed", file=sys.stderr)
+        return 1
+    if bi_n or res_n:
+        print(f"ERROR: incompatible capacity state — {bi_n} BI Engine "
+              f"capacit(ies), {res_n} reservation assignment(s); the "
+              "contract requires on-demand with BI Engine disabled",
+              file=sys.stderr)
+        return 1
+    capacity = {"bi_engine_capacities": 0, "reservation_assignments": 0,
+                "bi_capacities_job_id": bi_job,
+                "assignments_job_id": res_job, "verified": True}
 
     import datetime as _dt
     result = {"project": p, "dataset": d,
               "window": {"start": args.start, "end": args.end},
               "runs_per_shape": args.runs,
               "query_cache": "disabled",
-              "table_rows_verified": n_rows,
-              "bi_engine_observed": bi_obs,
-              "reservation_assignments_observed": res_obs,
+              "load_verification": load_verification,
+              "capacity": capacity,
               "bindings": {
                   "scenario": manifest["name"],
                   "scenario_manifest_sha256": sh(args.scenario_manifest),
                   "seed_sha256": manifest["seed"]["ndjson_sha256"],
+                  "load_receipt_sha256": sh(args.load_receipt),
                   "benchmark_tool_sha256": sh(__file__),
                   "template_sql_sha256": sh(pathlib.Path(root) / "sql"
                                             / "events_v1.template.sql"),
@@ -252,7 +352,7 @@ def main() -> int:
     # (boundary_after_end_rows), so after-end exclusion can actually fail.
     planted = manifest["seed"]["fixture_counters"][
         "boundary_after_end_rows"]
-    before = list(client.query(f"""
+    before_job = client.query(f"""
         SELECT
           (SELECT COUNT(*) FROM ({union_sql(p, d)})
            WHERE DATE(timestamp,'UTC') <
@@ -260,9 +360,10 @@ def main() -> int:
           (SELECT COUNT(*) FROM ({union_sql(p, d)})
            WHERE DATE(timestamp,'UTC') = DATE '{args.start}')
              AS start_day_rows
-    """).result())
-    brow = dict(before[0])
+    """)
+    brow = dict(list(before_job.result())[0])
     row.update(brow)
+    row["before_job_id"] = before_job.job_id
     boundary_pass = (row["in_window"] == row["raw_in_window"]
                      and row["end_day_rows"] > 0
                      and row["start_day_rows"] > 0
@@ -329,4 +430,8 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    try:
+        sys.exit(main())
+    except CapacityViolation as e:
+        print(f"ERROR: {e}", file=sys.stderr)
+        sys.exit(1)

@@ -12,8 +12,12 @@ Enumerates the REQUIRED evidence matrix — never "at least one file":
     match the recorded hashes;
   * expected results: 37 files per scenario, bindings matching current
     tree and committed manifests, non-null job ids;
-  * benchmark: bindings (scenario/seed/tool/template/commit), every gate
-    pass=true, job ids on every recorded run;
+  * benchmark: bindings (scenario/seed/tool/template/commit, with the
+    commit proven to contain the recorded tool/template blobs), every
+    gate predicate RECOMPUTED from its recorded observations — never
+    trusting stored pass booleans (ninth review) — a load receipt binding
+    the table to the seed, per-event-type counts matching the manifest,
+    sanitized on-demand capacity state, and a job id on every probe;
   * refresh marker absent.
 
 Run by the m0-evidence-gate CI job; exits non-zero on any violation.
@@ -191,6 +195,18 @@ def main(root=None) -> int:
         check(bb.get("template_sql_sha256")
               == sha(ROOT / "sql/events_v1.template.sql"),
               "benchmark: template hash != current rendered template")
+        commit = bb.get("repo_commit", "")
+        check(commit and "+dirty" not in commit,
+              "benchmark: dirty/absent commit")
+        if commit and "+dirty" not in commit:
+            check(git_blob_sha256(commit, "tools/benchmark.py")
+                  == bb.get("benchmark_tool_sha256"),
+                  "benchmark: commit does not contain the recorded "
+                  "benchmark tool")
+            check(git_blob_sha256(commit, "sql/events_v1.template.sql")
+                  == bb.get("template_sql_sha256"),
+                  "benchmark: commit does not contain the recorded "
+                  "template")
         check(set(bench.get("gates", {})) == REQUIRED_GATES,
               f"benchmark: gate set {sorted(bench.get('gates', {}))} != "
               "required")
@@ -198,9 +214,22 @@ def main(root=None) -> int:
               "benchmark: shape set != required six shapes")
         check(bench.get("runs_per_shape") == 20,
               "benchmark: runs_per_shape != 20")
+        check(bench.get("query_cache") == "disabled",
+              "benchmark: query cache not recorded as disabled")
         for sname, s in bench.get("shapes", {}).items():
             check(len(s.get("raw", [])) == 20,
                   f"benchmark shape {sname}: expected 20 recorded runs")
+            for run in s.get("raw", []):
+                if not run.get("job_id"):
+                    errors.append(f"benchmark shape {sname}: run without "
+                                  "job id")
+                    break
+                if (run.get("bi_engine_accelerated") is not False
+                        or run.get("reservation_used") is not False):
+                    errors.append(f"benchmark shape {sname}: run without "
+                                  "verified on-demand/BI-off state")
+                    break
+        total = None
         bname = bb.get("scenario")
         if bname in scenarios:
             check(bb.get("scenario_manifest_sha256")
@@ -209,16 +238,106 @@ def main(root=None) -> int:
             check(bb.get("seed_sha256")
                   == scenarios[bname][1]["seed"]["ndjson_sha256"],
                   "benchmark: seed sha mismatch")
+            total = scenarios[bname][1]["seed"]["total_emitted"]
         else:
             errors.append("benchmark: scenario manifest not committed")
-        for gname, g in bench.get("gates", {}).items():
-            check(g.get("pass") is True, f"benchmark gate {gname} failing")
-        for sname, s in bench.get("shapes", {}).items():
-            for run in s.get("raw", []):
-                if not run.get("job_id"):
-                    errors.append(f"benchmark shape {sname}: run without "
-                                  "job id")
-                    break
+
+        # Load binding (ninth review): a row count alone would let any
+        # same-size table impersonate the seed.
+        lv = bench.get("load_verification", {})
+        rc = lv.get("load_receipt", {})
+        check(rc.get("load_job_id"), "benchmark: load receipt missing "
+                                     "load job id")
+        check(rc.get("schema"), "benchmark: load receipt missing schema")
+        check(rc.get("load_completed_utc"),
+              "benchmark: load receipt missing completion time")
+        check(rc.get("destination_table")
+              == f"{bench.get('project')}.{bench.get('dataset')}"
+                 ".agent_events",
+              "benchmark: load receipt destination != benchmarked table")
+        check(lv.get("row_count_job_id"),
+              "benchmark: row-count probe without job id")
+        if bname in scenarios:
+            m = scenarios[bname][1]
+            check(rc.get("ndjson_sha256") == m["seed"]["ndjson_sha256"],
+                  "benchmark: load receipt seed sha != manifest seed sha")
+            check(rc.get("output_rows") == total,
+                  "benchmark: load receipt rows != manifest total_emitted")
+            check(lv.get("table_rows_verified") == total,
+                  "benchmark: verified table rows != manifest "
+                  "total_emitted")
+            check(lv.get("event_type_counts")
+                  == m["seed"]["by_event_type"],
+                  "benchmark: live event-type counts != manifest "
+                  "by_event_type")
+
+        # Capacity contract (ninth review): sanitized, verified, and
+        # free of raw INFORMATION_SCHEMA rows.
+        cap = bench.get("capacity", {})
+        check(cap.get("verified") is True and
+              cap.get("bi_engine_capacities") == 0 and
+              cap.get("reservation_assignments") == 0,
+              "benchmark: capacity state not verified on-demand with "
+              "BI Engine disabled")
+        check(cap.get("bi_capacities_job_id")
+              and cap.get("assignments_job_id"),
+              "benchmark: capacity probe without job id")
+        check("bi_engine_observed" not in bench
+              and "reservation_assignments_observed" not in bench,
+              "benchmark: raw capacity rows present in evidence")
+
+        # Gate predicates are RECOMPUTED from recorded observations;
+        # stored pass booleans are never trusted (ninth review).
+        gates = bench.get("gates", {})
+        g = gates.get("structural_union", {})
+        ub, sb = g.get("union_bytes_processed"), \
+            g.get("base_scan_bytes_processed")
+        check(isinstance(ub, int) and isinstance(sb, int)
+              and ub > 0 and sb > 0 and ub / sb <= 3.0,
+              "benchmark: structural_union ratio predicate fails on "
+              "recorded byte counts")
+        if isinstance(ub, int) and isinstance(sb, int) and sb > 0:
+            check(abs(g.get("ratio", -1) - ub / sb) < 1e-3,
+                  "benchmark: structural_union recorded ratio "
+                  "inconsistent with byte counts")
+        check(g.get("union_job_ids") and g.get("base_job_ids")
+              and all(g.get("union_job_ids", []))
+              and all(g.get("base_job_ids", [])),
+              "benchmark: structural_union probe without job ids")
+
+        g = gates.get("partition_pruning", {})
+        od, td = g.get("one_day_bytes"), g.get("thirty_day_bytes")
+        check(isinstance(od, int) and isinstance(td, int)
+              and td > 0 and od / td < 0.2,
+              "benchmark: partition_pruning fraction predicate fails on "
+              "recorded byte counts")
+        check(td == bench.get("shapes", {}).get(
+                  "scorecard_total_events_union", {}).get(
+                  "bytes_processed"),
+              "benchmark: partition_pruning wide reference != recorded "
+              "30d shape bytes")
+        check(g.get("job_id"), "benchmark: partition_pruning probe "
+                               "without job id")
+
+        g = gates.get("date_boundary", {})
+        for jid in ("boundary_job_id", "before_job_id",
+                    "production_template_job_id"):
+            check(g.get(jid), f"benchmark: date_boundary {jid} missing")
+        planted = g.get("planted_after_end")
+        check(isinstance(g.get("in_window"), int)
+              and g.get("in_window") == g.get("raw_in_window"),
+              "benchmark: date_boundary union/raw in-window counts "
+              "disagree")
+        check(g.get("production_template_in_window") == g.get("in_window"),
+              "benchmark: production template count != in-window count")
+        for pos in ("end_day_rows", "start_day_rows", "before_start_rows"):
+            check(isinstance(g.get(pos), int) and g.get(pos) > 0,
+                  f"benchmark: date_boundary {pos} not positive — "
+                  "boundary not exercised")
+        check(isinstance(planted, int) and planted > 0
+              and g.get("after_end_rows") == planted,
+              "benchmark: after-end exclusion predicate fails "
+              "(after_end_rows != planted rows)")
 
     if errors:
         for e in errors:
