@@ -217,6 +217,16 @@ def main() -> int:
                         f"sess-boundary-{i}", f"inv-boundary-{i}",
                         "user-0001", hexid(rng, 32), hexid(rng, 16)),
                     fixture="boundary_after_end_rows")
+        # End-day rows: main turns start in [start, end-midnight), so the
+        # end DATE is only reached when a turn spills past midnight — a
+        # statistical accident that vanishes at small sizes (a 1K seed
+        # produced zero and failed the boundary gate's end-day inclusion
+        # proof). Plant them deterministically, like the after-end rows.
+        for i in range(5):
+            em.emit(row(end + timedelta(hours=i + 1),
+                        "USER_MESSAGE_RECEIVED", AGENTS[0],
+                        f"sess-endday-{i}", f"inv-endday-{i}",
+                        "user-0001", hexid(rng, 32), hexid(rng, 16)))
 
         while em.total < args.events:
             day_offset = rng.random() * args.days
