@@ -54,6 +54,9 @@ jobs:
       - name: Token metadata compatibility contract
         run: python3 tools/test_token_contract.py
 
+      - name: Public dashboard hydration contract
+        run: python3 tools/test_hydrate_dashboard.py
+
       - name: Spec contract negative tests
         run: python3 tools/test_spec_contract.py .block-pinned
 

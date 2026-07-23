@@ -11,6 +11,19 @@ the rendered form of `sql/events_v1.sql.tmpl`; the 37 files under
 `oracle/queries/` are independent validation queries and are never added as
 extra report data sources.
 
+The public template embeds the executable synthetic sentinel query from
+`sql/events_v1.template.sql`. `tools/hydrate_dashboard.py` validates the
+caller's BQAA base table and generated views, then emits a Linking API URL
+whose `sqlReplace` replaces the sentinel project, dataset, and view prefix.
+The new data source is created with the clicking user's credentials. The
+template never exposes or delegates the template owner's BigQuery access.
+
+The canonical report is shared as Public/Viewer, uses Viewer's Credentials,
+and has manual report publishing enabled. Its published title is
+`BigQuery Agent Analytics — Template`. A signed-out visitor is sent to Google
+sign-in; after sign-in, the Linking API review dialog shows the substituted
+custom SQL and the caller's billing project before the caller acknowledges it.
+
 Token fields accept both BQAA `usage_metadata` shapes observed in supported
 installations, in this order:
 

@@ -40,6 +40,7 @@ project/dataset/prefix via a Linking API URL emitted by a validating helper.
 | `tools/capture_inventory.py` | Observed-inventory capture + normalized fingerprint (provenance rule) |
 | `tools/seed_events.py` | Deterministic synthetic seed generator with all contract fixtures |
 | `tools/validate_live_bqaa.py` | Read-only 37-query smoke test for a real BQAA dataset; writes only a sanitized local receipt |
+| `tools/hydrate_dashboard.py` | Validates a BQAA table + generated views and emits a user-owned Looker Studio report URL |
 | `docs/dashboard-implementation.md` | Looker Studio page, field, formula, and live-validation implementation contract |
 | `oracle/` | Parity oracle (M0 artifact — see `oracle/README.md`) |
 
@@ -75,6 +76,44 @@ python3 tools/validate_live_bqaa.py \
 This proves that all 37 query translations execute on the installation and
 records only query hashes, row counts, and job IDs. It does not replace
 fixture parity certification or M4 visual sign-off.
+
+## Create your dashboard
+
+Canonical published template:
+[BigQuery Agent Analytics — Template](https://lookerstudio.google.com/reporting/5a3f85ef-fc9c-4730-8ef2-8ef9129ddb40).
+Use the command below to bind a new copy to your data.
+
+Prerequisites:
+
+- the ADK BigQuery Agent Analytics plugin has `create_views=True`;
+- your Google account can read the BQAA table and generated views and can run
+  BigQuery jobs in the billing project;
+- the `bq` CLI is installed and authenticated.
+
+Run one validation command:
+
+```sh
+python3 tools/hydrate_dashboard.py \
+  --project YOUR_PROJECT_ID \
+  --dataset YOUR_DATASET_ID \
+  --table agent_events \
+  --prefix v \
+  --location US
+```
+
+The command rejects non-BQAA tables, checks all 15 required generated views
+and columns, and prints a Looker Studio creation URL. Open that URL, authorize
+BigQuery, then select **Edit and share** to save the configured report to your
+account. The new report uses your credentials and your billing project; it
+does not grant the template owner access to your data.
+
+A Google sign-in is required because the template deliberately uses Viewer's
+Credentials. The template itself is public, manually published, and backed
+only by the committed synthetic sentinel fixture.
+
+`--table` identifies the BQAA base table for validation only. Dashboard charts
+read the plugin-generated views selected by `--prefix`; a raw table alone is
+not sufficient for this parity dashboard.
 
 ## Publication safety
 
