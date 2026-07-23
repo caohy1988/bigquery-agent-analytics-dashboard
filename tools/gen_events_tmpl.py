@@ -63,18 +63,30 @@ ERR_FIELDS = [
 ]
 
 # Token precedence per the governing contract (issue #365): usage_metadata
-# first, content-derived generated column as fallback. usage_metadata is a
-# required source column; its absence must fail preflight, not this query.
+# first, content-derived generated column as fallback. BQAA has emitted two
+# usage_metadata key families in real installations, so the stable reporting
+# contract accepts both while preserving the pinned LookML names first.
+# usage_metadata is a required source column; its absence must fail preflight,
+# not this query.
 LLM_EXPRS = {
     "usage_prompt_tokens": (
-        "COALESCE(CAST(JSON_VALUE(usage_metadata, '$.prompt_token_count')"
-        " AS INT64), usage_prompt_tokens)"),
+        "COALESCE("
+        "SAFE_CAST(JSON_VALUE(usage_metadata, '$.prompt_token_count')"
+        " AS INT64), "
+        "SAFE_CAST(JSON_VALUE(usage_metadata, '$.prompt_tokens') AS INT64), "
+        "usage_prompt_tokens)"),
     "usage_completion_tokens": (
-        "COALESCE(CAST(JSON_VALUE(usage_metadata, '$.candidates_token_count')"
+        "COALESCE("
+        "SAFE_CAST(JSON_VALUE(usage_metadata, '$.candidates_token_count')"
+        " AS INT64), "
+        "SAFE_CAST(JSON_VALUE(usage_metadata, '$.completion_tokens')"
         " AS INT64), usage_completion_tokens)"),
     "usage_total_tokens": (
-        "COALESCE(CAST(JSON_VALUE(usage_metadata, '$.total_token_count')"
-        " AS INT64), usage_total_tokens)"),
+        "COALESCE("
+        "SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_token_count')"
+        " AS INT64), "
+        "SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_tokens') AS INT64), "
+        "usage_total_tokens)"),
     "llm_total_ms": "total_ms",
     "ttft_ms": "ttft_ms",
     "model_version": "model_version",

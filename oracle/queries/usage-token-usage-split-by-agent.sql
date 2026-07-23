@@ -7,7 +7,7 @@
 -- translation; must never share the production union SQL.
 SELECT
   agent AS agent,
-  SUM(COALESCE(CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), usage_total_tokens)) AS total_tokens_consumed
+  SUM(COALESCE(SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_tokens') AS INT64), usage_total_tokens)) AS total_tokens_consumed
 FROM (
   SELECT * FROM `{{PROJECT}}.{{DATASET}}.{{VIEW_PREFIX}}_llm_response`
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
@@ -17,6 +17,6 @@ FROM (
     AND (ARRAY_LENGTH(@filter_trace_id) = 0 OR trace_id IN UNNEST(@filter_trace_id))
 )
 GROUP BY agent
-HAVING SUM(COALESCE(CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), usage_total_tokens)) IS NOT NULL
+HAVING SUM(COALESCE(SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_tokens') AS INT64), usage_total_tokens)) IS NOT NULL
 ORDER BY total_tokens_consumed DESC, agent
 LIMIT 5

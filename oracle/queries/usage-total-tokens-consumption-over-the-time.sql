@@ -7,7 +7,7 @@
 -- translation; must never share the production union SQL.
 SELECT
   DATE(timestamp, 'UTC') AS timestamp_date,
-  SUM(COALESCE(CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), usage_total_tokens)) AS total_tokens_consumed
+  SUM(COALESCE(SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_tokens') AS INT64), usage_total_tokens)) AS total_tokens_consumed
 FROM (
   SELECT * FROM `{{PROJECT}}.{{DATASET}}.{{VIEW_PREFIX}}_llm_response`
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')

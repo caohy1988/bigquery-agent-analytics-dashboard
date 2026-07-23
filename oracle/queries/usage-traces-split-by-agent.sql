@@ -51,7 +51,7 @@ FROM (
 GROUP BY agent
 ),
 aux AS (
-SELECT agent AS agent, SUM(COALESCE(CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), usage_total_tokens)) AS filter_value FROM (
+SELECT agent AS agent, SUM(COALESCE(SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_token_count') AS INT64), SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_tokens') AS INT64), usage_total_tokens)) AS filter_value FROM (
   SELECT * FROM `{{PROJECT}}.{{DATASET}}.{{VIEW_PREFIX}}_llm_response`
   WHERE timestamp >= TIMESTAMP(@start_date, 'UTC')
     AND timestamp < TIMESTAMP(DATE_ADD(@end_date, INTERVAL 1 DAY), 'UTC')

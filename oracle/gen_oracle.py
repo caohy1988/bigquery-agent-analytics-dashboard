@@ -45,9 +45,14 @@ PREV_PRED = (
     " DAY)\n"
     "    AND timestamp < TIMESTAMP(@start_date, 'UTC')")
 
-# LookML token precedence (usage_metadata first, content-derived fallback)
-TOK_TOTAL = ("COALESCE(CAST(JSON_VALUE(usage_metadata,"
-             " '$.total_token_count') AS INT64), usage_total_tokens)")
+# LookML token precedence (usage_metadata first, content-derived fallback).
+# Real BQAA data uses both total_token_count and total_tokens; keep the pinned
+# key first and accept the observed alternate before the generated fallback.
+TOK_TOTAL = ("COALESCE("
+             "SAFE_CAST(JSON_VALUE(usage_metadata,"
+             " '$.total_token_count') AS INT64), "
+             "SAFE_CAST(JSON_VALUE(usage_metadata,"
+             " '$.total_tokens') AS INT64), usage_total_tokens)")
 
 PK = "CONCAT(trace_id, '|', span_id)"
 

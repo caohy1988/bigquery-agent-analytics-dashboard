@@ -23,3 +23,7 @@ Deliverables (M0, per the bootstrap contract):
   the frozen `call_row_policy`.
 
 Status: evidence REGENERATION PENDING under the eighth-review provenance contract (refresh marker up, m0-evidence-gate red). The 37 queries and three scenarios are defined; expected results, compare receipts, and the bound benchmark land with the next evidence commit and are validated by tools/validate_evidence.py.
+
+For a non-certifying compatibility smoke test on a real BQAA installation,
+use `tools/validate_live_bqaa.py`. It executes this same 37-query inventory but
+does not persist result values or weaken the oracle's fixture/provenance gates.

@@ -39,6 +39,8 @@ project/dataset/prefix via a Linking API URL emitted by a validating helper.
 | `tools/validate_spec.py` | CI assertions over the manifest (counts, listener matrix, defaults) |
 | `tools/capture_inventory.py` | Observed-inventory capture + normalized fingerprint (provenance rule) |
 | `tools/seed_events.py` | Deterministic synthetic seed generator with all contract fixtures |
+| `tools/validate_live_bqaa.py` | Read-only 37-query smoke test for a real BQAA dataset; writes only a sanitized local receipt |
+| `docs/dashboard-implementation.md` | Looker Studio page, field, formula, and live-validation implementation contract |
 | `oracle/` | Parity oracle (M0 artifact — see `oracle/README.md`) |
 
 ## Pinned contracts
@@ -53,9 +55,30 @@ project/dataset/prefix via a Linking API URL emitted by a validating helper.
 Bootstrap in progress — see the bootstrap PR checklist. M0 evidence
 (inventories, spikes, benchmarks) lands in `evidence/` as it is produced.
 
+## Validate a real BQAA installation
+
+The dashboard uses one embedded production query. The 37 per-chart oracle
+queries remain independent validation artifacts and are **not** added as 37
+extra Looker Studio data sources. To execute every tile contract against a
+real, preflight-compatible BQAA dataset without recording any result values:
+
+```sh
+python3 tools/validate_live_bqaa.py \
+  --project PROJECT_ID \
+  --dataset DATASET_ID \
+  --prefix v \
+  --location US \
+  --end-date YYYY-MM-DD \
+  --output /tmp/live-bqaa-validation.json
+```
+
+This proves that all 37 query translations execute on the installation and
+records only query hashes, row counts, and job IDs. It does not replace
+fixture parity certification or M4 visual sign-off.
+
 ## Publication safety
 
 Everything in this repository is synthetic. Never commit production project
 IDs, credentials, service-account keys, trace/user identifiers, prompts, tool
-arguments/results, or error payloads. CI runs secret scanning; benchmark raw
-results must be sanitized before commit.
+arguments/results, error payloads, or live-validation receipts. CI runs secret
+scanning; benchmark raw results must be sanitized before commit.

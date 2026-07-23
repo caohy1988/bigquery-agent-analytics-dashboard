@@ -52,8 +52,11 @@ DATE_PRED = ("timestamp >= TIMESTAMP('{start}', 'UTC') AND "
              "timestamp < TIMESTAMP(DATE_ADD(DATE '{end}', INTERVAL 1 DAY),"
              " 'UTC')")
 
-TOK = ("COALESCE(CAST(JSON_VALUE(usage_metadata, '$.total_token_count')"
-       " AS INT64), usage_total_tokens)")
+TOK = ("COALESCE("
+       "SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_token_count')"
+       " AS INT64), "
+       "SAFE_CAST(JSON_VALUE(usage_metadata, '$.total_tokens') AS INT64), "
+       "usage_total_tokens)")
 
 
 def union_sql(p, d, cols="timestamp, event_type, agent, session_id, "
