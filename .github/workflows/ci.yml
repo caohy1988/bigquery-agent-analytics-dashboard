@@ -76,7 +76,9 @@ jobs:
         run: python3 tools/validate_inventories.py
 
       - name: Lint
-        run: pipx run ruff check tools/ oracle/
+        # Pin the policy engine: unversioned `pipx run ruff` changed its
+        # default rule set between otherwise identical CI runs.
+        run: pipx run --spec 'ruff==0.11.2' ruff check tools/ oracle/
 
   # Fails while evidence/.refresh-in-progress exists: the M0 evidence set
   # is absent or being regenerated, and that state must be RED, not green
