@@ -1,0 +1,2 @@
+Waiting on bqjob_r12c6bc101938b0a3_0000019f6a0129e5_1 ... (0s) Current status: RUNNING                                                                                      Waiting on bqjob_r12c6bc101938b0a3_0000019f6a0129e5_1 ... (0s) Current status: DONE   
+live preflight shadow test OK: all 15 views reported WRONG_OBJECT_TYPE as BASE TABLE (193 problem rows)

@@ -1,0 +1,35 @@
+{
+  "dataset": "bqaa_fixture_adk_2_4_0",
+  "expected_adk_version": "2.4.0",
+  "installed_adk_version": "2.4.0",
+  "location": "US",
+  "project": "test-project-0728-467323",
+  "provisioned_at_utc": "2026-07-16T08:45:24.018597+00:00",
+  "tables": [
+    "agent_events"
+  ],
+  "view_count": 21,
+  "views": [
+    "v_a2a_interaction",
+    "v_agent_completed",
+    "v_agent_response",
+    "v_agent_starting",
+    "v_agent_state_checkpoint",
+    "v_agent_transfer",
+    "v_event_compaction",
+    "v_hitl_confirmation_request",
+    "v_hitl_credential_request",
+    "v_hitl_input_request",
+    "v_invocation_completed",
+    "v_invocation_starting",
+    "v_llm_error",
+    "v_llm_request",
+    "v_llm_response",
+    "v_state_delta",
+    "v_tool_completed",
+    "v_tool_error",
+    "v_tool_paused",
+    "v_tool_starting",
+    "v_user_message_received"
+  ]
+}

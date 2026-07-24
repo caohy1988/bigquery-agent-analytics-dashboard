@@ -1,0 +1,256 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "dashboard_spec",
+  "definitions": {
+    "geometry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["row", "col", "width", "height"],
+      "properties": {
+        "row": {"type": "integer", "minimum": 0},
+        "col": {"type": "integer", "minimum": 0},
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1}
+      }
+    },
+    "dimensions_px": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["width", "height"],
+      "properties": {
+        "width": {"type": "integer", "minimum": 1},
+        "height": {"type": "integer", "minimum": 1}
+      }
+    }
+  },
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["meta", "controls", "charts", "non_data_elements", "tabs",
+               "decisions"],
+  "properties": {
+    "meta": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["source_repo", "pinned_commit", "source_files",
+                   "generator", "contract_issue"],
+      "properties": {
+        "source_repo": {"const": "looker-open-source/agent-analytics-block"},
+        "pinned_commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+        "source_files": {"type": "array", "items": {"type": "string"}},
+        "generator": {"type": "string"},
+        "contract_issue": {"type": "string"}
+      }
+    },
+    "decisions": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["call_row_policy", "page_dimensions",
+                   "screenshot_viewport", "listener_design",
+                   "listener_design_detail"],
+      "properties": {
+        "call_row_policy": {"enum": [null, "raw_row",
+                                      "terminal_row_per_key"]},
+        "page_dimensions": {"$ref": "#/definitions/dimensions_px"},
+        "screenshot_viewport": {"$ref": "#/definitions/dimensions_px"},
+        "listener_design": {"enum": [null, "page_level_parity",
+                                      "data_source_aliases",
+                                      "global_controls_with_exceptions"]},
+        "listener_design_detail": {
+          "type": ["object", "null"],
+          "additionalProperties": false,
+          "properties": {
+            "inspector_persistence": {"type": "boolean"},
+            "default_alias": {"type": "string"},
+            "aliases": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["name", "purpose"],
+                "properties": {
+                  "name": {"type": "string"},
+                  "purpose": {"type": "string"},
+                  "sql_ref": {"type": "string"}
+                }
+              }
+            },
+            "chart_alias_assignments": {
+              "type": "object",
+              "additionalProperties": {"type": "string"}
+            },
+            "control_groups": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["control_id", "chart_ids"],
+                "properties": {
+                  "control_id": {"type": "string"},
+                  "chart_ids": {"type": "array",
+                                 "items": {"type": "string"}}
+                }
+              }
+            },
+            "intentional_exceptions": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "additionalProperties": false,
+                "required": ["control_id", "scope", "rationale"],
+                "properties": {
+                  "control_id": {"type": "string"},
+                  "scope": {"type": "string"},
+                  "rationale": {"type": "string"}
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "tabs": {
+      "type": "array",
+      "minItems": 7,
+      "maxItems": 7,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["source_dashboard", "name", "title"],
+        "properties": {
+          "source_dashboard": {"enum": ["usage", "performance"]},
+          "name": {"type": "string"},
+          "title": {"type": "string"}
+        }
+      }
+    },
+    "controls": {
+      "type": "array",
+      "minItems": 11,
+      "maxItems": 11,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source_dashboard", "name", "field",
+                     "default_value", "allow_multiple_values", "ui_config",
+                     "placement"],
+        "properties": {
+          "id": {"type": "string"},
+          "source_dashboard": {"enum": ["usage", "performance"]},
+          "name": {"type": "string"},
+          "field": {"type": "string"},
+          "default_value": {"type": "string"},
+          "allow_multiple_values": {"type": "boolean"},
+          "ui_config": {"type": "object"},
+          "placement": {"enum": [null, "page", "report"]}
+        }
+      }
+    },
+    "charts": {
+      "type": "array",
+      "minItems": 37,
+      "maxItems": 37,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source_dashboard", "source_tile", "page",
+                     "looker_type", "ls_chart", "fields", "dimensions",
+                     "measures", "pivots", "fill_fields", "tile_filters",
+                     "sorts", "limit", "column_limit", "listen", "geometry",
+                     "comparison_previous_period", "percentile", "style",
+                     "oracle_query", "expected_results", "screenshot_id",
+                     "screenshot_criteria"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1},
+          "source_dashboard": {"enum": ["usage", "performance"]},
+          "source_tile": {"type": "string", "minLength": 1},
+          "page": {"type": "string", "minLength": 1},
+          "looker_type": {"type": "string"},
+          "ls_chart": {"enum": ["BAR", "COLUMN", "TIME_SERIES", "AREA",
+                                 "SCORECARD", "TABLE", "PIE"]},
+          "fields": {"type": "array", "minItems": 1,
+                     "items": {"type": "string"}},
+          "dimensions": {"type": "array", "items": {"type": "string"}},
+          "measures": {"type": "array", "items": {"type": "string"}},
+          "pivots": {"type": "array", "items": {"type": "string"}},
+          "fill_fields": {"type": "array", "items": {"type": "string"}},
+          "tile_filters": {"type": "object"},
+          "sorts": {"type": "array", "items": {"type": "string"}},
+          "limit": {"type": ["integer", "null"]},
+          "column_limit": {"type": "integer"},
+          "listen": {"type": "object",
+                     "additionalProperties": {"type": "string"}},
+          "geometry": {"$ref": "#/definitions/geometry"},
+          "comparison_previous_period": {"type": "boolean"},
+          "percentile": {"type": "boolean"},
+          "style": {"type": "object"},
+          "oracle_query": {"type": ["string", "null"]},
+          "expected_results": {
+            "type": ["array", "null"],
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": ["scenario", "profiles", "path", "comparison"],
+              "properties": {
+                "scenario": {"type": "string", "minLength": 1},
+                "profiles": {
+                  "type": "array",
+                  "minItems": 1,
+                  "uniqueItems": true,
+                  "items": {"enum": ["1.27.0", "1.36.1", "2.4.0"]}
+                },
+                "path": {"type": "string", "minLength": 1},
+                "comparison": {"enum": ["exact", "percentile_tolerance"]},
+                "tolerance": {"type": ["number", "null"],
+                               "minimum": 0, "maximum": 1},
+                "tolerance_kind": {"enum": ["relative", "absolute"]}
+              },
+              "allOf": [
+                {
+                  "if": {"properties": {"comparison":
+                          {"const": "percentile_tolerance"}}},
+                  "then": {"required": ["tolerance", "tolerance_kind"],
+                            "properties": {"tolerance":
+                                            {"type": "number"}}},
+                  "else": {"properties": {"tolerance": {"const": null}},
+                            "not": {"required": ["tolerance_kind"]}}
+                }
+              ]
+            }
+          },
+          "screenshot_id": {"type": ["string", "null"]},
+          "screenshot_criteria": {
+            "type": ["object", "null"],
+            "additionalProperties": false,
+            "required": ["method", "viewport"],
+            "properties": {
+              "method": {"enum": ["structural_geometry", "pixel_golden"]},
+              "viewport": {"$ref": "#/definitions/dimensions_px"},
+              "notes": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "non_data_elements": {
+      "type": "array",
+      "minItems": 9,
+      "maxItems": 9,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "source_dashboard", "page", "looker_type",
+                     "ls_chart", "geometry", "payload"],
+        "properties": {
+          "id": {"type": "string"},
+          "source_dashboard": {"enum": ["usage", "performance"]},
+          "page": {"type": "string"},
+          "looker_type": {"enum": ["text", "button"]},
+          "ls_chart": {"enum": ["TEXT", "BUTTON"]},
+          "geometry": {"$ref": "#/definitions/geometry"},
+          "payload": {"type": "object"}
+        }
+      }
+    }
+  }
+}

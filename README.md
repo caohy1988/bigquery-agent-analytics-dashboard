@@ -27,6 +27,8 @@ project/dataset/prefix via a Linking API URL emitted by a validating helper.
 | Path | What it is |
 |---|---|
 | `spec/dashboard_spec.yaml` | Executable parity manifest: 37 chart records, 9 non-data elements, controls, listener matrix — **generated** from the pinned block LookML, never hand-edited |
+| `spec/overrides.yaml` | **The only hand-maintained spec input** — reviewed M0/M2 decision layer (oracle mappings, expected-result matrix, screenshot goldens, listener design, control placement, `call_row_policy`) merged into every regeneration by ID |
+| `spec/dashboard_spec.schema.json` | Full record contract (draft-07, closed records) validated in CI |
 | `sql/events_v1.sql.tmpl` | Reviewed logical union query (**generated** by `tools/gen_events_tmpl.py`) |
 | `sql/events_v1.template.sql` | Sentinel-rendered SQL embedded in the canonical report (**generated** by `tools/render_template.py`) |
 | `sql/preflight.sql.tmpl` / `.template.sql` | Structural compatibility check, run by the hydration helper before emitting a link |
@@ -37,6 +39,10 @@ project/dataset/prefix via a Linking API URL emitted by a validating helper.
 | `tools/validate_spec.py` | CI assertions over the manifest (counts, listener matrix, defaults) |
 | `tools/capture_inventory.py` | Observed-inventory capture + normalized fingerprint (provenance rule) |
 | `tools/seed_events.py` | Deterministic synthetic seed generator with all contract fixtures |
+| `tools/validate_live_bqaa.py` | Read-only 37-query smoke test for a real BQAA dataset; writes only a sanitized local receipt |
+| `docs/index.html` | Three-field, client-only configurator for the public dashboard template |
+| `tools/hydrate_dashboard.py` | Validates a BQAA table + generated views and emits a user-owned Looker Studio report URL |
+| `docs/dashboard-implementation.md` | Looker Studio page, field, formula, and live-validation implementation contract |
 | `oracle/` | Parity oracle (M0 artifact — see `oracle/README.md`) |
 
 ## Pinned contracts
@@ -51,9 +57,106 @@ project/dataset/prefix via a Linking API URL emitted by a validating helper.
 Bootstrap in progress — see the bootstrap PR checklist. M0 evidence
 (inventories, spikes, benchmarks) lands in `evidence/` as it is produced.
 
+## Validate a real BQAA installation
+
+The dashboard uses one embedded production query. The 37 per-chart oracle
+queries remain independent validation artifacts and are **not** added as 37
+extra Looker Studio data sources. To execute every tile contract against a
+real, preflight-compatible BQAA dataset without recording any result values:
+
+```sh
+python3 tools/validate_live_bqaa.py \
+  --project PROJECT_ID \
+  --dataset DATASET_ID \
+  --prefix v \
+  --location US \
+  --end-date YYYY-MM-DD \
+  --output /tmp/live-bqaa-validation.json
+```
+
+This proves that all 37 query translations execute on the installation and
+records only query hashes, row counts, and job IDs. It does not replace
+fixture parity certification or M4 visual sign-off.
+
+## Create your dashboard
+
+Canonical published template:
+[BigQuery Agent Analytics — Template](https://lookerstudio.google.com/reporting/5a3f85ef-fc9c-4730-8ef2-8ef9129ddb40).
+
+All seven dashboard pages default to a rolling 365-day window ending
+yesterday. The Trace Inspector intentionally has no default date control.
+
+For the standard BQAA layout, open the
+[three-field dashboard configurator](https://googlecloudplatform.github.io/BigQuery-Agent-Analytics-SDK/)
+and enter only:
+
+1. GCP project ID;
+2. BigQuery dataset ID;
+3. BQAA table ID (normally `agent_events`).
+
+The configurator runs entirely in the browser and creates an official Looker
+Studio Linking API URL. Project, dataset, and table identifiers can also be
+prefilled in a shareable setup link:
+
+```text
+https://googlecloudplatform.github.io/BigQuery-Agent-Analytics-SDK/?project=PROJECT_ID&dataset=DATASET_ID&table=agent_events
+```
+
+The standard path assumes the plugin's default `v` generated-view prefix and
+uses the source project for BigQuery billing. Newer ADK installations with a
+custom `view_prefix`, or teams with a separate billing project, can set those
+optional values under **Advanced settings**.
+
+Looker Studio report parameters are intentionally not used for these values:
+BigQuery query parameters represent scalar query values, not project, dataset,
+table, or view identifiers. The Linking API's `sqlReplace` is the supported
+connector-level mechanism for rebinding the template's custom query.
+
+For preflight validation or non-standard settings, use the command below.
+
+Prerequisites:
+
+- the ADK BigQuery Agent Analytics plugin has `create_views=True`;
+- your Google account can read the BQAA table and generated views and can run
+  BigQuery jobs in the billing project;
+- the `bq` CLI is installed and authenticated.
+
+Run one validation command:
+
+```sh
+python3 tools/hydrate_dashboard.py \
+  --project YOUR_PROJECT_ID \
+  --dataset YOUR_DATASET_ID \
+  --table agent_events \
+  --prefix v \
+  --location US
+```
+
+The command rejects non-BQAA tables, checks all 15 required generated views
+and columns, and prints a Looker Studio creation URL. Open that URL, authorize
+BigQuery, then select **Edit and share** to save the configured report to your
+account. The new report uses your credentials and your billing project; it
+does not grant the template owner access to your data.
+
+A Google sign-in is required because the template deliberately uses Viewer's
+Credentials. The template itself is public, manually published, and backed
+only by the committed synthetic sentinel fixture.
+
+The report and sentinel fixture are currently contributor-managed pending a
+maintainer-approved transfer to Google-managed ownership. The reviewed
+repository query's SHA-256 and review date are recorded in
+`bindings/report_template.yaml`. That attestation detects repository drift;
+it cannot prove that a mutable external Looker Studio report still embeds the
+same query. Until ownership is transferred, publication review must manually
+confirm the live template against the reviewed SQL.
+
+`--table` identifies the BQAA base table for validation only. Dashboard charts
+read the plugin-generated views selected by `--prefix`; a raw table alone is
+not sufficient for this parity dashboard.
+
 ## Publication safety
 
 Everything in this repository is synthetic. Never commit production project
 IDs, credentials, service-account keys, trace/user identifiers, prompts, tool
-arguments/results, or error payloads. CI runs secret scanning; benchmark raw
-results must be sanitized before commit.
+arguments/results, error payloads, or live-validation receipts. CI runs secret
+scanning; benchmark raw results must be sanitized before commit.
