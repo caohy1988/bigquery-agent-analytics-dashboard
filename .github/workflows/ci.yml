@@ -38,6 +38,7 @@ jobs:
         run: |
           python3 tools/gen_events_tmpl.py
           python3 tools/render_template.py
+          python3 tools/render_web_config.py
 
       - name: Regenerate oracle queries
         run: python3 oracle/gen_oracle.py
@@ -55,7 +56,9 @@ jobs:
         run: python3 tools/test_token_contract.py
 
       - name: Public dashboard hydration contract
-        run: python3 tools/test_hydrate_dashboard.py
+        run: |
+          python3 tools/test_hydrate_dashboard.py
+          node tools/test_web_configurator.mjs
 
       - name: Spec contract negative tests
         run: python3 tools/test_spec_contract.py .block-pinned

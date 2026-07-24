@@ -1,0 +1,63 @@
+import assert from "node:assert/strict";
+import {
+  buildDashboardUrl,
+  buildSetupUrl,
+  validateConfiguration,
+} from "../docs/configurator.mjs";
+import { REPORT_CONFIG } from "../docs/report-config.mjs";
+
+const values = {
+  project: "customer-project-123",
+  dataset: "agent_analytics",
+  table: "agent_events",
+};
+assert.deepEqual(validateConfiguration(values), values);
+
+const dashboard = new URL(buildDashboardUrl(values));
+assert.equal(dashboard.origin, "https://lookerstudio.google.com");
+assert.equal(dashboard.pathname, "/reporting/create");
+assert.equal(dashboard.searchParams.get("c.reportId"), REPORT_CONFIG.reportId);
+assert.equal(dashboard.searchParams.get("c.mode"), "view");
+assert.equal(
+  dashboard.searchParams.get("ds.ds230.sqlReplace"),
+  [
+    "test-project-0728-467323",
+    "customer-project-123",
+    "bqaa_fixture_adk_1_27_0",
+    "agent_analytics",
+    "vsentinelbqaa",
+    "v",
+  ].join(","),
+);
+assert.equal(
+  dashboard.searchParams.get("ds.ds230.billingProjectId"),
+  "customer-project-123",
+);
+assert.equal(dashboard.searchParams.get("ds.ds230.refreshFields"), "false");
+assert.match(
+  dashboard.searchParams.get("r.reportName"),
+  /agent_analytics\.agent_events$/,
+);
+
+const setup = new URL(
+  buildSetupUrl(values, "https://example.test/configure?stale=yes#old"),
+);
+assert.deepEqual(
+  Object.fromEntries(setup.searchParams),
+  values,
+);
+assert.equal(setup.hash, "");
+
+for (const invalid of [
+  { ...values, project: "UPPERCASE" },
+  { ...values, project: "project;drop" },
+  { ...values, dataset: "bad-dataset" },
+  { ...values, dataset: "data`set" },
+  { ...values, table: "table,other" },
+]) {
+  assert.throws(() => buildDashboardUrl(invalid));
+}
+
+console.log(
+  "web configurator OK: three identifiers validated; Linking API URL deterministic",
+);

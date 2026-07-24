@@ -40,6 +40,7 @@ project/dataset/prefix via a Linking API URL emitted by a validating helper.
 | `tools/capture_inventory.py` | Observed-inventory capture + normalized fingerprint (provenance rule) |
 | `tools/seed_events.py` | Deterministic synthetic seed generator with all contract fixtures |
 | `tools/validate_live_bqaa.py` | Read-only 37-query smoke test for a real BQAA dataset; writes only a sanitized local receipt |
+| `docs/index.html` | Three-field, client-only configurator for the public dashboard template |
 | `tools/hydrate_dashboard.py` | Validates a BQAA table + generated views and emits a user-owned Looker Studio report URL |
 | `docs/dashboard-implementation.md` | Looker Studio page, field, formula, and live-validation implementation contract |
 | `oracle/` | Parity oracle (M0 artifact — see `oracle/README.md`) |
@@ -81,7 +82,29 @@ fixture parity certification or M4 visual sign-off.
 
 Canonical published template:
 [BigQuery Agent Analytics — Template](https://lookerstudio.google.com/reporting/5a3f85ef-fc9c-4730-8ef2-8ef9129ddb40).
-Use the command below to bind a new copy to your data.
+
+For the standard BQAA layout, open the
+[three-field dashboard configurator](https://caohy1988.github.io/bigquery-agent-analytics-dashboard/)
+and enter only:
+
+1. GCP project ID;
+2. BigQuery dataset ID;
+3. BQAA table ID (normally `agent_events`).
+
+The configurator runs entirely in the browser and creates an official Looker
+Studio Linking API URL. Project, dataset, and table identifiers can also be
+prefilled in a shareable setup link:
+
+```text
+https://caohy1988.github.io/bigquery-agent-analytics-dashboard/?project=PROJECT_ID&dataset=DATASET_ID&table=agent_events
+```
+
+Looker Studio report parameters are intentionally not used for these values:
+BigQuery query parameters represent scalar query values, not project, dataset,
+table, or view identifiers. The Linking API's `sqlReplace` is the supported
+connector-level mechanism for rebinding the template's custom query.
+
+For preflight validation or non-standard settings, use the command below.
 
 Prerequisites:
 

@@ -18,6 +18,21 @@ whose `sqlReplace` replaces the sentinel project, dataset, and view prefix.
 The new data source is created with the clicking user's credentials. The
 template never exposes or delegates the template owner's BigQuery access.
 
+`docs/index.html` provides the standard-installation path without requiring a
+local CLI. It accepts project, dataset, and table IDs, assumes the standard
+`v` generated-view prefix and uses the project as the billing project, then
+constructs the same Linking API URL entirely in the browser. URL query
+parameters can prefill the three inputs, but the page never opens the report
+without a user click.
+
+Looker Studio report parameters are not the binding mechanism. They can pass
+scalar values to BigQuery custom SQL, but BigQuery query parameters cannot
+replace identifiers in `FROM` paths. Connector-level Linking API
+`sqlReplace` is therefore required to bind the project, dataset, and generated
+view prefix. The base table ID is retained for installation identity and
+report naming; charts read the 15 BQAA-generated views. The authenticated CLI
+is the only path that preflight-validates that table and view contract.
+
 The canonical report is shared as Public/Viewer, uses Viewer's Credentials,
 and has manual report publishing enabled. Its published title is
 `BigQuery Agent Analytics — Template`. A signed-out visitor is sent to Google
