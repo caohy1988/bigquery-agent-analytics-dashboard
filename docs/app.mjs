@@ -13,6 +13,8 @@ const inputs = {
   project: document.querySelector("#project"),
   dataset: document.querySelector("#dataset"),
   table: document.querySelector("#table"),
+  prefix: document.querySelector("#prefix"),
+  billingProject: document.querySelector("#billing-project"),
 };
 
 function currentValues() {
@@ -33,7 +35,8 @@ function refresh() {
     createLink.removeAttribute("aria-disabled");
     copyButton.disabled = false;
     setStatus(
-      `Ready for ${values.project}.${values.dataset}.${values.table}.`,
+      `Ready for ${values.project}.${values.dataset}.${values.table} `
+        + `(${values.prefix}_* views).`,
       "ready",
     );
   } catch (error) {
@@ -52,6 +55,9 @@ for (const [name, input] of Object.entries(inputs)) {
 }
 if (!inputs.table.value) {
   inputs.table.value = REPORT_CONFIG.defaultTable;
+}
+if (!inputs.prefix.value) {
+  inputs.prefix.value = REPORT_CONFIG.defaultViewPrefix;
 }
 
 for (const input of Object.values(inputs)) {

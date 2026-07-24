@@ -20,8 +20,9 @@ template never exposes or delegates the template owner's BigQuery access.
 
 `docs/index.html` provides the standard-installation path without requiring a
 local CLI. It accepts project, dataset, and table IDs, assumes the standard
-`v` generated-view prefix and uses the project as the billing project, then
-constructs the same Linking API URL entirely in the browser. URL query
+`v` generated-view prefix and uses the project as the billing project by
+default, with optional advanced overrides for both, then constructs the same
+Linking API URL entirely in the browser. URL query
 parameters can prefill the three inputs, but the page never opens the report
 without a user click.
 

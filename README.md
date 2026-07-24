@@ -99,6 +99,11 @@ prefilled in a shareable setup link:
 https://caohy1988.github.io/bigquery-agent-analytics-dashboard/?project=PROJECT_ID&dataset=DATASET_ID&table=agent_events
 ```
 
+The standard path assumes the plugin's default `v` generated-view prefix and
+uses the source project for BigQuery billing. Newer ADK installations with a
+custom `view_prefix`, or teams with a separate billing project, can set those
+optional values under **Advanced settings**.
+
 Looker Studio report parameters are intentionally not used for these values:
 BigQuery query parameters represent scalar query values, not project, dataset,
 table, or view identifiers. The Linking API's `sqlReplace` is the supported

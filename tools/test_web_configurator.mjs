@@ -10,6 +10,8 @@ const values = {
   project: "customer-project-123",
   dataset: "agent_analytics",
   table: "agent_events",
+  prefix: "v",
+  billingProject: "customer-project-123",
 };
 assert.deepEqual(validateConfiguration(values), values);
 
@@ -44,9 +46,34 @@ const setup = new URL(
 );
 assert.deepEqual(
   Object.fromEntries(setup.searchParams),
-  values,
+  {
+    project: values.project,
+    dataset: values.dataset,
+    table: values.table,
+  },
 );
 assert.equal(setup.hash, "");
+
+const advanced = {
+  ...values,
+  prefix: "analytics",
+  billingProject: "billing-project-123",
+};
+const advancedDashboard = new URL(buildDashboardUrl(advanced));
+assert.equal(
+  advancedDashboard.searchParams.get("ds.ds230.sqlReplace").split(",").at(-1),
+  "analytics",
+);
+assert.equal(
+  advancedDashboard.searchParams.get("ds.ds230.billingProjectId"),
+  "billing-project-123",
+);
+assert.equal(
+  new URL(
+    buildSetupUrl(advanced, "https://example.test/configure"),
+  ).searchParams.get("prefix"),
+  "analytics",
+);
 
 for (const invalid of [
   { ...values, project: "UPPERCASE" },
@@ -54,6 +81,8 @@ for (const invalid of [
   { ...values, dataset: "bad-dataset" },
   { ...values, dataset: "data`set" },
   { ...values, table: "table,other" },
+  { ...values, prefix: "v,other" },
+  { ...values, billingProject: "UPPERCASE" },
 ]) {
   assert.throws(() => buildDashboardUrl(invalid));
 }

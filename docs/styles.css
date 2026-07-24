@@ -142,6 +142,19 @@ input:focus {
   line-height: 1.4;
 }
 
+details {
+  margin-top: 19px;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+summary {
+  color: var(--green-dark);
+  font-size: 0.82rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
 #form-status {
   min-height: 20px;
   margin: 18px 0 12px;
