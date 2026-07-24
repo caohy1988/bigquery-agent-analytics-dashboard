@@ -2,6 +2,7 @@
 """Unit tests for the public Looker Studio hydration contract."""
 
 import contextlib
+import hashlib
 import io
 import pathlib
 import sys
@@ -71,6 +72,12 @@ def main() -> int:
         "include_today": False,
         "page_scope": "all_dashboard_pages",
     }
+    template = (ROOT / "sql/events_v1.template.sql").read_bytes()
+    assert report["reviewed_template_sql"] == {
+        "sha256": hashlib.sha256(template).hexdigest(),
+        "reviewed_date": "2026-07-24",
+        "scope": "repository_artifact_only",
+    }
     replacements = params["ds.ds230.sqlReplace"][0].split(",")
     assert replacements == [
         "test-project-0728-467323",
@@ -82,6 +89,34 @@ def main() -> int:
     ]
     assert "connector" not in " ".join(params)
     assert "CUSTOM_QUERY" not in link
+
+    for collision in [
+        (
+            "vsentinelbqaaproj",
+            "agent_analytics",
+            "v",
+        ),
+        (
+            "customer-project-123",
+            "customer_vsentinelbqaa_data",
+            "v",
+        ),
+        (
+            "customer-project-123",
+            "agent_analytics",
+            "bqaa_fixture_adk_1_27_0_custom",
+        ),
+    ]:
+        try:
+            build_link(
+                *collision,
+                "billing-project-123",
+                "My BQAA Dashboard",
+            )
+        except ValueError as exc:
+            assert "reserved template sentinel" in str(exc)
+        else:
+            raise AssertionError(f"accepted sentinel collision: {collision!r}")
 
     anchor_sql = table_preflight_sql(
         "customer-project-123", "agent_analytics", "agent_events"
