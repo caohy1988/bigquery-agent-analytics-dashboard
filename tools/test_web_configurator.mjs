@@ -56,13 +56,13 @@ assert.equal(setup.hash, "");
 
 const advanced = {
   ...values,
-  prefix: "analytics",
+  prefix: "analytics-v2",
   billingProject: "billing-project-123",
 };
 const advancedDashboard = new URL(buildDashboardUrl(advanced));
 assert.equal(
   advancedDashboard.searchParams.get("ds.ds230.sqlReplace").split(",").at(-1),
-  "analytics",
+  "analytics-v2",
 );
 assert.equal(
   advancedDashboard.searchParams.get("ds.ds230.billingProjectId"),
@@ -72,7 +72,7 @@ assert.equal(
   new URL(
     buildSetupUrl(advanced, "https://example.test/configure"),
   ).searchParams.get("prefix"),
-  "analytics",
+  "analytics-v2",
 );
 
 for (const invalid of [

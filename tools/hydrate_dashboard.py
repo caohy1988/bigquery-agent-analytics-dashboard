@@ -19,7 +19,7 @@ import yaml
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 ID_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,1023}$")
 PROJECT_RE = re.compile(r"^[a-z][a-z0-9-]{4,28}[a-z0-9]$")
-PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]{0,127}$")
+PREFIX_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_-]{0,127}$")
 LOCATION_RE = re.compile(r"^[A-Za-z0-9_-]{1,128}$")
 
 BQAA_TABLE_COLUMNS = {
