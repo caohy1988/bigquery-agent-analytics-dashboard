@@ -64,6 +64,13 @@ def main() -> int:
     assert report["credential_mode"] == "VIEWERS"
     assert report["link_access"] == "PUBLIC"
     assert report["publishing_mode"] == "MANUAL"
+    assert report["default_date_range"] == {
+        "mode": "rolling",
+        "start_offset_days": 365,
+        "end_offset_days": 1,
+        "include_today": False,
+        "page_scope": "all_dashboard_pages",
+    }
     replacements = params["ds.ds230.sqlReplace"][0].split(",")
     assert replacements == [
         "test-project-0728-467323",
